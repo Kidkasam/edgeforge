@@ -55,3 +55,25 @@ class Trade(models.Model):
                 self.risk_reward = abs((self.entry_price - self.take_profit) / (self.stop_loss - self.entry_price))
 
         super().save(*args, **kwargs)
+
+class Strategy(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='strategies')
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    category = models.CharField(max_length=50, blank=True)  # Trend, Range, etc.
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.user.username})"
+
+class AnalyticsSnapshot(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='snapshots')
+    snapshot_date = models.DateField()
+    total_trades = models.IntegerField(default=0)
+    total_pnl = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    win_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    avg_risk_reward = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    avg_win = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    avg_loss = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    winning_trades = models.IntegerField(default=0)
+    losing_trades = models.IntegerField(default=0)
