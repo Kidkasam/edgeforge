@@ -13,9 +13,8 @@ class Trade(models.Model):
         ('LONDON','London'),
         ('NY', 'New York'),
     ]
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trades')
-    market_pair = models.CharField(max_length=6)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    market_pair = models.CharField(max_length=10)
     buy_sell = models.CharField(max_length=4, choices=BUY_SELL_CHOICES) 
     entry_price = models.FloatField()
     exit_price = models.FloatField()
@@ -39,21 +38,27 @@ class Trade(models.Model):
         ordering = ['-trade_date', '-created_at']
 
     def __str__(self):
-        return f"{self.user.username} - {self.market_pair} - {self.trade_date}"
+        return f"{self.market_pair} - {self.trade_date}"
 
     def save(self, *args, **kwargs):
-       
-        if self.entry_price and self.stop_loss and self.take_profit and self.exit_price:
-
-            if self.buy_sell == 'BUY':
-                self.profit_loss = (self.exit_price - self.entry_price) * self.lot_size
-                self.pips = (self.exit_price - self.entry_price) * 10000
-                self.risk_reward = abs((self.take_profit - self.entry_price) / (self.entry_price - self.stop_loss))
-            elif self.buy_sell == 'SELL':
-                self.profit_loss = (self.entry_price - self.exit_price) * self.lot_size
-                self.pips = (self.entry_price - self.exit_price) * 10000
-                self.risk_reward = abs((self.entry_price - self.take_profit) / (self.stop_loss - self.entry_price))
-
+        try:
+            if self.entry_price and self.stop_loss and self.take_profit and self.exit_price:
+                if self.buy_sell == 'BUY':
+                    self.profit_loss = (self.exit_price - self.entry_price) * self.lot_size
+                    self.pips = (self.exit_price - self.entry_price) * 10000
+                    if self.entry_price - self.stop_loss != 0:
+                        self.risk_reward = abs((self.take_profit - self.entry_price) / (self.entry_price - self.stop_loss))
+                    else:
+                        self.risk_reward = 0
+                elif self.buy_sell == 'SELL':
+                    self.profit_loss = (self.entry_price - self.exit_price) * self.lot_size
+                    self.pips = (self.entry_price - self.exit_price) * 10000
+                    if self.stop_loss - self.entry_price != 0:
+                        self.risk_reward = abs((self.entry_price - self.take_profit) / (self.stop_loss - self.entry_price))
+                    else:
+                        self.risk_reward = 0
+        except Exception as e:
+            print("Trade.save error:", e)
         super().save(*args, **kwargs)
 
 class Strategy(models.Model):
