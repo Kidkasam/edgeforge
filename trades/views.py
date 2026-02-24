@@ -1,6 +1,9 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
+from django.contrib.auth import authenticate, login, logout
+from rest_framework.views import APIView
+
 from .models import Trade, Strategy, AnalyticsSnapshot
-from .serializers import TradeSerializer, StrategySerializer, AnalyticsSnapshotSerializer
+from .serializers import TradeSerializer, StrategySerializer, AnalyticsSnapshotSerializer, UserRegisterSerializer
 
 class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
@@ -34,3 +37,23 @@ class AnalyticsSnapshotViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+class  RegisterAPIView(APIView):
+    def post(self, request):
+        serializer = UserRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class LoginAPIView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(username=username, password=password)
+        if user:
+            login(request, user)
+            return Response({"message": "Logged in successfully"})
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+class LogoutAPIView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response({"message": "Logged out successfully"})
