@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/', include('trades.urls')),
     path('api-token-auth/', views.obtain_auth_token),
     path('api-auth/', include('rest_framework.urls')),
+    path('api/auth/', include('trades.urls')),
 ]
