@@ -1,6 +1,8 @@
 from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 
 from .models import Trade, Strategy, AnalyticsSnapshot
 from .serializers import TradeSerializer, StrategySerializer, AnalyticsSnapshotSerializer, UserRegisterSerializer
@@ -38,6 +40,7 @@ class AnalyticsSnapshotViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 class  RegisterAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -45,6 +48,7 @@ class  RegisterAPIView(APIView):
             return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')

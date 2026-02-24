@@ -9,15 +9,19 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password']
 
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already exists")
+        return value
+
     def create(self, validated_data):
         user = User(
             username=validated_data['username'],
-            email = validated_data['email']
+            email=validated_data['email']
         )
         user.set_password(validated_data['password'])
         user.save()
         return user
-
 class TradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trade
