@@ -1,0 +1,5 @@
+Operations to perform:
+  Apply all migrations: trades
+Running migrations:
+  Applying trades.0002_alter_analyticssnapshot_user_alter_strategy_user_and_more... OK
+  Applying trades.0003_alter_analyticssnapshot_user_alter_strategy_user... OK

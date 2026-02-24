@@ -1,0 +1,150 @@
+--- TABLES ---
+
+Table: django_migrations
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'app', 'varchar(255)', 1, None, 0)
+  (2, 'name', 'varchar(255)', 1, None, 0)
+  (3, 'applied', 'datetime', 1, None, 0)
+  Data (top 5):
+    (1, 'contenttypes', '0001_initial', '2026-02-14 20:57:30.343741')
+    (2, 'auth', '0001_initial', '2026-02-14 20:57:30.409236')
+    (3, 'admin', '0001_initial', '2026-02-14 20:57:30.462919')
+    (4, 'admin', '0002_logentry_remove_auto_add', '2026-02-14 20:57:30.514656')
+    (5, 'admin', '0003_logentry_add_action_flag_choices', '2026-02-14 20:57:30.543989')
+
+Table: sqlite_sequence
+  (0, 'name', '', 0, None, 0)
+  (1, 'seq', '', 0, None, 0)
+  Data (top 5):
+    ('django_migrations', 24)
+    ('django_admin_log', 0)
+    ('django_content_type', 11)
+    ('auth_permission', 44)
+    ('auth_group', 0)
+
+Table: auth_group_permissions
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'group_id', 'INTEGER', 1, None, 0)
+  (2, 'permission_id', 'INTEGER', 1, None, 0)
+  Data (top 5):
+
+Table: auth_user_groups
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'user_id', 'INTEGER', 1, None, 0)
+  (2, 'group_id', 'INTEGER', 1, None, 0)
+  Data (top 5):
+
+Table: auth_user_user_permissions
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'user_id', 'INTEGER', 1, None, 0)
+  (2, 'permission_id', 'INTEGER', 1, None, 0)
+  Data (top 5):
+
+Table: django_admin_log
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'object_id', 'TEXT', 0, None, 0)
+  (2, 'object_repr', 'varchar(200)', 1, None, 0)
+  (3, 'action_flag', 'smallint unsigned', 1, None, 0)
+  (4, 'change_message', 'TEXT', 1, None, 0)
+  (5, 'content_type_id', 'INTEGER', 0, None, 0)
+  (6, 'user_id', 'INTEGER', 1, None, 0)
+  (7, 'action_time', 'datetime', 1, None, 0)
+  Data (top 5):
+
+Table: django_content_type
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'app_label', 'varchar(100)', 1, None, 0)
+  (2, 'model', 'varchar(100)', 1, None, 0)
+  Data (top 5):
+    (1, 'admin', 'logentry')
+    (2, 'auth', 'group')
+    (3, 'auth', 'permission')
+    (4, 'auth', 'user')
+    (5, 'contenttypes', 'contenttype')
+
+Table: auth_permission
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'content_type_id', 'INTEGER', 1, None, 0)
+  (2, 'codename', 'varchar(100)', 1, None, 0)
+  (3, 'name', 'varchar(255)', 1, None, 0)
+  Data (top 5):
+    (1, 1, 'add_logentry', 'Can add log entry')
+    (2, 1, 'change_logentry', 'Can change log entry')
+    (3, 1, 'delete_logentry', 'Can delete log entry')
+    (4, 1, 'view_logentry', 'Can view log entry')
+    (5, 3, 'add_permission', 'Can add permission')
+
+Table: auth_group
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'name', 'varchar(150)', 1, None, 0)
+  Data (top 5):
+
+Table: auth_user
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'password', 'varchar(128)', 1, None, 0)
+  (2, 'last_login', 'datetime', 0, None, 0)
+  (3, 'is_superuser', 'bool', 1, None, 0)
+  (4, 'username', 'varchar(150)', 1, None, 0)
+  (5, 'last_name', 'varchar(150)', 1, None, 0)
+  (6, 'email', 'varchar(254)', 1, None, 0)
+  (7, 'is_staff', 'bool', 1, None, 0)
+  (8, 'is_active', 'bool', 1, None, 0)
+  (9, 'date_joined', 'datetime', 1, None, 0)
+  (10, 'first_name', 'varchar(150)', 1, None, 0)
+  Data (top 5):
+    (1, 'pbkdf2_sha256$1200000$296tXBJx5ptE5O6JKBKGNF$I3nnkv5Hc2okEbVgVbtdqplfSw3WLkxz4+xW0tx8wUc=', '2026-02-19 15:16:08.623953', 1, 'kasam', '', 'kidus6135@gmail.com', 1, 1, '2026-02-19 15:15:19.011265', '')
+
+Table: django_session
+  (0, 'session_key', 'varchar(40)', 1, None, 1)
+  (1, 'session_data', 'TEXT', 1, None, 0)
+  (2, 'expire_date', 'datetime', 1, None, 0)
+  Data (top 5):
+    ('x0izgwzrwq30h3msbe85u9pwye5yn2wr', '.eJxVjDkOwjAQAP-yNbLsNT6Skj5viHbtNQ6gWMpRIf6OIqWAdmY0bxhp3-q4r7KMU4YeDFx-GVN6ynyI_KD53lRq87ZMrI5EnXZVQ8vyup3t36DSWqGHFFwuJTrWHn1MwtbHqzZYOiOarSuUEJmcCSziTKGOsPOEMQbSlCx8vuxcOCY:1vt5lA:H8Tzw9M9-6_aDbC-4_1KeM9KSnMG1ysOjW4QYrlD-qw', '2026-03-05 15:16:08.639485')
+
+Table: authtoken_token
+  (0, 'key', 'varchar(40)', 1, None, 1)
+  (1, 'created', 'datetime', 1, None, 0)
+  (2, 'user_id', 'INTEGER', 1, None, 0)
+  Data (top 5):
+
+Table: trades_analyticssnapshot
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'snapshot_date', 'date', 1, None, 0)
+  (2, 'total_trades', 'INTEGER', 1, None, 0)
+  (3, 'total_pnl', 'decimal', 1, None, 0)
+  (4, 'win_rate', 'decimal', 1, None, 0)
+  (5, 'avg_risk_reward', 'decimal', 1, None, 0)
+  (6, 'avg_win', 'decimal', 1, None, 0)
+  (7, 'avg_loss', 'decimal', 1, None, 0)
+  (8, 'winning_trades', 'INTEGER', 1, None, 0)
+  (9, 'losing_trades', 'INTEGER', 1, None, 0)
+  Data (top 5):
+
+Table: trades_strategy
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'name', 'varchar(100)', 1, None, 0)
+  (2, 'description', 'TEXT', 1, None, 0)
+  (3, 'category', 'varchar(50)', 1, None, 0)
+  (4, 'created_at', 'datetime', 1, None, 0)
+  Data (top 5):
+
+Table: trades_trade
+  (0, 'id', 'INTEGER', 1, None, 1)
+  (1, 'buy_sell', 'varchar(4)', 1, None, 0)
+  (2, 'entry_price', 'REAL', 1, None, 0)
+  (3, 'exit_price', 'REAL', 1, None, 0)
+  (4, 'stop_loss', 'REAL', 1, None, 0)
+  (5, 'take_profit', 'REAL', 1, None, 0)
+  (6, 'lot_size', 'REAL', 1, None, 0)
+  (7, 'trading_session', 'varchar(10)', 1, None, 0)
+  (8, 'trade_date', 'date', 1, None, 0)
+  (9, 'reflection', 'TEXT', 1, None, 0)
+  (10, 'profit_loss', 'REAL', 1, None, 0)
+  (11, 'pips', 'REAL', 1, None, 0)
+  (12, 'risk_reward', 'REAL', 1, None, 0)
+  (13, 'created_at', 'datetime', 1, None, 0)
+  (14, 'updated_at', 'datetime', 1, None, 0)
+  (15, 'market_pair', 'varchar(10)', 1, None, 0)
+  Data (top 5):
+    (1, 'SELL', 2025.5, 2018.3, 2030.0, 2015.0, 0.2, 'NY', '2024-02-20', 'Gold rejected at resistance level during NY session. Strong US dollar caused the drop. Exited before NFP news.', 1.4400000000000093, 72000.00000000045, 2.3333333333333335, '2026-02-19 15:37:49.455923', '2026-02-20 18:18:22.416824', 'XAU/USD')
+    (2, 'BUY', 1.085, 1.092, 1.082, 1.095, 0.5, 'LONDON', '2024-02-20', 'Good trade followed the trend, exited at resistance level.', 0.0035000000000000586, 70.00000000000117, 3.3333333333334565, '2026-02-20 18:15:41.038643', '2026-02-20 18:15:41.038728', 'EUR/USD')

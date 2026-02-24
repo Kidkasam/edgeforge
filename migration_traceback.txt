@@ -1,0 +1,40 @@
+Traceback (most recent call last):
+  File "C:\Users\Asus\OneDrive\Desktop\edgeforge\debug_migration.py", line 15, in <module>
+    call_command('migrate', 'trades')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\core\management\__init__.py", line 195, in call_command
+    return command.execute(*args, **defaults)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\core\management\base.py", line 464, in execute
+    output = self.handle(*args, **options)
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\core\management\base.py", line 111, in wrapper
+    res = handle_func(*args, **kwargs)
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\core\management\commands\migrate.py", line 354, in handle
+    post_migrate_state = executor.migrate(
+        targets,
+    ...<3 lines>...
+        fake_initial=fake_initial,
+    )
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\db\migrations\executor.py", line 137, in migrate
+    state = self._migrate_all_forwards(
+        state, plan, full_plan, fake=fake, fake_initial=fake_initial
+    )
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\db\migrations\executor.py", line 169, in _migrate_all_forwards
+    state = self.apply_migration(
+        state, migration, fake=fake, fake_initial=fake_initial
+    )
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\db\migrations\executor.py", line 254, in apply_migration
+    with self.connection.schema_editor(
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        atomic=migration.atomic
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    ) as schema_editor:
+    ^
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\db\backends\sqlite3\schema.py", line 38, in __exit__
+    self.connection.check_constraints()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\db\backends\sqlite3\base.py", line 303, in check_constraints
+    raise IntegrityError(
+    ...<12 lines>...
+    )
+django.db.utils.IntegrityError: The row in table 'trades_trade' with primary key '1' has an invalid foreign key: trades_trade.user_id contains a value 'user_id' that does not have a corresponding value in auth_user.id.

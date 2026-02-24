@@ -1,0 +1,50 @@
+Creating test database for alias 'default'...
+System.Management.Automation.RemoteException
+EEE
+======================================================================
+ERROR: test_protected_endpoint_with_token (trades.auth_tests.AuthTests.test_protected_endpoint_with_token)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Asus\OneDrive\Desktop\edgeforge\trades\auth_tests.py", line 10, in setUp
+    self.token_url = reverse('token_obtain_pair') # Wait, I renamed it in urls.py? No, I added obtain_auth_token
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\urls\resolvers.py", line 842, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'token_obtain_pair' not found. 'token_obtain_pair' is not a valid view function or pattern name.
+System.Management.Automation.RemoteException
+======================================================================
+ERROR: test_protected_endpoint_without_auth (trades.auth_tests.AuthTests.test_protected_endpoint_without_auth)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Asus\OneDrive\Desktop\edgeforge\trades\auth_tests.py", line 10, in setUp
+    self.token_url = reverse('token_obtain_pair') # Wait, I renamed it in urls.py? No, I added obtain_auth_token
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\urls\resolvers.py", line 842, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'token_obtain_pair' not found. 'token_obtain_pair' is not a valid view function or pattern name.
+System.Management.Automation.RemoteException
+======================================================================
+ERROR: test_token_obtain (trades.auth_tests.AuthTests.test_token_obtain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Asus\OneDrive\Desktop\edgeforge\trades\auth_tests.py", line 10, in setUp
+    self.token_url = reverse('token_obtain_pair') # Wait, I renamed it in urls.py? No, I added obtain_auth_token
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\Asus\AppData\Local\Programs\Python\Python314\Lib\site-packages\django\urls\resolvers.py", line 842, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'token_obtain_pair' not found. 'token_obtain_pair' is not a valid view function or pattern name.
+System.Management.Automation.RemoteException
+----------------------------------------------------------------------
+Ran 3 tests in 7.977s
+System.Management.Automation.RemoteException
+FAILED (errors=3)
+Destroying test database for alias 'default'...
+System.Management.Automation.RemoteException
+Found 3 test(s).
+System check identified no issues (0 silenced).
