@@ -1,17 +1,27 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
-
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import TradeFilter, SnapshotFilter
 from .models import Trade, Strategy, AnalyticsSnapshot
 from .serializers import TradeSerializer, StrategySerializer, AnalyticsSnapshotSerializer, UserRegisterSerializer
+from rest_framework.pagination import PageNumberPagination
+
 
 class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter , filters.OrderingFilter]
+    filterset_calss = TradeFilter
+    search_fields = ['reflection', 'market_pair']
+    ordering_fields = ['trade_date', 'profit_loss',]
+    ordering = ['-trade_date']
+    pagination_class = PageNumberPagination
+    pagination_class.PAGE_SIZE=1
     def get_queryset(self):
         return Trade.objects.filter(user=self.request.user)
 
@@ -31,8 +41,14 @@ class StrategyViewSet(viewsets.ModelViewSet):
 
 class AnalyticsSnapshotViewSet(viewsets.ModelViewSet):
     queryset = AnalyticsSnapshot.objects.all()
+   
     serializer_class = AnalyticsSnapshotSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = SnapshotFilter
+    ordering_fields = ['snapshot_date', 'total_pnl', 'win_rate', 'total_trades']
+    ordering = ['-snapshot_date']
 
     def get_queryset(self):
         return AnalyticsSnapshot.objects.filter(user=self.request.user)

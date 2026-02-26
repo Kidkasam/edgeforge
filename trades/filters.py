@@ -1,5 +1,5 @@
-import django-filters
-from . models import Trade
+import django_filters
+from . models import Trade, AnalyticsSnapshot
 
 class TradeFilter(django_filters.FilterSet):
     start_date = django_filters.DateFilter(fieldname='trade_date', lookup_exp='gte')
@@ -17,3 +17,13 @@ class TradeFilter(django_filters.FilterSet):
         elif value is False:
             return queryset.filter(profit_loss__lte=0)
         return queryset
+
+class SnapshotFilter(django_filters.FilterSet):
+    start_date = django_filters.DateFilter(fieldname='snapshot_date', lookup_exp='gte')
+    end_date = django_filters.DateFilter(fieldname='snapshot_datesend', lookup_exp='lte')
+
+
+    class Meta:
+        models= AnalyticsSnapshot
+
+        
