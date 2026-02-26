@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Trade, Strategy, AnalyticsSnapshot
+from .models import Trade, Strategy
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -25,17 +25,17 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class TradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trade
-        fields = '__all__'
-        read_only_fields = ['user']
+        fields = [
+            'id', 'user', 'market_pair', 'buy_sell', 'entry_price', 'exit_price', 
+            'stop_loss', 'take_profit', 'lot_size', 'trading_session', 
+            'trade_date', 'reflection', 'strategies', 'commission', 'swap_fees',
+            'pips', 'profit_loss', 'risk_reward', 'risk_amount', 'is_winner', 'outcome',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['pips', 'profit_loss', 'risk_reward', 'is_winner', 'outcome', 'user']
 
 class StrategySerializer(serializers.ModelSerializer):
     class Meta:
         model = Strategy
-        fields = '__all__'
-        read_only_fields = ['user']
-
-class AnalyticsSnapshotSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnalyticsSnapshot
         fields = '__all__'
         read_only_fields = ['user']

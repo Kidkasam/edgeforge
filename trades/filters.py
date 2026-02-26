@@ -1,29 +1,28 @@
 import django_filters
-from . models import Trade, AnalyticsSnapshot
+from .models import Trade
 
 class TradeFilter(django_filters.FilterSet):
-    start_date = django_filters.DateFilter(fieldname='trade_date', lookup_exp='gte')
-    end_date = django_filters.DateFilter(fieldname='trade_date', lookup_exp='lte')
-    winning = django_filters.BooleanFilter(method='filter_winning')
-
+    date_from = django_filters.DateFilter(field_name='trade_date', lookup_expr='gte')
+    date_to = django_filters.DateFilter(field_name='trade_date', lookup_expr='lte')
+    market_pair = django_filters.CharFilter(method='filter_market_pair')
+    strategy_id = django_filters.CharFilter(method='filter_strategy_id')
+    session = django_filters.ChoiceFilter(field_name='trading_session', choices=Trade.SESSION_CHOICES)
+    outcome = django_filters.ChoiceFilter(field_name='outcome', choices=Trade.OUTCOME_CHOICES)
 
     class Meta:
-        models= Trade
-        fields = ['buy_Sell', 'trading_session', 'market_pair']
+        model = Trade
+        fields = ['buy_sell', 'trading_session', 'market_pair', 'session', 'outcome', 'strategies']
 
-    def filter_winning(self, queryset, name, value):
-        if value is True:
-            return queryset.filter(profit_loss__gt=0)
-        elif value is False:
-            return queryset.filter(profit_loss__lte=0)
+    def filter_market_pair(self, queryset, name, value):
+        if value:
+            pairs = [p.strip() for p in value.split(',')]
+            return queryset.filter(market_pair__in=pairs)
         return queryset
 
-class SnapshotFilter(django_filters.FilterSet):
-    start_date = django_filters.DateFilter(fieldname='snapshot_date', lookup_exp='gte')
-    end_date = django_filters.DateFilter(fieldname='snapshot_datesend', lookup_exp='lte')
-
-
-    class Meta:
-        models= AnalyticsSnapshot
+    def filter_strategy_id(self, queryset, name, value):
+        if value:
+            ids = [i.strip() for i in value.split(',')]
+            return queryset.filter(strategies__id__in=ids).distinct()
+        return queryset
 
         
