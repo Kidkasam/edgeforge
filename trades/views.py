@@ -1,3 +1,5 @@
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
@@ -172,16 +174,23 @@ class StatisticsView(APIView):
             "pair_performance": pair_performance
         })
 
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterAPIView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []
     def post(self, request):
-        serializer = UserRegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = UserRegisterSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -190,7 +199,10 @@ class LoginAPIView(APIView):
             login(request, user)
             return Response({"message": "Logged in successfully"})
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutAPIView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out successfully"})
