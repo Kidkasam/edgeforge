@@ -21,7 +21,7 @@ class TradeViewSet(viewsets.ModelViewSet):
     ordering_fields = ['trade_date', 'profit_loss',]
     ordering = ['-trade_date']
     pagination_class = PageNumberPagination
-    pagination_class.PAGE_SIZE=1
+    pagination_class.PAGE_SIZE=10
     def get_queryset(self):
         return Trade.objects.filter(user=self.request.user)
 
