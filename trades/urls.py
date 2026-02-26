@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework.authtoken.views import obtain_auth_token
 from .views import (
     RegisterAPIView, LoginAPIView, LogoutAPIView,
     TradeViewSet, StrategyViewSet,
@@ -15,6 +16,7 @@ urlpatterns = [
     path('auth/register/', RegisterAPIView.as_view(), name='register'),
     path('auth/login/', LoginAPIView.as_view(), name='login'),
     path('auth/logout/', LogoutAPIView.as_view(), name='logout'),
+    path('auth/token/', obtain_auth_token, name='api-token'),
     path('overview/', OverviewView.as_view(), name='overview'),
     path('statistics/', StatisticsView.as_view(), name='statistics'),
 ]

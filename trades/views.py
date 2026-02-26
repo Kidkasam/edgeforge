@@ -5,12 +5,17 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import TradeFilter
 from .models import Trade, Strategy
 from .serializers import TradeSerializer, StrategySerializer, UserRegisterSerializer
 from rest_framework.pagination import PageNumberPagination
 
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return  # Disable CSRF check for API testing
 
 class CustomPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
@@ -32,6 +37,7 @@ class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
     pagination_class = CustomPagination
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -50,6 +56,7 @@ class StrategyViewSet(viewsets.ModelViewSet):
     queryset = Strategy.objects.all()
     serializer_class = StrategySerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
 
     def get_queryset(self):
         return Strategy.objects.filter(user=self.request.user)
@@ -62,6 +69,7 @@ from django.db.models.functions import TruncMonth
 
 class OverviewView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
 
     def get(self, request):
         user = request.user
@@ -109,6 +117,7 @@ class OverviewView(APIView):
 
 class StatisticsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
 
     def get(self, request):
         user = request.user
