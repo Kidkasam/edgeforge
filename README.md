@@ -1,112 +1,79 @@
-# EdgeForge – Trade Journal Backend
+# ⚒️ EdgeForge: Sovereign Trading Interface
 
-## Description
+![EdgeForge Banner](https://img.shields.io/badge/Status-Fullstack_Operational-6366f1?style=for-the-badge&logo=edgeforge)
+![Tech Stack](https://img.shields.io/badge/Stack-Django%20|%20React%20|%20Vite-22d3ee?style=for-the-badge)
 
-Initial backend setup for a forex trade journal platform. This is a minimal Django project structure ready for development.
+**EdgeForge** is an institutional-grade trading journal and performance engine. Originally conceived as a backend-only project for the **ALX Software Engineering Program**, it has been personally evolved and expanded into a comprehensive **Full-Stack Application**.
 
-## Tech Stack
-
-- **Framework**: Django 5.x
-- **Database**: SQLite (default)
-- **Language**: Python 3.x
-
-## Project Status
-
-✅ Backend project initialized  
-✅ Server runs successfully  
-✅ `trades` app created  
-⏳ Models, authentication, and APIs pending
-
-## Project Structure
-
-```
-edgeforge/
-├── manage.py                 # Django management script
-├── requirements.txt          # Python dependencies
-├── README.md                 # This file
-├── edgeforge/                # Main project folder
-│   ├── __init__.py
-│   ├── settings.py           # Project settings
-│   ├── urls.py               # URL routing
-│   ├── asgi.py               # ASGI configuration
-│   └── wsgi.py               # WSGI configuration
-└── trades/                   # Trades app folder
-    ├── __init__.py
-    ├── admin.py              # Admin configuration
-    ├── apps.py               # App configuration
-    ├── models.py             # Database models (empty)
-    ├── tests.py              # Unit tests
-    ├── views.py              # View functions (empty)
-    └── migrations/           # Database migrations
-        └── __init__.py
-```
-
-## Getting Started
-
-### 1. Create Virtual Environment
-
-```bash
-python -m venv venv
-```
-
-### 2. Activate Virtual Environment
-
-**Windows:**
-```bash
-venv\Scripts\activate
-```
-
-**macOS/Linux:**
-```bash
-source venv/bin/activate
-```
-
-### 3. Install Requirements
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Run Migrations
-
-```bash
-python manage.py migrate
-```
-
-### 5. Create Superuser
-
-```bash
-python manage.py createsuperuser
-```
-
-Follow the prompts to create an admin account.
-
-### 6. Run Development Server
-
-```bash
-python manage.py runserver
-```
-
-The server will start at `http://127.0.0.1:8000/`
-
-## Testing the Setup
-
-1. Open your browser and navigate to `http://127.0.0.1:8000/`
-2. You should see the Django welcome page
-3. Access the admin panel at `http://127.0.0.1:8000/admin/`
-4. Log in with your superuser credentials
-
-## Next Steps
-
-- Define models for trade journal entries
-- Implement user authentication
-- Create REST API endpoints
-- Add frontend interface
-
-## License
-
-This project is ready for development and GitHub submission.
+This platform transforms raw market execution into surgical data insights, allowing traders to sharpen their edge through sovereign analytical control.
 
 ---
 
-**EdgeForge** – Building your trading edge, one journal entry at a time.
+## 🚀 The Evolution: From ALX Backend to Sovereign Fullstack
+
+What started as a server-side data architecture task has been meticulously forged into a complete ecosystem:
+- **Phase 1 (The Foundation)**: Developed the core Django REST Framework API, handling complex trade logic, PnL calculations, and user authentication as part of the ALX backend curriculum.
+- **Phase 2 (The Interface)**: Personally engineered a high-performance React frontend using Vite, moving beyond command-line interactions to a premium, visual trading experience.
+- **Phase 3 (The Sovereign UI)**: Implemented a proprietary "Sovereign" design language, featuring advanced glassmorphism, kinetic focus states, and institutional-grade dark modes.
+
+---
+
+## 🏛️ The Sovereign Philosophy
+
+EdgeForge is built on the principle of **Surgical Performance**:
+- **Sovereign Control**: User-centric data management with complete isolation of trading nodes.
+- **Precision Architecture**: A sterile, clutter-free environment inspired by high-stakes medical and precision engineering interfaces.
+- **Kinetic Feedback**: Every interaction provides weighted visual responses, ensuring the trader feels the "gravity" of their data.
+
+---
+
+## 🦾 Core Capabilities
+
+### 📈 Sovereign Trade Log
+- **Precision Tracking**: Log market pairs with automatic normalization (real-time capitalization).
+- **Strategy Fingerprinting**: Assign multiple tactical strategies to a single execution.
+- **Dynamic PnL**: Real-time calculation of pips, risk-reward ratios, and outcome status.
+
+### 🧠 Performance Analytics (The Engine)
+- **Session Breakdown**: Identify your highest-performing trading hours (London, NY, Asia).
+- **Strategy Metrics**: Analyze which trading systems are forging capital vs. leaking it.
+- **Win-Rate Archetypes**: High-definition records of W/L ratios and profit factors.
+
+### 🛡️ Secure Node Access
+- **Encrypted Credentials**: Sovereign username and secure access token authentication.
+- **Node Privacy**: Complete isolation of trade histories and tactical strategies.
+
+---
+
+## 🛠️ Combined Technical Forge
+
+| Layer | Technology | Origins |
+| :--- | :--- | :--- |
+| **Backend** | Django 6.0 + REST Framework | ALX Core |
+| **Frontend** | React 18 + Vite | Personal Expansion |
+| **Styling** | Vanilla CSS (Sovereign Design System) | Personal Expansion |
+| **Database** | SQLite (Sovereign Local Storage) | ALX Core |
+| **Icons** | Lucide React (Surgical Standard) | Personal Expansion |
+
+---
+
+## 🏁 Initializing Your Node
+
+### 1. The Backend (The Engine)
+```bash
+# Enter project root
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+### 2. The Frontend (The Interface)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+**EdgeForge** – *Evolved from a backend foundation. Forged for full-stack sovereign control.*
