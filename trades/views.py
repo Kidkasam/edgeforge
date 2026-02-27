@@ -215,3 +215,21 @@ class LogoutAPIView(APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out successfully"})
+
+class UserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            "username": user.username,
+            "email": user.email,
+            "date_joined": user.date_joined,
+        })
+    
+    def put(self, request):
+        user = request.user
+        user.email = request.data.get('email', user.email)
+        user.save()
+        return Response({"message": "Profile updated successfully"})

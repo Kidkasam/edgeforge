@@ -4,7 +4,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from .views import (
     RegisterAPIView, LoginAPIView, LogoutAPIView,
     TradeViewSet, StrategyViewSet,
-    OverviewView, StatisticsView
+    OverviewView, StatisticsView, UserView
 )
 
 router = DefaultRouter()
