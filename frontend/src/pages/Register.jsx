@@ -11,6 +11,7 @@ const Register = () => {
         confirmPassword: ''
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -20,9 +21,11 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
         if (formData.password !== formData.confirmPassword) {
             setError('Verification tokens do not match.');
+            setLoading(false);
             return;
         }
 
@@ -42,6 +45,8 @@ const Register = () => {
                     : err.response.data;
             }
             setError(errorMsg);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -145,8 +150,8 @@ const Register = () => {
                             style={{ paddingLeft: '3.25rem', marginBottom: 0 }}
                         />
                     </div>
-                    <button className="btn btn-primary" style={{ width: '100%', padding: '1.25rem', borderRadius: '1rem' }} type="submit">
-                        Forge Credentials <ArrowRight size={20} />
+                    <button className="btn btn-primary" style={{ width: '100%', padding: '1.25rem', borderRadius: '1rem', opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
+                        {loading ? 'Forging Access...' : 'Forge Credentials'} <ArrowRight size={20} />
                     </button>
                 </form>
 

@@ -5,6 +5,7 @@ import {
     BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
 import { TrendingUp, TrendingDown, Target, BarChart2 } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -41,7 +42,7 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-    if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}>Loading Dashboard...</div>;
+    if (loading) return <Loader text="Assembling Performance Node" />;
 
     return (
         <div style={{ paddingBottom: '3rem' }}>

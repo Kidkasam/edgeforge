@@ -7,11 +7,14 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
         try {
             await login(username, password);
             navigate('/');
@@ -28,6 +31,8 @@ const Login = () => {
             }
 
             setError(errorMsg);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -103,8 +108,8 @@ const Login = () => {
                             style={{ paddingLeft: '3.25rem', marginBottom: 0 }}
                         />
                     </div>
-                    <button className="btn btn-primary" style={{ width: '100%', padding: '1.25rem', borderRadius: '1rem' }} type="submit">
-                        Initialize Session <ArrowRight size={20} />
+                    <button className="btn btn-primary" style={{ width: '100%', padding: '1.25rem', borderRadius: '1rem', opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
+                        {loading ? 'Synchronizing...' : 'Initialize Session'} <ArrowRight size={20} />
                     </button>
                 </form>
 

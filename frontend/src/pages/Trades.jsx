@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { tradeService } from '../services/api';
 import { Filter, Plus, Trash2, Edit3, ArrowUpDown, X } from 'lucide-react';
 import AddTradeModal from '../components/AddTradeModal';
+import Loader from '../components/Loader';
 
 const Trades = () => {
     const [trades, setTrades] = useState([]);
@@ -253,8 +254,8 @@ const Trades = () => {
                         )}
                         {loading && (
                             <tr>
-                                <td colSpan="8" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                    Loading trades...
+                                <td colSpan="9">
+                                    <Loader text="Fetching Ledger" />
                                 </td>
                             </tr>
                         )}
