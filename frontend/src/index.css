@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* EdgeForge Sovereign - Midnight Charcoal & Graphite */
+
   --bg-dark: #070709;
   --surface-50: #0e0e11;
   --surface-100: #14141a;
   --surface-200: #1c1c24;
 
-  /* Precision Accents */
+
   --primary: #6366f1;
   --primary-glow: rgba(99, 102, 241, 0.25);
   --accent: #06b6d4;
@@ -215,7 +215,7 @@ body {
   background: var(--surface-100);
 }
 
-/* Sovereign Forms - Kinetic Architecture */
+
 .input-group {
   position: relative;
   margin-bottom: 1.25rem;
@@ -273,7 +273,7 @@ body {
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Fix browser autofill and active background flips */
+
 .input-field:-webkit-autofill,
 .input-field:-webkit-autofill:hover,
 .input-field:-webkit-autofill:focus,
@@ -299,7 +299,7 @@ select.input-field option {
   padding: 1rem;
 }
 
-/* Border Beam - Subtle Pulse */
+
 .border-beam {
   position: absolute;
   top: 0;
@@ -329,7 +329,7 @@ select.input-field option {
   }
 }
 
-/* Typography Elite */
+
 .text-shimmer {
   background: linear-gradient(135deg,
       var(--text-primary) 20%,
@@ -357,7 +357,7 @@ select.input-field option {
   margin-bottom: 2rem;
 }
 
-/* Buttons Realistic */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -418,7 +418,7 @@ select.input-field option {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Modules & Grid */
+
 .modules-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -433,7 +433,7 @@ select.input-field option {
   justify-content: space-between;
 }
 
-/* Background Energy Beams */
+
 .energy-beam {
   position: absolute;
   width: 2px;
@@ -443,7 +443,7 @@ select.input-field option {
   pointer-events: none;
 }
 
-/* Responsive Navigation Utilities */
+
 @media (max-width: 768px) {
   .nav-links-desktop {
     display: none !important;
@@ -467,7 +467,7 @@ select.input-field option {
   }
 }
 
-/* On very small screens, hide the secondary Login button to avoid overflow */
+
 @media (max-width: 480px) {
   .btn-login-secondary {
     display: none !important;
@@ -494,7 +494,7 @@ select.input-field option {
   }
 }
 
-/* Mobile Sidebar Overrides */
+
 .sidebar {
   position: fixed;
   right: 1.25rem;
@@ -551,7 +551,7 @@ select.input-field option {
   }
 }
 
-/* Sovereign Loader */
+
 .loader-wrapper {
   display: flex;
   flex-direction: column;

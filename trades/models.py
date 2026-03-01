@@ -33,9 +33,9 @@ class Trade(models.Model):
         ('BE', 'Breakeven'),
     ]
 
-    # User Input Fields
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
-    market_pair = models.CharField(max_length=15, db_index=True)  # e.g., EURUSD, USDJPY, XAUUSD
+    market_pair = models.CharField(max_length=15, db_index=True)
     buy_sell = models.CharField(max_length=4, choices=BUY_SELL_CHOICES)
     entry_price = models.FloatField()
     exit_price = models.FloatField()
@@ -48,11 +48,11 @@ class Trade(models.Model):
     strategies = models.ManyToManyField(Strategy, related_name='trades', blank=True)
     screenshot = models.ImageField(upload_to='trade_screenshots/', blank=True, null=True)
 
-    # User Input Fees
+
     commission = models.FloatField(default=0.0)
     swap_fees = models.FloatField(default=0.0)
 
-    # Automatically Calculated Fields
+
     pips = models.FloatField(default=0.0, editable=False)
     profit_loss = models.FloatField(default=0.0, editable=False)
     risk_reward = models.FloatField(default=0.0, editable=False)
@@ -70,7 +70,7 @@ class Trade(models.Model):
         return f"{self.market_pair} ({self.buy_sell}) - {self.trade_date}"
 
     def save(self, *args, **kwargs):
-        # 1. Determine Pip Multiplier
+
         pair = self.market_pair.upper()
         if "JPY" in pair:
             multiplier = 100
@@ -81,12 +81,10 @@ class Trade(models.Model):
         else:
             multiplier = 10000
 
-        # 2. Pip Calculation
+
         self.pips = round(abs(self.exit_price - self.entry_price) * multiplier, 2)
 
-        # 3. Profit/Loss Calculation (Simplified for this exercise, assuming standard lot sizing logic)
-        # Note: In a real app, different assets have different pip values per lot.
-        # Here we follow the requested logic and include fees.
+
         if self.buy_sell == 'BUY':
             raw_pl = (self.exit_price - self.entry_price) * self.lot_size * multiplier
         else:
@@ -94,9 +92,7 @@ class Trade(models.Model):
 
         self.profit_loss = round(raw_pl - self.commission + self.swap_fees, 2)
 
-        # 4. Risk-Reward Calculation
-        # BUY RR: (TP - Entry) / (Entry - SL)
-        # SELL RR: (Entry - TP) / (SL - Entry)
+
         try:
             if self.buy_sell == 'BUY':
                 risk = abs(self.entry_price - self.stop_loss)
@@ -112,13 +108,13 @@ class Trade(models.Model):
         except ZeroDivisionError:
             self.risk_reward = 0.0
 
-        # 5. Risk Amount (Money at risk)
+
         if self.buy_sell == 'BUY':
             self.risk_amount = round(abs(self.entry_price - self.stop_loss) * self.lot_size * multiplier, 2)
         else:
             self.risk_amount = round(abs(self.stop_loss - self.entry_price) * self.lot_size * multiplier, 2)
 
-        # 6. Outcome and Winner Status
+
         if self.profit_loss > 0:
             self.outcome = 'WIN'
             self.is_winner = True

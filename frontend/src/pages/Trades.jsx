@@ -12,7 +12,7 @@ const Trades = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Filters & Ordering state
+
     const [filters, setFilters] = useState({
         search: '',
         buy_sell: '',
@@ -45,11 +45,11 @@ const Trades = () => {
     const toggleOrdering = (field) => {
         setFilters(prev => {
             if (field === 'trade_date') {
-                // Toggle date with created_at as tiebreaker
+
                 const isDesc = prev.ordering.startsWith('-trade_date');
                 return { ...prev, ordering: isDesc ? 'trade_date,-created_at' : '-trade_date,-created_at' };
             }
-            // For other fields (PnL, pips, RR) toggle normally
+
             const isDesc = prev.ordering === `-${field}`;
             return { ...prev, ordering: isDesc ? field : `-${field}` };
         });
@@ -117,7 +117,7 @@ const Trades = () => {
                 </button>
             </div>
 
-            {/* Filters Bar */}
+
             <div className="glass-card" style={{ marginBottom: '1.5rem', padding: '1rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-end' }}>
                 <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Search Pair</label>
@@ -271,7 +271,7 @@ const Trades = () => {
                 isSaving={isSaving}
             />
 
-            {/* Image Preview Modal */}
+
             {selectedImage && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',

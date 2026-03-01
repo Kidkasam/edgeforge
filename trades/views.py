@@ -15,7 +15,7 @@ from rest_framework.pagination import PageNumberPagination
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
-        return  # Disable CSRF check for API testing
+        return
 
 class CustomPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
@@ -123,7 +123,7 @@ class StatisticsView(APIView):
         user = request.user
         trades = Trade.objects.filter(user=user)
 
-        # 1. Session Breakdown
+
         sessions = trades.values('trading_session').annotate(
             trades=Count('id'),
             total_pnl=Sum('profit_loss'),
@@ -139,7 +139,7 @@ class StatisticsView(APIView):
                     'win_rate': round(s['win_rate'] or 0, 2)
                 })
 
-        # 2. Strategy Performance
+
         strategies = trades.values('strategies__name').annotate(
             trades=Count('id'),
             total_pnl=Sum('profit_loss'),
@@ -155,7 +155,7 @@ class StatisticsView(APIView):
                 'win_rate': round(s['win_rate'] or 0, 2)
             })
 
-        # 3. Monthly PNL
+
         monthly_stats = trades.annotate(month=TruncMonth('trade_date')).values('month').annotate(
             total_pnl=Sum('profit_loss')
         ).order_by('month')
@@ -166,7 +166,7 @@ class StatisticsView(APIView):
                 'total_pnl': round(m['total_pnl'] or 0, 2)
             })
 
-        # 4. Pair Performance
+
         pairs = trades.values('market_pair').annotate(
             total_pnl=Sum('profit_loss')
         ).order_by('-total_pnl')
