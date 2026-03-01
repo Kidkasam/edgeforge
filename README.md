@@ -1,6 +1,6 @@
 # ⚒️ EdgeForge: Sovereign Performance Engine
 
-![Stack](https://img.shields.io/badge/Stack-Django_|_React_|_PostgreSQL-6366f1?style=for-the-badge)
+![Stack](https://img.shields.io/badge/Stack-Django_|_React-6366f1?style=for-the-badge)
 ![Deployment](https://img.shields.io/badge/Status-Fully_Deployed-22c55e?style=for-the-badge)
 
 **EdgeForge** is an institutional-grade performance engine for traders. Originally developed as a backend project for the **ALX Software Engineering Program**, it has been meticulously expanded into a high-performance **Full-Stack Application** with a proprietary "Sovereign" design system.
@@ -41,7 +41,7 @@ What began as a server-side architecture task has been forged into a complete ec
 
 ## 🛠️ Technical Stack
 
-- **Backend**: Django 6.1 (REST Framework) + PostgreSQL (Render Managed)
+- **Backend**: Django 6.1 (REST Framework)
 - **Frontend**: React 18 + Vite (Sovereign Vanilla CSS System)
 - **Media**: Cloudinary (Institutional Image Persistence)
 - **Analytics**: Recharts (Dynamic Performance Visuals)
