@@ -77,21 +77,25 @@ const Landing = () => {
                         }}>EdgeForge</span>
                     </div>
 
-                    <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '2.5rem' }}>
+                    {/* Desktop Nav Links + Actions */}
+                    <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                         <a href="#features" className="nav-link" style={{ fontSize: '0.9rem' }}>Infrastructure</a>
                         <a href="#about" className="nav-link" style={{ fontSize: '0.9rem' }}>Story</a>
+                        <button onClick={toggleTheme} className="theme-toggle">
+                            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                        </button>
                         <button onClick={() => navigate('/login')} className="btn btn-glass" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem', borderRadius: '0.6rem', background: 'var(--surface-100)' }}>Login</button>
                         <button onClick={() => navigate('/register')} className="btn btn-primary" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem', borderRadius: '0.6rem' }}>
                             Forge Access
                         </button>
                     </div>
 
-                    {/* Mobile Menu Trigger */}
+                    {/* Mobile Only: theme toggle + burger */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }} className="mobile-only">
                         <button onClick={toggleTheme} className="theme-toggle">
                             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
-                        <button onClick={toggleMobileMenu} style={{ background: 'var(--surface-50)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.5rem', color: 'var(--text-primary)' }}>
+                        <button onClick={toggleMobileMenu} style={{ background: 'var(--surface-50)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.5rem', color: 'var(--text-primary)', cursor: 'pointer' }}>
                             <Menu size={22} />
                         </button>
                     </div>
