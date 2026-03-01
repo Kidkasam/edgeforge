@@ -47,7 +47,7 @@ class TradeViewSet(viewsets.ModelViewSet):
     ordering = ['-trade_date', '-created_at', ]
 
     def get_queryset(self):
-        return Trade.objects.filter(user=self.request.user)
+        return Trade.objects.filter(user=self.request.user).prefetch_related('strategies')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
