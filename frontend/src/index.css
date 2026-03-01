@@ -374,7 +374,7 @@ select.input-field option {
 }
 
 .mobile-only {
-  display: none;
+  display: none !important;
 }
 
 .desktop-only {

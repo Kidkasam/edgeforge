@@ -90,8 +90,8 @@ const Landing = () => {
                         </button>
                     </div>
 
-                    {/* Mobile Only: theme toggle + burger */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }} className="mobile-only">
+                    {/* Mobile Only: theme toggle + burger — hidden on desktop via CSS */}
+                    <div style={{ alignItems: 'center', gap: '1rem' }} className="mobile-only">
                         <button onClick={toggleTheme} className="theme-toggle">
                             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
