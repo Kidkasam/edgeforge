@@ -196,6 +196,8 @@ class RegisterAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+from rest_framework.authtoken.models import Token
+
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -206,7 +208,12 @@ class LoginAPIView(APIView):
         user = authenticate(username=username, password=password)
         if user:
             login(request, user)
-            return Response({"message": "Logged in successfully"})
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                "message": "Logged in successfully",
+                "token": token.key,
+                "username": user.username
+            })
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 @method_decorator(csrf_exempt, name='dispatch')
 class LogoutAPIView(APIView):
