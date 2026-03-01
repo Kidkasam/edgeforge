@@ -6,7 +6,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Trades from './pages/Trades';
-import Profile from './pages/Profile';
 import Landing from './pages/Landing';
 import Footer from './components/Footer';
 import Logo from './components/Logo';
@@ -121,10 +120,7 @@ const Navigation = () => {
                 <History size={20} /><span>Trade History</span>
                 <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
               </Link>
-              <Link to="/profile" className={`nav-link ${location.pathname === '/profile' ? 'active' : ''}`} style={{ padding: '1rem' }} onClick={closeSidebar}>
-                <User size={20} /><span>Identity Settings</span>
-                <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
-              </Link>
+
             </div>
 
             <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
@@ -152,7 +148,7 @@ const AppContent = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<HomeLoader />} />
         <Route path="/trades" element={<PrivateRoute><Trades /></PrivateRoute>} />
-        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+
       </Routes>
       <Footer />
     </div>
