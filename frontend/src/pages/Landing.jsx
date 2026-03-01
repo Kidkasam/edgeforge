@@ -62,40 +62,54 @@ const Landing = () => {
             <div className="energy-beam" style={{ left: '15%', top: '0', animation: 'pulse 8s infinite' }} />
             <div className="energy-beam" style={{ right: '25%', top: '20vh', height: '80vh', opacity: 0.05 }} />
 
-            {/* Landing Sovereign Navbar */}
+            {/* Landing Sovereign Nav (Unauthenticated) */}
             <nav className={`glass-nav ${scrolled ? 'scrolled' : ''}`}>
-                <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem' }}>
+                <div style={{
+                    maxWidth: 'var(--container-max)',
+                    margin: '0 auto',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0 2rem'
+                }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <Logo size={32} />
+                        <Logo size={36} />
                         <span style={{
-                            fontSize: '1.5rem',
+                            fontSize: '1.4rem',
                             fontWeight: '900',
-                            letterSpacing: '-0.05em',
-                            background: 'linear-gradient(135deg, var(--text-primary), var(--primary))',
+                            letterSpacing: '-0.04em',
+                            background: 'linear-gradient(to right, #fff, #818cf8)',
                             WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent'
+                            WebkitTextFillColor: 'transparent',
+                            fontFamily: "'Outfit', sans-serif"
                         }}>EdgeForge</span>
                     </div>
 
-                    {/* Desktop Nav Links + Actions */}
-                    <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                        <a href="#features" className="nav-link" style={{ fontSize: '0.9rem' }}>Infrastructure</a>
-                        <a href="#about" className="nav-link" style={{ fontSize: '0.9rem' }}>Story</a>
-                        <button onClick={toggleTheme} className="theme-toggle">
-                            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                        </button>
-                        <button onClick={() => navigate('/login')} className="btn btn-glass" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem', borderRadius: '0.6rem', background: 'var(--surface-100)' }}>Login</button>
-                        <button onClick={() => navigate('/register')} className="btn btn-primary" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem', borderRadius: '0.6rem' }}>
-                            Forge Access
-                        </button>
+                    {/* Desktop Nav Actions */}
+                    <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: '1rem' }}>
+                            <a href="#features" className="nav-link">Infrastructure</a>
+                            <a href="#about" className="nav-link">Story</a>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid var(--border-color)', paddingLeft: '1.5rem' }}>
+                            <button onClick={toggleTheme} className="theme-toggle">
+                                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                            </button>
+                            <button onClick={() => navigate('/login')} className="btn btn-glass" style={{ padding: '0.6rem 1.25rem', fontSize: '0.85rem' }}>Login</button>
+                            <button onClick={() => navigate('/register')} className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}>
+                                Forge Access
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Mobile Only: theme toggle + burger — hidden on desktop via CSS */}
+                    {/* Mobile Only: theme toggle + burger */}
                     <div style={{ alignItems: 'center', gap: '1rem' }} className="mobile-only">
                         <button onClick={toggleTheme} className="theme-toggle">
                             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
-                        <button onClick={toggleMobileMenu} style={{ background: 'var(--surface-50)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.5rem', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                        <button onClick={toggleMobileMenu} style={{ background: 'var(--surface-50)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '0.5rem', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Menu size={22} />
                         </button>
                     </div>
@@ -107,37 +121,31 @@ const Landing = () => {
                 <>
                     <div className="sidebar-overlay" onClick={toggleMobileMenu} />
                     <aside className="sidebar" style={{
-                        position: 'fixed', right: '1.5rem', top: '1.5rem', bottom: '1.5rem',
-                        width: 'calc(100% - 3rem)', maxWidth: '360px', zIndex: 1000,
+                        position: 'fixed', right: '1.25rem', top: '1.25rem', bottom: '1.25rem',
+                        width: 'calc(100% - 2.5rem)', maxWidth: '340px', zIndex: 1001,
                         padding: '2.5rem', borderRadius: '2rem', display: 'flex', flexDirection: 'column',
                         animation: 'slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                        background: 'var(--glass-bg)', backdropFilter: 'blur(40px)', border: '1px solid var(--border-color)'
+                        background: 'rgba(10, 10, 12, 0.8)', backdropFilter: 'blur(40px)', border: '1px solid var(--border-color)',
+                        boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <Logo size={32} />
-                                <span style={{
-                                    fontSize: '1.25rem',
-                                    fontWeight: '900',
-                                    letterSpacing: '-0.04em',
-                                    background: 'linear-gradient(135deg, var(--text-primary), var(--primary))',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent'
-                                }}>EdgeForge</span>
+                                <span style={{ fontWeight: '900', fontSize: '1.2rem', letterSpacing: '-0.04em' }}>EdgeForge</span>
                             </div>
-                            <button onClick={toggleMobileMenu} style={{ background: 'var(--surface-100)', border: 'none', borderRadius: '10px', padding: '0.4rem', color: 'var(--text-secondary)' }}>
-                                <X size={22} />
+                            <button onClick={toggleMobileMenu} style={{ background: 'var(--surface-100)', border: 'none', borderRadius: '12px', padding: '0.5rem', color: 'var(--text-secondary)' }}>
+                                <X size={20} />
                             </button>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
-                            <a href="#features" className="nav-link" style={{ fontSize: '1.1rem', padding: '1rem', borderRadius: '1rem', background: 'rgba(255,255,255,0.02)' }} onClick={toggleMobileMenu}>
-                                <Zap size={20} /> Infrastructure <ChevronRight size={18} style={{ marginLeft: 'auto', opacity: 0.2 }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
+                            <a href="#features" className="nav-link" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)' }} onClick={toggleMobileMenu}>
+                                <Zap size={18} /> Infrastructure <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
                             </a>
-                            <a href="#about" className="nav-link" style={{ fontSize: '1.1rem', padding: '1rem', borderRadius: '1rem', background: 'rgba(255,255,255,0.02)' }} onClick={toggleMobileMenu}>
-                                <Users size={20} /> Story <ChevronRight size={18} style={{ marginLeft: 'auto', opacity: 0.2 }} />
+                            <a href="#about" className="nav-link" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)' }} onClick={toggleMobileMenu}>
+                                <Users size={18} /> Story <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
                             </a>
-                            <Link to="/login" className="nav-link" style={{ fontSize: '1.1rem', padding: '1rem', borderRadius: '1rem', background: 'rgba(255,255,255,0.02)' }}>
-                                <Shield size={20} /> Command Login <ChevronRight size={18} style={{ marginLeft: 'auto', opacity: 0.2 }} />
+                            <Link to="/login" className="nav-link" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)' }}>
+                                <Shield size={18} /> Command Login <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
                             </Link>
                         </div>
                         <div style={{ marginTop: 'auto' }}>

@@ -2,31 +2,32 @@
 
 :root {
   /* EdgeForge Sovereign - Midnight Charcoal & Graphite */
-  --bg-dark: #0a0a0c;
-  --surface-50: #121215;
-  --surface-100: #1a1a1f;
-  --surface-200: #24242b;
+  --bg-dark: #070709;
+  --surface-50: #0e0e11;
+  --surface-100: #14141a;
+  --surface-200: #1c1c24;
 
   /* Precision Accents */
   --primary: #6366f1;
-  /* Indigo */
-  --primary-glow: rgba(99, 102, 241, 0.4);
-  --accent: #22d3ee;
-  /* Electric Cyan */
-  --accent-glow: rgba(34, 211, 238, 0.3);
+  --primary-glow: rgba(99, 102, 241, 0.25);
+  --accent: #06b6d4;
+  --accent-glow: rgba(6, 182, 212, 0.2);
 
   --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #52525b;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
 
   --success: #10b981;
-  --danger: #ef4444;
+  --danger: #f43f5e;
 
-  --border-color: rgba(255, 255, 255, 0.04);
-  --glass-bg: rgba(10, 10, 12, 0.7);
-  --glass-blur: 32px;
+  --border-color: rgba(255, 255, 255, 0.06);
+  --border-bright: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(7, 7, 9, 0.75);
+  --glass-blur: 24px;
 
-  --nav-height: 72px;
+  --nav-height: 80px;
+  --nav-scrolled-height: 64px;
+  --container-max: 1400px;
 }
 
 [data-theme='light'] {
@@ -61,26 +62,65 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Glassmorphism 5.0 - Institutional Standard */
 .glass-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: var(--nav-height);
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: 1px solid transparent;
   z-index: 1000;
   display: flex;
   align-items: center;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-nav.scrolled {
-  background: rgba(10, 10, 12, 0.9);
-  height: 64px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  height: var(--nav-scrolled-height);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.nav-link.active {
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--primary);
 }
 
 .glass-card {
