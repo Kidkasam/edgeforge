@@ -84,10 +84,16 @@ const Navigation = () => {
           </button>
 
           {isAuthenticated ? (
-            // Logged-in: burger menu opens the sidebar (for both desktop and mobile nav)
-            <button onClick={() => setIsSidebarOpen(true)} className="btn btn-glass" style={{ padding: '0.6rem', background: 'var(--surface-50)' }}>
-              <Menu size={20} />
-            </button>
+            <>
+              {/* Desktop: avatar button opens sidebar for profile/logout */}
+              <button onClick={() => setIsSidebarOpen(true)} className="btn btn-glass desktop-only" style={{ padding: '0.5rem 1rem', gap: '0.5rem', background: 'var(--surface-50)', fontSize: '0.85rem', fontWeight: '700' }}>
+                <User size={16} /> {username || 'Account'}
+              </button>
+              {/* Mobile: burger menu opens sidebar */}
+              <button onClick={() => setIsSidebarOpen(true)} className="btn btn-glass mobile-only" style={{ padding: '0.6rem', background: 'var(--surface-50)' }}>
+                <Menu size={20} />
+              </button>
+            </>
           ) : (
             // Not logged in: just show Login + Register buttons, no burger needed
             <div style={{ display: 'flex', gap: '0.6rem' }}>
