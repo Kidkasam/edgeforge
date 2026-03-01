@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-ge5j#0lw=@3x7c6+_q$9z)!yv_0ryp(m3)^xas@0hhk7n-+m5p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['edgeforge-ct0r.onrender.com', 'localhost', '127.0.0.1', '*']
 
 
 # Application definition

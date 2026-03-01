@@ -1,8 +1,13 @@
 import axios from 'axios';
 
 const getBaseURL = () => {
+    // Check if we are running locally or in production
     const host = window.location.hostname;
-    return `http://${host}:8000/api/`;
+    if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:8000/api/';
+    }
+    // Production Render URL
+    return 'https://edgeforge-ct0r.onrender.com/api/';
 };
 
 const api = axios.create({
