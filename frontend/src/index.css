@@ -62,6 +62,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.mobile-only {
+  display: none !important;
+}
+
+.desktop-only {
+  display: flex;
+}
+
+
 .glass-nav {
   position: fixed;
   top: 0;
@@ -474,13 +483,7 @@ select.input-field option {
   }
 }
 
-.mobile-only {
-  display: none !important;
-}
 
-.desktop-only {
-  display: flex;
-}
 
 @keyframes slideIn {
   from {
