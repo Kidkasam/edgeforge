@@ -84,12 +84,14 @@ const Navigation = () => {
           </button>
 
           {isAuthenticated ? (
+            // Logged-in: burger menu opens the sidebar (for both desktop and mobile nav)
             <button onClick={() => setIsSidebarOpen(true)} className="btn btn-glass" style={{ padding: '0.6rem', background: 'var(--surface-50)' }}>
               <Menu size={20} />
             </button>
           ) : (
+            // Not logged in: just show Login + Register buttons, no burger needed
             <div style={{ display: 'flex', gap: '0.6rem' }}>
-              <Link to="/login" className="btn btn-glass" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem', borderRadius: '0.75rem', background: 'var(--surface-100)' }}>Login</Link>
+              <Link to="/login" className="btn btn-glass btn-login-secondary" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem', borderRadius: '0.75rem', background: 'var(--surface-100)' }}>Login</Link>
               <Link to="/register" className="btn btn-primary" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem', borderRadius: '0.75rem' }}>Forge Access</Link>
             </div>
           )}

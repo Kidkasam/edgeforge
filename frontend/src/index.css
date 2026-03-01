@@ -366,6 +366,13 @@ select.input-field option {
   }
 }
 
+/* On very small screens, hide the secondary Login button to avoid overflow */
+@media (max-width: 480px) {
+  .btn-login-secondary {
+    display: none !important;
+  }
+}
+
 .mobile-only {
   display: none;
 }
