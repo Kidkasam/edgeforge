@@ -274,8 +274,8 @@ const Trades = () => {
             {selectedImage && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center',
-                    alignItems: 'center', zIndex: 2000, backdropFilter: 'blur(5px)'
+                    background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center',
+                    alignItems: 'center', zIndex: 7000, backdropFilter: 'blur(12px)'
                 }} onClick={() => setSelectedImage(null)}>
 
                     <button onClick={() => setSelectedImage(null)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

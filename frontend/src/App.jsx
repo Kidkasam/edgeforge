@@ -139,22 +139,32 @@ const Navigation = () => {
   );
 };
 
+const AppContent = () => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/' && !isAuthenticated;
+
+  return (
+    <div className={!isLandingPage ? 'main-content' : ''} style={{ transition: 'all 0.3s ease' }}>
+      <Navigation />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<HomeLoader />} />
+        <Route path="/trades" element={<PrivateRoute><Trades /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      </Routes>
+      <Footer />
+    </div>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
         <Router>
-          <div style={{ minHeight: '100vh', transition: 'all 0.3s ease' }}>
-            <Navigation />
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/" element={<HomeLoader />} />
-              <Route path="/trades" element={<PrivateRoute><Trades /></PrivateRoute>} />
-              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            </Routes>
-            <Footer />
-          </div>
+          <AppContent />
         </Router>
       </ThemeProvider>
     </AuthProvider>

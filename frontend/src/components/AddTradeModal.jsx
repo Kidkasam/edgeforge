@@ -82,8 +82,8 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
     return (
         <div style={{
             position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-            background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center',
-            alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(4px)'
+            background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center',
+            alignItems: 'center', zIndex: 7000, backdropFilter: 'blur(12px)'
         }}>
             <div className="glass-card" style={{ width: '90%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
