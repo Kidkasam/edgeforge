@@ -148,12 +148,17 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# CORS Settings - explicitly list allowed origins
+# CORS Settings
+# Allow all Vercel preview deployments + production + localhost
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^https://edgeforge.*\.vercel\.app$',  # all edgeforge vercel URLs
+    r'^http://localhost:\d+$',
+    r'^http://127\.0\.0\.1:\d+$',
+]
 CORS_ALLOWED_ORIGINS = [
     'https://edgeforge-nu.vercel.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    'http://localhost:3000',
 ]
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
