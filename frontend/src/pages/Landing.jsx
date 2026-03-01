@@ -64,17 +64,9 @@ const Landing = () => {
 
             {/* Landing Sovereign Nav (Unauthenticated) */}
             <nav className={`glass-nav ${scrolled ? 'scrolled' : ''}`}>
-                <div style={{
-                    maxWidth: 'var(--container-max)',
-                    margin: '0 auto',
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0 2rem'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <Logo size={36} />
+                <div className="nav-inner">
+                    <Link to="/" className="nav-brand">
+                        <Logo size={scrolled ? 32 : 36} />
                         <span style={{
                             fontSize: '1.4rem',
                             fontWeight: '900',
@@ -84,11 +76,11 @@ const Landing = () => {
                             WebkitTextFillColor: 'transparent',
                             fontFamily: "'Outfit', sans-serif"
                         }}>EdgeForge</span>
-                    </div>
+                    </Link>
 
                     {/* Desktop Nav Actions */}
                     <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginRight: '1rem' }}>
                             <a href="#features" className="nav-link">Infrastructure</a>
                             <a href="#about" className="nav-link">Story</a>
                         </div>
@@ -97,8 +89,8 @@ const Landing = () => {
                             <button onClick={toggleTheme} className="theme-toggle">
                                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                             </button>
-                            <button onClick={() => navigate('/login')} className="btn btn-glass" style={{ padding: '0.6rem 1.25rem', fontSize: '0.85rem' }}>Login</button>
-                            <button onClick={() => navigate('/register')} className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}>
+                            <button onClick={() => navigate('/login')} className="btn btn-glass" style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>Login</button>
+                            <button onClick={() => navigate('/register')} className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', fontSize: '0.85rem' }}>
                                 Forge Access
                             </button>
                         </div>
@@ -109,7 +101,7 @@ const Landing = () => {
                         <button onClick={toggleTheme} className="theme-toggle">
                             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
-                        <button onClick={toggleMobileMenu} style={{ background: 'var(--surface-50)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '0.5rem', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <button onClick={toggleMobileMenu} className="theme-toggle" style={{ border: '1px solid var(--border-color)', borderRadius: '10px' }}>
                             <Menu size={22} />
                         </button>
                     </div>
@@ -120,32 +112,25 @@ const Landing = () => {
             {isMobileMenuOpen && (
                 <>
                     <div className="sidebar-overlay" onClick={toggleMobileMenu} />
-                    <aside className="sidebar" style={{
-                        position: 'fixed', right: '1.25rem', top: '1.25rem', bottom: '1.25rem',
-                        width: 'calc(100% - 2.5rem)', maxWidth: '340px', zIndex: 1001,
-                        padding: '2.5rem', borderRadius: '2rem', display: 'flex', flexDirection: 'column',
-                        animation: 'slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                        background: 'rgba(10, 10, 12, 0.8)', backdropFilter: 'blur(40px)', border: '1px solid var(--border-color)',
-                        boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)'
-                    }}>
+                    <aside className="sidebar">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <Logo size={32} />
-                                <span style={{ fontWeight: '900', fontSize: '1.2rem', letterSpacing: '-0.04em' }}>EdgeForge</span>
+                                <span style={{ fontWeight: '900', fontSize: '1.2rem', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}>EdgeForge</span>
                             </div>
-                            <button onClick={toggleMobileMenu} style={{ background: 'var(--surface-100)', border: 'none', borderRadius: '12px', padding: '0.5rem', color: 'var(--text-secondary)' }}>
+                            <button onClick={toggleMobileMenu} className="theme-toggle" style={{ border: 'none' }}>
                                 <X size={20} />
                             </button>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-                            <a href="#features" className="nav-link" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)' }} onClick={toggleMobileMenu}>
-                                <Zap size={18} /> Infrastructure <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+                            <a href="#features" className="nav-link" style={{ padding: '1rem' }} onClick={toggleMobileMenu}>
+                                <Zap size={18} /><span>Infrastructure</span> <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
                             </a>
-                            <a href="#about" className="nav-link" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)' }} onClick={toggleMobileMenu}>
-                                <Users size={18} /> Story <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
+                            <a href="#about" className="nav-link" style={{ padding: '1rem' }} onClick={toggleMobileMenu}>
+                                <Users size={18} /><span>Story</span> <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
                             </a>
-                            <Link to="/login" className="nav-link" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)' }}>
-                                <Shield size={18} /> Command Login <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
+                            <Link to="/login" className="nav-link" style={{ padding: '1rem' }}>
+                                <Shield size={18} /><span>Command Login</span> <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
                             </Link>
                         </div>
                         <div style={{ marginTop: 'auto' }}>
