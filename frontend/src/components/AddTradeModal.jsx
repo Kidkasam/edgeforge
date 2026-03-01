@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { strategyService } from '../services/api';
 
-const AddTradeModal = ({ isOpen, onClose, onSave, editData }) => {
+const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
     const initialForm = {
         market_pair: '',
         buy_sell: 'BUY',
@@ -20,6 +20,7 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData }) => {
     };
 
     const [formData, setFormData] = useState(initialForm);
+    const [screenshotFile, setScreenshotFile] = useState(null);
     const [availableStrategies, setAvailableStrategies] = useState([]);
     const [newStrategyName, setNewStrategyName] = useState('');
     const [isCreatingStrategy, setIsCreatingStrategy] = useState(false);
@@ -33,8 +34,10 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData }) => {
                     // Ensure strategies are just IDs for the form state
                     strategies: editData.strategies.map(s => s.id || s)
                 });
+                setScreenshotFile(null); // Keep it null for edit unless changed
             } else {
                 setFormData(initialForm);
+                setScreenshotFile(null);
             }
         }
     }, [isOpen, editData]);
@@ -73,7 +76,7 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSave(formData);
+        onSave({ ...formData, screenshot: screenshotFile });
     };
 
     return (
@@ -184,9 +187,19 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData }) => {
                         <textarea className="input-field" name="reflection" rows="2" value={formData.reflection} onChange={handleChange} />
                     </div>
 
+                    <div style={{ gridColumn: 'span 2' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Screenshot (Cloudinary)</label>
+                        <input className="input-field" type="file" accept="image/*" onChange={(e) => setScreenshotFile(e.target.files[0])} />
+                        {editData?.screenshot && !screenshotFile && (
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Current image: <a href={editData.screenshot} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>View</a></p>
+                        )}
+                    </div>
+
                     <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>{editData ? 'Update Trade' : 'Save Trade'}</button>
-                        <button type="button" onClick={onClose} className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)' }}>Cancel</button>
+                        <button type="submit" disabled={isSaving} className="btn btn-primary" style={{ flex: 1, opacity: isSaving ? 0.7 : 1, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
+                            {isSaving ? 'Saving & Uploading... ⏳' : (editData ? 'Update Trade' : 'Save Trade')}
+                        </button>
+                        <button type="button" onClick={onClose} disabled={isSaving} className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', opacity: isSaving ? 0.5 : 1, cursor: isSaving ? 'not-allowed' : 'pointer' }}>Cancel</button>
                     </div>
                 </form>
             </div>

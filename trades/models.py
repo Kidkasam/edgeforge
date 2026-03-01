@@ -46,6 +46,7 @@ class Trade(models.Model):
     trade_date = models.DateField(db_index=True)
     reflection = models.TextField(blank=True)
     strategies = models.ManyToManyField(Strategy, related_name='trades', blank=True)
+    screenshot = models.ImageField(upload_to='trade_screenshots/', blank=True, null=True)
 
     # User Input Fees
     commission = models.FloatField(default=0.0)
@@ -63,7 +64,7 @@ class Trade(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-trade_date', '-created_at']
+        pass
 
     def __str__(self):
         return f"{self.market_pair} ({self.buy_sell}) - {self.trade_date}"

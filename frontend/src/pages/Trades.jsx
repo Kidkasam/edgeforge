@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { tradeService } from '../services/api';
-import { Filter, Plus, Trash2, Edit3, ArrowUpDown } from 'lucide-react';
+import { Filter, Plus, Trash2, Edit3, ArrowUpDown, X } from 'lucide-react';
 import AddTradeModal from '../components/AddTradeModal';
 
 const Trades = () => {
@@ -8,6 +8,8 @@ const Trades = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editData, setEditData] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     // Filters & Ordering state
     const [filters, setFilters] = useState({
@@ -15,7 +17,7 @@ const Trades = () => {
         buy_sell: '',
         trading_session: '',
         outcome: '',
-        ordering: '-trade_date'
+        ordering: '-trade_date,-created_at'
     });
 
     const fetchTrades = async () => {
@@ -40,24 +42,49 @@ const Trades = () => {
     };
 
     const toggleOrdering = (field) => {
-        setFilters(prev => ({
-            ...prev,
-            ordering: prev.ordering === field ? `-${field}` : field
-        }));
+        setFilters(prev => {
+            if (field === 'trade_date') {
+                // Toggle date with created_at as tiebreaker
+                const isDesc = prev.ordering.startsWith('-trade_date');
+                return { ...prev, ordering: isDesc ? 'trade_date,-created_at' : '-trade_date,-created_at' };
+            }
+            // For other fields (PnL, pips, RR) toggle normally
+            const isDesc = prev.ordering === `-${field}`;
+            return { ...prev, ordering: isDesc ? field : `-${field}` };
+        });
     };
 
     const handleSaveTrade = async (tradeData) => {
         try {
+            setIsSaving(true);
+            const formData = new FormData();
+            for (const key in tradeData) {
+                if (key === 'strategies') {
+                    tradeData[key].forEach(val => formData.append('strategies', val));
+                } else if (key === 'screenshot') {
+                    if (tradeData[key] instanceof File) {
+                        formData.append('screenshot', tradeData[key]);
+                    }
+                } else {
+                    if (tradeData[key] !== null && tradeData[key] !== undefined) {
+                        formData.append(key, tradeData[key]);
+                    }
+                }
+            }
+
             if (editData) {
-                await tradeService.updateTrade(editData.id, tradeData);
+                await tradeService.updateTrade(editData.id, formData);
             } else {
-                await tradeService.createTrade(tradeData);
+                await tradeService.createTrade(formData);
             }
             setIsModalOpen(false);
             setEditData(null);
             fetchTrades();
         } catch (err) {
+            console.error('Failed to save trade:', err);
             alert('Failed to save trade. Check console for details.');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -152,6 +179,7 @@ const Trades = () => {
                             <th style={{ padding: '1rem' }}>Pips</th>
                             <th style={{ padding: '1rem' }}>RR</th>
                             <th style={{ padding: '1rem' }}>Status</th>
+                            <th style={{ padding: '1rem' }}>Screenshot</th>
                             <th style={{ padding: '1rem' }}>Actions</th>
                         </tr>
                     </thead>
@@ -190,12 +218,19 @@ const Trades = () => {
                                             trade.outcome === 'LOSS' ? 'var(--danger)' :
                                                 'var(--primary)',
                                         border: `1px solid ${trade.outcome === 'WIN' ? 'rgba(16, 185, 129, 0.2)' :
-                                                trade.outcome === 'LOSS' ? 'rgba(239, 68, 68, 0.2)' :
-                                                    'rgba(99, 102, 241, 0.2)'
+                                            trade.outcome === 'LOSS' ? 'rgba(239, 68, 68, 0.2)' :
+                                                'rgba(99, 102, 241, 0.2)'
                                             }`
                                     }}>
                                         {trade.outcome}
                                     </span>
+                                </td>
+                                <td style={{ padding: '1rem' }}>
+                                    {trade.screenshot ? (
+                                        <button onClick={() => setSelectedImage(trade.screenshot)} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', textDecoration: 'underline', fontSize: '0.875rem', cursor: 'pointer', padding: 0 }}>View</button>
+                                    ) : (
+                                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>None</span>
+                                    )}
                                 </td>
                                 <td style={{ padding: '1rem' }}>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -232,7 +267,29 @@ const Trades = () => {
                 onClose={() => { setIsModalOpen(false); setEditData(null); }}
                 onSave={handleSaveTrade}
                 editData={editData}
+                isSaving={isSaving}
             />
+
+            {/* Image Preview Modal */}
+            {selectedImage && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                    background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center',
+                    alignItems: 'center', zIndex: 2000, backdropFilter: 'blur(5px)'
+                }} onClick={() => setSelectedImage(null)}>
+
+                    <button onClick={() => setSelectedImage(null)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <X size={24} />
+                    </button>
+
+                    <img
+                        src={selectedImage}
+                        alt="Trade Screenshot"
+                        style={{ maxWidth: '90%', maxHeight: '90vh', objectFit: 'contain', borderRadius: '0.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
 
             <style>{`
         .table-row:hover {

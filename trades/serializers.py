@@ -30,7 +30,7 @@ class TradeSerializer(serializers.ModelSerializer):
             'stop_loss', 'take_profit', 'lot_size', 'trading_session', 
             'trade_date', 'reflection', 'strategies', 'commission', 'swap_fees',
             'pips', 'profit_loss', 'risk_reward', 'risk_amount', 'is_winner', 'outcome',
-            'created_at', 'updated_at'
+            'screenshot', 'created_at', 'updated_at'
         ]
         read_only_fields = ['pips', 'profit_loss', 'risk_reward', 'is_winner', 'outcome', 'user']
 

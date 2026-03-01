@@ -43,8 +43,8 @@ class TradeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = TradeFilter
     search_fields = ['market_pair', 'reflection']
-    ordering_fields = ['trade_date', 'profit_loss', 'pips', 'risk_reward']
-    ordering = ['-trade_date']
+    ordering_fields = ['trade_date', 'profit_loss', 'pips', 'risk_reward', 'created_at']
+    ordering = ['-trade_date', '-created_at', ]
 
     def get_queryset(self):
         return Trade.objects.filter(user=self.request.user)
