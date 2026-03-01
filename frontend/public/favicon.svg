@@ -1,0 +1,47 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brand-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="60%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="edge-light" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="white" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Shield/Prism Shape -->
+  <path
+    d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z"
+    fill="#1a1b2e"
+    stroke="#2d2f4a"
+    stroke-width="1"
+  />
+
+  <!-- The 'E' bars -->
+  <path
+    d="M30 35 H70 V43 H30 Z M30 48 H60 V56 H30 Z M30 61 H70 V69 H30 Z"
+    fill="url(#brand-gradient)"
+  />
+
+  <!-- The Sharp 'Edge' Accent -->
+  <path
+    d="M75 20 L25 80"
+    stroke="url(#edge-light)"
+    stroke-width="2"
+    stroke-linecap="round"
+    opacity="0.4"
+  />
+
+  <!-- Precision Point -->
+  <path
+    d="M50 5 L50 95"
+    stroke="#6366f1"
+    stroke-width="0.5"
+    opacity="0.2"
+  />
+
+  <!-- Glowing Core -->
+  <circle cx="50" cy="50" r="15" fill="#6366f1" opacity="0.08" />
+</svg>
