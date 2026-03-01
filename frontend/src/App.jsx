@@ -71,24 +71,24 @@ const Navigation = () => {
             </button>
 
             {isAuthenticated ? (
-              <>
-                <div onClick={() => setIsSidebarOpen(true)} className="user-pill desktop-only">
-                  <div className="user-avatar">
-                    <User size={14} color="white" />
-                  </div>
-                  <span className="user-name">{username || 'Account'}</span>
+              <div onClick={() => setIsSidebarOpen(true)} className="user-pill desktop-only">
+                <div className="user-avatar">
+                  <User size={14} color="white" />
                 </div>
-                <button onClick={() => setIsSidebarOpen(true)} className="theme-toggle mobile-only">
-                  <Menu size={20} />
-                </button>
-              </>
+                <span className="user-name">{username || 'Account'}</span>
+              </div>
             ) : (
-              <div style={{ display: 'flex', gap: '0.65rem' }}>
+              <div className="desktop-only" style={{ display: 'flex', gap: '0.65rem' }}>
                 <Link to="/login" className="btn btn-glass btn-login-secondary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>Login</Link>
                 <Link to="/register" className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', fontSize: '0.85rem' }}>Forge Access</Link>
               </div>
             )}
+
+            <button onClick={() => setIsSidebarOpen(true)} className="theme-toggle mobile-only">
+              <Menu size={20} />
+            </button>
           </div>
+
         </div>
       </nav>
 
@@ -112,22 +112,47 @@ const Navigation = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-              <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} style={{ padding: '1rem' }} onClick={closeSidebar}>
-                <LayoutDashboard size={20} /><span>Dashboard</span>
-                <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
-              </Link>
-              <Link to="/trades" className={`nav-link ${location.pathname === '/trades' ? 'active' : ''}`} style={{ padding: '1rem' }} onClick={closeSidebar}>
-                <History size={20} /><span>Trade History</span>
-                <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
-              </Link>
-
+              {isAuthenticated ? (
+                <>
+                  <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} style={{ padding: '1rem' }} onClick={closeSidebar}>
+                    <LayoutDashboard size={20} /><span>Dashboard</span>
+                    <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
+                  </Link>
+                  <Link to="/trades" className={`nav-link ${location.pathname === '/trades' ? 'active' : ''}`} style={{ padding: '1rem' }} onClick={closeSidebar}>
+                    <History size={20} /><span>Trade History</span>
+                    <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <a href="#features" className="nav-link" style={{ padding: '1rem' }} onClick={closeSidebar}>
+                    <Zap size={20} /><span>Infrastructure</span>
+                    <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
+                  </a>
+                  <a href="#about" className="nav-link" style={{ padding: '1rem' }} onClick={closeSidebar}>
+                    <Users size={20} /><span>Story</span>
+                    <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
+                  </a>
+                  <Link to="/login" className="nav-link" style={{ padding: '1rem' }} onClick={closeSidebar}>
+                    <Shield size={20} /><span>Login Node</span>
+                    <ChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.3 }} />
+                  </Link>
+                </>
+              )}
             </div>
 
             <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
-              <button onClick={() => { logout(); closeSidebar(); }} className="btn" style={{ width: '100%', background: 'rgba(244, 63, 94, 0.08)', color: 'var(--danger)', fontSize: '0.9rem', padding: '0.8rem' }}>
-                <LogOut size={18} /> Sign Out Node
-              </button>
+              {isAuthenticated ? (
+                <button onClick={() => { logout(); closeSidebar(); }} className="btn" style={{ width: '100%', background: 'rgba(244, 63, 94, 0.08)', color: 'var(--danger)', fontSize: '0.9rem', padding: '0.8rem' }}>
+                  <LogOut size={18} /> Sign Out Node
+                </button>
+              ) : (
+                <Link to="/register" onClick={closeSidebar} className="btn btn-primary" style={{ width: '100%', padding: '1rem' }}>
+                  Forge Access
+                </Link>
+              )}
             </div>
+
           </aside>
         </>
       )}
