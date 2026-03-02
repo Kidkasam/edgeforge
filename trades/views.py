@@ -140,22 +140,6 @@ class StatisticsView(APIView):
                 })
 
 
-        strategies = trades.values('strategies__name').annotate(
-            trades=Count('id'),
-            total_pnl=Sum('profit_loss'),
-            win_rate=Count(Case(When(profit_loss__gt=0, then=1))) * 100.0 / Count('id')
-        ).exclude(strategies__name=None)
-        
-        strategy_performance = []
-        for s in strategies:
-            strategy_performance.append({
-                'strategy': s['strategies__name'],
-                'trades': s['trades'],
-                'total_pnl': round(s['total_pnl'] or 0, 2),
-                'win_rate': round(s['win_rate'] or 0, 2)
-            })
-
-
         monthly_stats = trades.annotate(month=TruncMonth('trade_date')).values('month').annotate(
             total_pnl=Sum('profit_loss')
         ).order_by('month')
@@ -166,21 +150,9 @@ class StatisticsView(APIView):
                 'total_pnl': round(m['total_pnl'] or 0, 2)
             })
 
-
-        pairs = trades.values('market_pair').annotate(
-            total_pnl=Sum('profit_loss')
-        ).order_by('-total_pnl')
-        
-        pair_performance = {
-            'best_pairs': list(pairs[:5]),
-            'worst_pairs': list(pairs.reverse()[:5])
-        }
-
         return Response({
             "session_breakdown": session_breakdown,
-            "strategy_performance": strategy_performance,
             "monthly_pnl": monthly_pnl,
-            "pair_performance": pair_performance
         })
 
 @method_decorator(csrf_exempt, name='dispatch')
