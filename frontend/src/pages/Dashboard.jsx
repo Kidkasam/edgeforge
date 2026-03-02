@@ -58,7 +58,7 @@ const Dashboard = () => {
                 <StatCard title="Profit Factor" value={overview?.profit_factor} icon={TrendingDown} color="#f59e0b" />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+            <div className="grid-dashboard" style={{ marginBottom: '1.5rem' }}>
                 <div className="glass-card" style={{ height: '400px' }}>
                     <h3 style={{ marginBottom: '1.5rem' }}>Monthly Performance</h3>
                     <ResponsiveContainer width="100%" height="85%">
@@ -75,7 +75,7 @@ const Dashboard = () => {
                     </ResponsiveContainer>
                 </div>
 
-                <div className="glass-card">
+                <div className="glass-card" style={{ height: '400px' }}>
                     <h3 style={{ marginBottom: '1.5rem', color: '#fff' }}>Session Win Rate</h3>
                     <ResponsiveContainer width="100%" height="85%">
                         <PieChart>
