@@ -359,10 +359,10 @@ select.input-field option {
 }
 
 .hero-title {
-  font-size: clamp(3.5rem, 9vw, 8rem);
+  font-size: clamp(3.5rem, 9vw, 7.5rem);
   font-weight: 900;
-  line-height: 0.85;
-  letter-spacing: -0.07em;
+  line-height: 0.95;
+  letter-spacing: -0.065em;
   margin-bottom: 2rem;
 }
 
@@ -605,5 +605,184 @@ select.input-field option {
 
   50% {
     opacity: 1;
+  }
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+/* Responsive Overrides & Mobile Optimization */
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: clamp(3rem, 10vw, 5rem);
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --nav-height: 64px;
+    --nav-scrolled-height: 56px;
+  }
+
+  .nav-inner {
+    padding: 0 1rem;
+  }
+
+  .nav-brand h1 {
+    font-size: 1.1rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 12vw, 3.2rem);
+    letter-spacing: -0.05em;
+    margin-bottom: 1.5rem;
+  }
+
+  .glass-card {
+    padding: 1.25rem;
+  }
+
+  .landing-container {
+    padding: 0 1rem !important;
+  }
+
+  .grid-dashboard {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-card {
+    grid-column: span 12;
+    height: auto;
+    min-height: 320px;
+  }
+
+  .modal-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2.25rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .nav-inner {
+    padding: 0 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive Overrides & Mobile Optimization */
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: clamp(3rem, 10vw, 5rem);
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --nav-height: 64px;
+    --nav-scrolled-height: 56px;
+  }
+
+  .nav-inner {
+    padding: 0 1rem;
+  }
+
+  .nav-brand h1 {
+    font-size: 1.1rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 12vw, 3.2rem);
+    letter-spacing: -0.05em;
+    margin-bottom: 1.5rem;
+  }
+
+  .glass-card {
+    padding: 1.25rem;
+  }
+
+  .landing-container {
+    padding: 0 1rem !important;
+  }
+
+  .grid-dashboard {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-card {
+    grid-column: span 12;
+    height: auto;
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2.25rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .nav-inner {
+    padding: 0 0.75rem;
   }
 }

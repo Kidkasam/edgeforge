@@ -11,7 +11,7 @@ import Footer from './components/Footer';
 import Logo from './components/Logo';
 import {
   LayoutDashboard, History, LogOut, TrendingUp, User,
-  Menu, X, Sun, Moon, Zap, ChevronRight
+  Menu, X, Sun, Moon, Zap, ChevronRight, Users, Shield
 } from 'lucide-react';
 
 const PrivateRoute = ({ children }) => {
@@ -31,8 +31,6 @@ const Navigation = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  if (location.pathname === '/' && !isAuthenticated) return null;
 
   const closeSidebar = () => setIsSidebarOpen(false);
 
@@ -147,9 +145,14 @@ const Navigation = () => {
                   <LogOut size={18} /> Sign Out Node
                 </button>
               ) : (
-                <Link to="/register" onClick={closeSidebar} className="btn btn-primary" style={{ width: '100%', padding: '1rem' }}>
-                  Forge Access
-                </Link>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <Link to="/login" onClick={closeSidebar} className="btn btn-glass" style={{ width: '100%', padding: '0.8rem' }}>
+                    Login Node
+                  </Link>
+                  <Link to="/register" onClick={closeSidebar} className="btn btn-primary" style={{ width: '100%', padding: '1rem' }}>
+                    Forge Access
+                  </Link>
+                </div>
               )}
             </div>
 
@@ -166,7 +169,7 @@ const AppContent = () => {
   const isLandingPage = location.pathname === '/' && !isAuthenticated;
 
   return (
-    <div className={!isLandingPage ? 'main-content' : ''} style={{ transition: 'all 0.3s ease' }}>
+    <div className="main-content" style={{ transition: 'all 0.3s ease' }}>
       <Navigation />
       <Routes>
         <Route path="/login" element={<Login />} />

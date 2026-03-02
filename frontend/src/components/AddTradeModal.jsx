@@ -94,7 +94,7 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
                     <button onClick={onClose} className="btn theme-toggle" style={{ border: 'none' }}><X size={20} /></button>
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <form onSubmit={handleSubmit} className="modal-grid">
                     <div style={{ gridColumn: 'span 2' }}>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-secondary)' }}>Market Pair</label>
                         <input className="input-field" name="market_pair" placeholder="e.g. EURUSD" value={formData.market_pair} onChange={handleChange} required />
@@ -113,7 +113,7 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
                         <input className="input-field" type="date" name="trade_date" value={formData.trade_date} onChange={handleChange} required />
                     </div>
 
-                    <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem' }}>
+                    <div className="stats-grid" style={{ gridColumn: 'span 2' }}>
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-secondary)' }}>Entry</label>
                             <input className="input-field" type="number" step="any" name="entry_price" value={formData.entry_price} onChange={handleChange} required />
