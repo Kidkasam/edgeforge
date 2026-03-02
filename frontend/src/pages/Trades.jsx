@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { tradeService } from '../services/api';
 import { Filter, Plus, Trash2, Edit3, ArrowUpDown, X } from 'lucide-react';
 import AddTradeModal from '../components/AddTradeModal';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import Loader from '../components/Loader';
 
 const Trades = () => {
@@ -11,6 +12,8 @@ const Trades = () => {
     const [editData, setEditData] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteModal, setDeleteModal] = useState({ open: false, id: null, name: '' });
 
 
     const [filters, setFilters] = useState({
@@ -94,14 +97,18 @@ const Trades = () => {
         setIsModalOpen(true);
     };
 
-    const handleDeleteTrade = async (id) => {
-        if (window.confirm('Are you sure you want to delete this trade?')) {
-            try {
-                await tradeService.deleteTrade(id);
-                fetchTrades();
-            } catch (err) {
-                alert('Failed to delete trade.');
-            }
+    const confirmDelete = async () => {
+        if (!deleteModal.id) return;
+        try {
+            setIsDeleting(true);
+            await tradeService.deleteTrade(deleteModal.id);
+            setDeleteModal({ open: false, id: null, name: '' });
+            fetchTrades();
+        } catch (err) {
+            console.error('Delete failed:', err);
+            alert('Failed to delete trade.');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -238,7 +245,7 @@ const Trades = () => {
                                         <button onClick={() => handleEditClick(trade)} className="btn" style={{ background: 'transparent', padding: '0.25rem' }}>
                                             <Edit3 size={18} color="var(--primary)" />
                                         </button>
-                                        <button onClick={() => handleDeleteTrade(trade.id)} className="btn" style={{ background: 'transparent', padding: '0.25rem' }}>
+                                        <button onClick={() => setDeleteModal({ open: true, id: trade.id, name: `${trade.market_pair} ${trade.buy_sell}` })} className="btn" style={{ background: 'transparent', padding: '0.25rem' }}>
                                             <Trash2 size={18} color="var(--danger)" />
                                         </button>
                                     </div>
@@ -269,6 +276,14 @@ const Trades = () => {
                 onSave={handleSaveTrade}
                 editData={editData}
                 isSaving={isSaving}
+            />
+
+            <DeleteConfirmModal
+                isOpen={deleteModal.open}
+                onClose={() => setDeleteModal({ open: false, id: null, name: '' })}
+                onConfirm={confirmDelete}
+                tradeName={deleteModal.name}
+                isDeleting={isDeleting}
             />
 
 
