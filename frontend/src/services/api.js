@@ -89,8 +89,8 @@ export const strategyService = {
         const response = await api.get('strategies/');
         return response.data;
     },
-    createStrategy: async (name) => {
-        const response = await api.post('strategies/', { name });
+    createStrategy: async (strategyData) => {
+        const response = await api.post('strategies/', strategyData);
         return response.data;
     },
 };
