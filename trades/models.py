@@ -72,26 +72,40 @@ class Trade(models.Model):
     def save(self, *args, **kwargs):
 
         pair = self.market_pair.upper()
+
         if "JPY" in pair:
-            multiplier = 100
+            pip_multiplier = 100
+            pip_value_per_lot = 1000.0
+            is_jpy_pair = True
         elif "XAU" in pair or "GOLD" in pair:
-            multiplier = 10
+            pip_multiplier = 10
+            pip_value_per_lot = 1000.0
+            is_jpy_pair = False
         elif any(idx in pair for idx in ["US30", "NAS100", "GER30", "SPX", "UK100", "NDX", "DAX"]):
-            multiplier = 1
+            pip_multiplier = 1
+            pip_value_per_lot = 1.0
+            is_jpy_pair = False
         else:
-            multiplier = 10000
+            pip_multiplier = 10000
+            pip_value_per_lot = 10.0
+            is_jpy_pair = False
 
+        self.pips = round(abs(self.exit_price - self.entry_price) * pip_multiplier, 2)
 
-        self.pips = round(abs(self.exit_price - self.entry_price) * multiplier, 2)
+        price_diff = (self.exit_price - self.entry_price) if self.buy_sell == 'BUY' \
+                     else (self.entry_price - self.exit_price)
+        pips_gained = price_diff * pip_multiplier
 
-
-        if self.buy_sell == 'BUY':
-            raw_pl = (self.exit_price - self.entry_price) * self.lot_size * multiplier
+        if is_jpy_pair:
+            raw_pl = price_diff * self.lot_size * 100_000 / self.exit_price
+        elif "XAU" in pair or "GOLD" in pair:
+            raw_pl = price_diff * self.lot_size * 100
+        elif any(idx in pair for idx in ["US30", "NAS100", "GER30", "SPX", "UK100", "NDX", "DAX"]):
+            raw_pl = pips_gained * pip_value_per_lot * self.lot_size
         else:
-            raw_pl = (self.entry_price - self.exit_price) * self.lot_size * multiplier
+            raw_pl = pips_gained * pip_value_per_lot * self.lot_size
 
         self.profit_loss = round(raw_pl - self.commission + self.swap_fees, 2)
-
 
         try:
             if self.buy_sell == 'BUY':
@@ -108,11 +122,17 @@ class Trade(models.Model):
         except ZeroDivisionError:
             self.risk_reward = 0.0
 
-
-        if self.buy_sell == 'BUY':
-            self.risk_amount = round(abs(self.entry_price - self.stop_loss) * self.lot_size * multiplier, 2)
+        sl_pips = abs(self.entry_price - self.stop_loss) * pip_multiplier
+        if is_jpy_pair:
+            self.risk_amount = round(
+                abs(self.entry_price - self.stop_loss) * self.lot_size * 100_000 / self.entry_price, 2
+            )
+        elif "XAU" in pair or "GOLD" in pair:
+            self.risk_amount = round(abs(self.entry_price - self.stop_loss) * self.lot_size * 100, 2)
+        elif any(idx in pair for idx in ["US30", "NAS100", "GER30", "SPX", "UK100", "NDX", "DAX"]):
+            self.risk_amount = round(sl_pips * pip_value_per_lot * self.lot_size, 2)
         else:
-            self.risk_amount = round(abs(self.stop_loss - self.entry_price) * self.lot_size * multiplier, 2)
+            self.risk_amount = round(sl_pips * pip_value_per_lot * self.lot_size, 2)
 
 
         if self.profit_loss > 0:
