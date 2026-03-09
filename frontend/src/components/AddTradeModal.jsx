@@ -146,6 +146,16 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
                         </select>
                     </div>
 
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-secondary)' }}>Commission</label>
+                        <input className="input-field" type="number" step="0.01" name="commission" value={formData.commission} onChange={handleChange} />
+                    </div>
+
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-secondary)' }}>Swap Fees</label>
+                        <input className="input-field" type="number" step="0.01" name="swap_fees" value={formData.swap_fees} onChange={handleChange} />
+                    </div>
+
                     {/* Integrated Playbook Strategy Engine */}
                     <div style={{ gridColumn: 'span 2' }}>
                         <label style={{ display: 'block', marginBottom: '1rem', fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Active Strategies</label>

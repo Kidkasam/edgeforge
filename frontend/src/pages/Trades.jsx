@@ -61,32 +61,81 @@ const Trades = () => {
     const handleSaveTrade = async (tradeData) => {
         try {
             setIsSaving(true);
-            const formData = new FormData();
-            for (const key in tradeData) {
-                if (key === 'strategies') {
-                    tradeData[key].forEach(val => formData.append('strategies', val));
-                } else if (key === 'screenshot') {
-                    if (tradeData[key] instanceof File) {
-                        formData.append('screenshot', tradeData[key]);
-                    }
-                } else {
-                    if (tradeData[key] !== null && tradeData[key] !== undefined) {
-                        formData.append(key, tradeData[key]);
+
+            // Determine if we are uploading a new file
+            const hasNewScreenshot = tradeData.screenshot instanceof File;
+
+            // Define fields that are read-out only or managed by backend
+            const ignoredFields = ['id', 'user', 'pips', 'profit_loss', 'risk_reward', 'risk_amount', 'is_winner', 'outcome', 'created_at', 'updated_at'];
+
+            let dataToSend;
+
+            if (hasNewScreenshot) {
+                // Use FormData for multipart/form-data (required for file uploads)
+                const formData = new FormData();
+                for (const key in tradeData) {
+                    if (ignoredFields.includes(key)) continue;
+
+                    if (key === 'strategies') {
+                        if (Array.isArray(tradeData[key])) {
+                            tradeData[key].forEach(val => formData.append('strategies', val));
+                        }
+                    } else if (key === 'screenshot') {
+                        if (tradeData[key] instanceof File) {
+                            formData.append('screenshot', tradeData[key]);
+                        }
+                    } else {
+                        // For numbers, avoid sending empty strings
+                        const value = tradeData[key];
+                        if (value !== '' && value !== null && value !== undefined) {
+                            formData.append(key, value);
+                        } else if (value === '') {
+                            // If it's empty, we either don't send it (PATCH) or send 0 for specific fields
+                            if (['commission', 'swap_fees'].includes(key)) {
+                                formData.append(key, '0');
+                            }
+                        }
                     }
                 }
+                dataToSend = formData;
+            } else {
+                // Use JSON - much more reliable for PATCH updates without files
+                const jsonData = {};
+                for (const key in tradeData) {
+                    // Also ignore existing screenshot URL string when sending JSON
+                    if (ignoredFields.includes(key) || key === 'screenshot') continue;
+
+                    if (key === 'strategies') {
+                        jsonData[key] = Array.isArray(tradeData[key]) ? tradeData[key] : [];
+                    } else {
+                        const value = tradeData[key];
+                        // Convert numerical strings back to numbers for JSON
+                        if (['entry_price', 'exit_price', 'stop_loss', 'take_profit', 'lot_size', 'commission', 'swap_fees'].includes(key)) {
+                            if (value === '' || value === null || value === undefined) {
+                                if (['commission', 'swap_fees'].includes(key)) jsonData[key] = 0;
+                            } else {
+                                jsonData[key] = parseFloat(value);
+                            }
+                        } else {
+                            jsonData[key] = value;
+                        }
+                    }
+                }
+                dataToSend = jsonData;
             }
 
             if (editData) {
-                await tradeService.updateTrade(editData.id, formData);
+                await tradeService.updateTrade(editData.id, dataToSend);
             } else {
-                await tradeService.createTrade(formData);
+                await tradeService.createTrade(dataToSend);
             }
             setIsModalOpen(false);
             setEditData(null);
             fetchTrades();
         } catch (err) {
             console.error('Failed to save trade:', err);
-            alert('Failed to save trade. Check console for details.');
+            const errorMsg = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+            alert(`Failed to save trade: ${errorMsg}`);
         } finally {
             setIsSaving(false);
         }

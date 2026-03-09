@@ -75,7 +75,7 @@ export const tradeService = {
         return response.data;
     },
     updateTrade: async (id, tradeData) => {
-        const response = await api.put(`trades/${id}/`, tradeData);
+        const response = await api.patch(`trades/${id}/`, tradeData);
         return response.data;
     },
     deleteTrade: async (id) => {
