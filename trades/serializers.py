@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import Trade, Strategy
 
 class UserRegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -14,10 +15,16 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Username already exists")
         return value
 
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email already exists")
+        return value
+
     def create(self, validated_data):
         user = User(
             username=validated_data['username'],
-            email=validated_data.get('email', '')
+            email=validated_data['email'],
+            is_active=False
         )
         user.set_password(validated_data['password'])
         user.save()

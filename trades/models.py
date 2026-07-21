@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
@@ -14,6 +15,15 @@ class Strategy(models.Model):
 
     class Meta:
         verbose_name_plural = "Strategies"
+
+class EmailVerification(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_verification')
+    token = models.CharField(max_length=64, unique=True, default=uuid.uuid4().hex)
+    created_at = models.DateTimeField(auto_now_add=True)
+    verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.email} verified={self.verified}"
 
 class Trade(models.Model):
     BUY_SELL_CHOICES = [

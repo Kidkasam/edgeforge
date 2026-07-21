@@ -3,12 +3,15 @@ from django.utils.decorators import method_decorator
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.mail import send_mail
+from django.conf import settings
 from .filters import TradeFilter
-from .models import Trade, Strategy
+from .models import Trade, Strategy, EmailVerification
 from .serializers import TradeSerializer, StrategySerializer, UserRegisterSerializer
 from rest_framework.pagination import PageNumberPagination
 
@@ -159,21 +162,37 @@ class StatisticsView(APIView):
 class RegisterAPIView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+
     def post(self, request):
-        try:
-            serializer = UserRegisterSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        serializer = UserRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            verification = EmailVerification.objects.create(user=user)
+            verify_url = f"{request.scheme}://{request.get_host()}/auth/verify-email/{verification.token}/"
+            try:
+                send_mail(
+                    'Verify your Edgeforge email',
+                    f'Click the link to verify your account: {verify_url}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                return Response({
+                    "message": "User registered. Verification email could not be sent.",
+                    "error": str(e)
+                }, status=status.HTTP_201_CREATED)
+
+            return Response({"message": "User registered successfully. Check your email to verify your account."}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 from rest_framework.authtoken.models import Token
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -186,6 +205,11 @@ class LoginAPIView(APIView):
                 "token": token.key,
                 "username": user.username
             })
+
+        user_check = User.objects.filter(username=request.data.get('username')).first()
+        if user_check and not user_check.is_active:
+            return Response({"error": "Account not verified. Check your email."}, status=status.HTTP_401_UNAUTHORIZED)
+
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 @method_decorator(csrf_exempt, name='dispatch')
 class LogoutAPIView(APIView):
@@ -194,6 +218,23 @@ class LogoutAPIView(APIView):
     def post(self, request):
         logout(request)
         return Response({"message": "Logged out successfully"})
+
+class VerifyEmailAPIView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, token):
+        try:
+            verification = EmailVerification.objects.get(token=token, verified=False)
+        except EmailVerification.DoesNotExist:
+            return Response({"error": "Invalid or expired verification link."}, status=status.HTTP_400_BAD_REQUEST)
+
+        verification.verified = True
+        verification.save()
+        user = verification.user
+        user.is_active = True
+        user.save()
+        return Response({"message": "Email verified successfully."})
 
 class UserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
