@@ -166,20 +166,19 @@ class RegisterAPIView(APIView):
     authentication_classes = []
 
     def post(self, request):
-        serializer = UserRegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            user.is_active = True
-            user.save()
+        try:
+            serializer = UserRegisterSerializer(data=request.data)
+            if serializer.is_valid():
+                user = serializer.save()
+                user.is_active = True
+                user.save()
 
-            # Dispatch email send asynchronously in background thread
-            if settings.EMAIL_HOST_USER:
-                try:
-                    verification, _ = EmailVerification.objects.get_or_create(user=user)
-                    verify_url = f"{request.scheme}://{request.get_host()}/auth/verify-email/{verification.token}/"
-                    
+                # Dispatch verification email in background thread safely
+                if getattr(settings, 'EMAIL_HOST_USER', None):
                     def _async_send():
                         try:
+                            verification, _ = EmailVerification.objects.get_or_create(user=user)
+                            verify_url = f"{request.scheme}://{request.get_host()}/auth/verify-email/{verification.token}/"
                             send_mail(
                                 'Verify your Edgeforge email',
                                 f'Click the link to verify your account: {verify_url}',
@@ -191,15 +190,18 @@ class RegisterAPIView(APIView):
                             pass
 
                     threading.Thread(target=_async_send, daemon=True).start()
-                except Exception:
-                    pass
 
+                return Response(
+                    {"message": "User registered successfully."},
+                    status=status.HTTP_201_CREATED
+                )
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
             return Response(
-                {"message": "User registered successfully."},
-                status=status.HTTP_201_CREATED
+                {"error": f"Registration error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 from rest_framework.authtoken.models import Token
 

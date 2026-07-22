@@ -101,9 +101,6 @@ DATABASES = {
         ssl_require=os.getenv('DATABASE_SSL_REQUIRE', 'False') == 'True'
     )
 }
-if DATABASES['default']:
-    DATABASES['default']['CONN_HEALTH_CHECKS'] = True
-
 if not DATABASES['default']:
     DATABASES = {
         'default': {
@@ -118,6 +115,8 @@ if not DATABASES['default']:
             },
         }
     }
+
+DATABASES['default']['CONN_HEALTH_CHECKS'] = True
 
 
 # Password validation
