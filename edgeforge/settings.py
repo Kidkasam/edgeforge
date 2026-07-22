@@ -94,8 +94,23 @@ WSGI_APPLICATION = 'edgeforge.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+_LOCAL_HOSTS = ('127.0.0.1', 'localhost', '::1')
+
+def _is_local_host(url):
+    """Return True if the URL's host is a localhost address."""
+    if not url:
+        return True
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        return parsed.hostname in _LOCAL_HOSTS
+    except Exception:
+        return True
+
 database_url = os.getenv('DATABASE_URL')
-if database_url:
+
+if database_url and not _is_local_host(database_url):
+    # Valid remote DATABASE_URL — use it
     DATABASES = {
         'default': dj_database_url.config(
             default=database_url,
@@ -104,8 +119,9 @@ if database_url:
         )
     }
 else:
-    mysql_host = os.getenv('MYSQL_HOST')
-    if mysql_host and mysql_host not in ('127.0.0.1', 'localhost'):
+    mysql_host = os.getenv('MYSQL_HOST', '')
+    if mysql_host and mysql_host not in _LOCAL_HOSTS:
+        # Valid remote MySQL host — use it
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.mysql',
@@ -120,6 +136,7 @@ else:
             }
         }
     else:
+        # No valid remote DB configured — fall back to SQLite
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
