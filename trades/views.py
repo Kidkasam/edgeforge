@@ -158,6 +158,8 @@ class StatisticsView(APIView):
             "monthly_pnl": monthly_pnl,
         })
 
+import threading
+
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterAPIView(APIView):
     permission_classes = [AllowAny]
@@ -167,41 +169,35 @@ class RegisterAPIView(APIView):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            user.is_active = True
+            user.save()
 
-            # Only send verification email if SMTP is configured
-            email_configured = bool(settings.EMAIL_HOST_USER)
-
-            if email_configured:
+            # Dispatch email send asynchronously in background thread
+            if settings.EMAIL_HOST_USER:
                 try:
-                    verification = EmailVerification.objects.create(user=user)
+                    verification, _ = EmailVerification.objects.get_or_create(user=user)
                     verify_url = f"{request.scheme}://{request.get_host()}/auth/verify-email/{verification.token}/"
-                    send_mail(
-                        'Verify your Edgeforge email',
-                        f'Click the link to verify your account: {verify_url}',
-                        settings.DEFAULT_FROM_EMAIL,
-                        [user.email],
-                        fail_silently=False,
-                    )
-                    return Response(
-                        {"message": "User registered successfully. Check your email to verify your account."},
-                        status=status.HTTP_201_CREATED
-                    )
-                except Exception as e:
-                    # Email failed — activate user directly so they can still log in
-                    user.is_active = True
-                    user.save()
-                    return Response(
-                        {"message": "User registered successfully."},
-                        status=status.HTTP_201_CREATED
-                    )
-            else:
-                # No email configured — activate user immediately
-                user.is_active = True
-                user.save()
-                return Response(
-                    {"message": "User registered successfully."},
-                    status=status.HTTP_201_CREATED
-                )
+                    
+                    def _async_send():
+                        try:
+                            send_mail(
+                                'Verify your Edgeforge email',
+                                f'Click the link to verify your account: {verify_url}',
+                                settings.DEFAULT_FROM_EMAIL,
+                                [user.email],
+                                fail_silently=True,
+                            )
+                        except Exception:
+                            pass
+
+                    threading.Thread(target=_async_send, daemon=True).start()
+                except Exception:
+                    pass
+
+            return Response(
+                {"message": "User registered successfully."},
+                status=status.HTTP_201_CREATED
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
