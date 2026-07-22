@@ -127,7 +127,7 @@ if database_url and not _is_local_host(database_url):
         if os.path.exists('/etc/ssl/certs/ca-certificates.crt'):
             DATABASES['default']['OPTIONS']['ssl'] = {'ca': '/etc/ssl/certs/ca-certificates.crt'}
         else:
-            DATABASES['default']['OPTIONS']['ssl'] = True
+            DATABASES['default']['OPTIONS']['ssl'] = {}
 else:
     mysql_host = os.getenv('MYSQL_HOST', '')
     if mysql_host and mysql_host not in _LOCAL_HOSTS:
