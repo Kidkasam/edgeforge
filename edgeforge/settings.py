@@ -116,9 +116,12 @@ if database_url and not _is_local_host(database_url):
         'default': dj_database_url.config(
             default=database_url,
             conn_max_age=int(os.getenv('CONN_MAX_AGE', 0)),
-            ssl_require=True if is_tidb else (os.getenv('DATABASE_SSL_REQUIRE', 'False') == 'True')
+            ssl_require=False
         )
     }
+    if 'OPTIONS' in DATABASES['default']:
+        DATABASES['default']['OPTIONS'].pop('sslmode', None)
+
     if is_tidb:
         DATABASES['default'].setdefault('OPTIONS', {})
         if os.path.exists('/etc/ssl/certs/ca-certificates.crt'):
