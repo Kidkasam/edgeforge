@@ -111,13 +111,20 @@ database_url = os.getenv('DATABASE_URL')
 
 if database_url and not _is_local_host(database_url):
     # Valid remote DATABASE_URL — use it
+    is_tidb = 'tidbcloud' in database_url
     DATABASES = {
         'default': dj_database_url.config(
             default=database_url,
             conn_max_age=int(os.getenv('CONN_MAX_AGE', 0)),
-            ssl_require=os.getenv('DATABASE_SSL_REQUIRE', 'False') == 'True'
+            ssl_require=True if is_tidb else (os.getenv('DATABASE_SSL_REQUIRE', 'False') == 'True')
         )
     }
+    if is_tidb:
+        DATABASES['default'].setdefault('OPTIONS', {})
+        if os.path.exists('/etc/ssl/certs/ca-certificates.crt'):
+            DATABASES['default']['OPTIONS']['ssl'] = {'ca': '/etc/ssl/certs/ca-certificates.crt'}
+        else:
+            DATABASES['default']['OPTIONS']['ssl'] = True
 else:
     mysql_host = os.getenv('MYSQL_HOST', '')
     if mysql_host and mysql_host not in _LOCAL_HOSTS:
