@@ -18,7 +18,7 @@ class Strategy(models.Model):
 
 class EmailVerification(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_verification')
-    token = models.CharField(max_length=64, unique=True, default=uuid.uuid4().hex)
+    token = models.CharField(max_length=64, unique=True, default=uuid.uuid4)
     created_at = models.DateTimeField(auto_now_add=True)
     verified = models.BooleanField(default=False)
 
@@ -115,7 +115,7 @@ class Trade(models.Model):
         else:
             raw_pl = pips_gained * pip_value_per_lot * self.lot_size
 
-        self.profit_loss = round(raw_pl - self.commission + self.swap_fees, 2)
+        self.profit_loss = round(raw_pl - self.commission - self.swap_fees, 2)
 
         try:
             if self.buy_sell == 'BUY':
