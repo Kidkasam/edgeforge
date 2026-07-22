@@ -14,10 +14,10 @@ load_dotenv(dotenv_path=BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ge5j#0lw=@3x7c6+_q$9z)!yv_0ryp(m3)^xas@0hhk7n-+m5p'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ge5j#0lw=@3x7c6+_q$9z)!yv_0ryp(m3)^xas@0hhk7n-+m5p')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['edgeforge-ct0r.onrender.com', 'localhost', '127.0.0.1', '*']
 
@@ -94,18 +94,27 @@ WSGI_APPLICATION = 'edgeforge.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQL_DATABASE', 'edgeforge'),
-        'USER': os.getenv('MYSQL_USER', 'edgeforge_user'),
-        'PASSWORD': os.getenv('MYSQL_PASSWORD', 'YourPasswordHere'),
-        'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
-        'PORT': os.getenv('MYSQL_PORT', '3306'),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL', ''),
+        conn_max_age=int(os.getenv('CONN_MAX_AGE', 600)),
+        ssl_require=os.getenv('DATABASE_SSL_REQUIRE', 'False') == 'True'
+    )
 }
+
+if not DATABASES['default']:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.getenv('MYSQL_DATABASE', 'edgeforge'),
+            'USER': os.getenv('MYSQL_USER', 'edgeforge_user'),
+            'PASSWORD': os.getenv('MYSQL_PASSWORD', 'YourPasswordHere'),
+            'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
+            'PORT': os.getenv('MYSQL_PORT', '3306'),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    }
 
 
 # Password validation
