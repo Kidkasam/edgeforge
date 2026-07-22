@@ -94,27 +94,38 @@ WSGI_APPLICATION = 'edgeforge.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL', ''),
-        conn_max_age=int(os.getenv('CONN_MAX_AGE', 0)),
-        ssl_require=os.getenv('DATABASE_SSL_REQUIRE', 'False') == 'True'
-    )
-}
-if not DATABASES['default']:
+database_url = os.getenv('DATABASE_URL')
+if database_url:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.getenv('MYSQL_DATABASE', 'edgeforge'),
-            'USER': os.getenv('MYSQL_USER', 'edgeforge_user'),
-            'PASSWORD': os.getenv('MYSQL_PASSWORD', 'YourPasswordHere'),
-            'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
-            'PORT': os.getenv('MYSQL_PORT', '3306'),
-            'OPTIONS': {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=int(os.getenv('CONN_MAX_AGE', 0)),
+            ssl_require=os.getenv('DATABASE_SSL_REQUIRE', 'False') == 'True'
+        )
     }
+else:
+    mysql_host = os.getenv('MYSQL_HOST')
+    if mysql_host and mysql_host not in ('127.0.0.1', 'localhost'):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': os.getenv('MYSQL_DATABASE', 'edgeforge'),
+                'USER': os.getenv('MYSQL_USER', 'edgeforge_user'),
+                'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
+                'HOST': mysql_host,
+                'PORT': os.getenv('MYSQL_PORT', '3306'),
+                'OPTIONS': {
+                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                },
+            }
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 
 DATABASES['default']['CONN_HEALTH_CHECKS'] = True
 
