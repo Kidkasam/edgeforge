@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Trades from './pages/Trades';
 import Landing from './pages/Landing';
+import Profile from './pages/Profile';
 import Footer from './components/Footer';
 import Logo from './components/Logo';
 import {
@@ -176,7 +177,7 @@ const AppContent = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<HomeLoader />} />
         <Route path="/trades" element={<PrivateRoute><Trades /></PrivateRoute>} />
-
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       </Routes>
       <Footer />
     </div>

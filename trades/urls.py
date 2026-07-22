@@ -21,4 +21,5 @@ urlpatterns = [
     path('auth/token/', obtain_auth_token, name='api-token'),
     path('overview/', OverviewView.as_view(), name='overview'),
     path('statistics/', StatisticsView.as_view(), name='statistics'),
+    path('user/', UserView.as_view(), name='user-profile'),
 ]
