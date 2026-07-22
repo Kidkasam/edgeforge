@@ -97,10 +97,12 @@ WSGI_APPLICATION = 'edgeforge.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL', ''),
-        conn_max_age=int(os.getenv('CONN_MAX_AGE', 600)),
+        conn_max_age=int(os.getenv('CONN_MAX_AGE', 0)),
         ssl_require=os.getenv('DATABASE_SSL_REQUIRE', 'False') == 'True'
     )
 }
+if DATABASES['default']:
+    DATABASES['default']['CONN_HEALTH_CHECKS'] = True
 
 if not DATABASES['default']:
     DATABASES = {
