@@ -170,29 +170,35 @@ class RegisterAPIView(APIView):
             serializer = UserRegisterSerializer(data=request.data)
             if serializer.is_valid():
                 user = serializer.save()
-                user.is_active = True
+                user.is_active = False
                 user.save()
 
-                # Dispatch verification email in background thread safely
-                if getattr(settings, 'EMAIL_HOST_USER', None):
-                    def _async_send():
-                        try:
-                            verification, _ = EmailVerification.objects.get_or_create(user=user)
-                            verify_url = f"{request.scheme}://{request.get_host()}/auth/verify-email/{verification.token}/"
-                            send_mail(
-                                'Verify your Edgeforge email',
-                                f'Click the link to verify your account: {verify_url}',
-                                settings.DEFAULT_FROM_EMAIL,
-                                [user.email],
-                                fail_silently=True,
-                            )
-                        except Exception:
-                            pass
+                if not getattr(settings, 'EMAIL_HOST_USER', None):
+                    user.delete()
+                    return Response(
+                        {"error": "Email is not configured on this server. Registration cannot be completed."},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
 
-                    threading.Thread(target=_async_send, daemon=True).start()
+                verification, _ = EmailVerification.objects.get_or_create(user=user)
+                verify_url = f"{request.scheme}://{request.get_host()}/auth/verify-email/{verification.token}/"
+                try:
+                    send_mail(
+                        'Verify your Edgeforge email',
+                        f'Click the link to verify your account: {verify_url}',
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    user.delete()
+                    return Response(
+                        {"error": "Verification email could not be sent.", "detail": str(e)},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
 
                 return Response(
-                    {"message": "User registered successfully."},
+                    {"message": "User registered successfully. Check your email to verify your account."},
                     status=status.HTTP_201_CREATED
                 )
 

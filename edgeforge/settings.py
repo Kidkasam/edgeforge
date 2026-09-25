@@ -7,7 +7,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
-load_dotenv(dotenv_path=BASE_DIR / '.env')
+load_dotenv(dotenv_path=BASE_DIR / '.env', override=True)
 
 
 # Quick-start development settings - unsuitable for production
@@ -107,6 +107,7 @@ def _is_local_host(url):
     except Exception:
         return True
 
+use_mysql = os.getenv('USE_MYSQL', 'False').lower() in ('true', '1', 'yes')
 database_url = os.getenv('DATABASE_URL')
 
 if database_url and not _is_local_host(database_url):
@@ -128,33 +129,30 @@ if database_url and not _is_local_host(database_url):
             DATABASES['default']['OPTIONS']['ssl'] = {'ca': '/etc/ssl/certs/ca-certificates.crt'}
         else:
             DATABASES['default']['OPTIONS']['ssl'] = {}
+elif use_mysql or (os.getenv('MYSQL_HOST') and not _is_local_host(os.getenv('MYSQL_HOST'))):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.getenv('MYSQL_DATABASE', 'edgeforge'),
+            'USER': os.getenv('MYSQL_USER', 'root'),
+            'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
+            'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
+            'PORT': os.getenv('MYSQL_PORT', '3306'),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    }
 else:
-    mysql_host = os.getenv('MYSQL_HOST', '')
-    if mysql_host and mysql_host not in _LOCAL_HOSTS:
-        # Valid remote MySQL host — use it
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': os.getenv('MYSQL_DATABASE', 'edgeforge'),
-                'USER': os.getenv('MYSQL_USER', 'edgeforge_user'),
-                'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
-                'HOST': mysql_host,
-                'PORT': os.getenv('MYSQL_PORT', '3306'),
-                'OPTIONS': {
-                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-                },
-            }
+    # Fall back to SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
-    else:
-        # No valid remote DB configured — fall back to SQLite
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
+    }
 
-DATABASES['default']['CONN_HEALTH_CHECKS'] = True
+DATABASES['default']['CONN_HEALTH_CHECKS'] = False
 
 
 # Password validation
