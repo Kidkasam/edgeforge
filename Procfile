@@ -1,1 +1,1 @@
-web: gunicorn edgeforge.wsgi:application
+web: gunicorn edgeforge.wsgi:application --bind 0.0.0.0:
