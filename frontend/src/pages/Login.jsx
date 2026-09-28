@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, ArrowRight, User, Lock, Sparkles } from 'lucide-react';
+import { Shield, ArrowRight, User, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import Logo from '../components/Logo';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
@@ -41,81 +43,137 @@ const Login = () => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            minHeight: '85vh',
-            padding: '2rem'
+            minHeight: '80vh',
+            padding: '1.5rem'
         }}>
-            <div className="glass-card animate-fade-in" style={{
+            <div className="glass-card" style={{
                 width: '100%',
                 maxWidth: '440px',
-                padding: '3.5rem 3rem',
-                boxShadow: '0 40px 100px -20px rgba(0,0,0,0.5)'
+                padding: '3rem 2.5rem',
+                border: '1px solid var(--border-bright)',
+                boxShadow: '0 30px 80px -20px rgba(0,0,0,0.7)'
             }}>
-                <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                    <div className="badge" style={{
-                        margin: '0 auto 1.5rem auto',
-                        background: 'rgba(99, 102, 241, 0.1)',
-                        color: 'var(--primary)'
+                <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                    <div style={{ display: 'inline-flex', marginBottom: '1.25rem' }}>
+                        <Logo size={42} />
+                    </div>
+                    <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        margin: '0 auto 1rem auto',
+                        padding: '0.25rem 0.65rem',
+                        borderRadius: '9999px',
+                        background: 'var(--primary-glow-subtle)',
+                        color: 'var(--primary-light)',
+                        fontSize: '0.72rem',
+                        fontWeight: '700',
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase'
                     }}>
-                        <Shield size={14} /> SECURE NODE ACCESS
+                        <Shield size={13} /> Secure Node Access
                     </div>
                     <h2 style={{
-                        fontSize: '2.25rem',
+                        fontSize: '2rem',
                         fontWeight: '900',
-                        letterSpacing: '-0.05em',
-                        marginBottom: '0.75rem'
-                    }}>Welcome Back</h2>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Synchronize with the Sovereign Engine.</p>
+                        letterSpacing: '-0.04em',
+                        marginBottom: '0.4rem',
+                        color: 'var(--text-primary)'
+                    }}>
+                        Welcome Back
+                    </h2>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
+                        Synchronize with your sovereign analytical ledger.
+                    </p>
                 </div>
 
                 {error && (
                     <div style={{
-                        background: 'rgba(239, 68, 68, 0.05)',
-                        border: '1px solid rgba(239, 68, 68, 0.1)',
+                        background: 'var(--danger-bg)',
+                        border: '1px solid rgba(244, 63, 94, 0.3)',
                         color: 'var(--danger)',
-                        padding: '1rem',
-                        borderRadius: '0.75rem',
-                        marginBottom: '2rem',
-                        fontSize: '0.85rem',
-                        textAlign: 'center',
+                        padding: '0.85rem 1rem',
+                        borderRadius: 'var(--radius-md)',
+                        marginBottom: '1.75rem',
+                        fontSize: '0.84rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
                         fontWeight: '600'
                     }}>
-                        {error}
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                        <span>{error}</span>
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
-                        <User size={18} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', zIndex: 1 }} />
+                        <User size={17} style={{ position: 'absolute', left: '1.15rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', zIndex: 1 }} />
                         <input
                             className="input-field"
                             type="text"
-                            placeholder="Sovereign ID"
+                            placeholder="Username / Sovereign ID"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
-                            style={{ paddingLeft: '3.25rem', marginBottom: 0 }}
+                            style={{ paddingLeft: '3rem', marginBottom: 0 }}
                         />
                     </div>
-                    <div className="input-group" style={{ marginBottom: '2.5rem' }}>
-                        <Lock size={18} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', zIndex: 1 }} />
+
+                    <div className="input-group" style={{ marginBottom: '2rem' }}>
+                        <Lock size={17} style={{ position: 'absolute', left: '1.15rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', zIndex: 1 }} />
                         <input
                             className="input-field"
-                            type="password"
-                            placeholder="Access Token"
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Passcode / Security Token"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            style={{ paddingLeft: '3.25rem', marginBottom: 0 }}
+                            style={{ paddingLeft: '3rem', paddingRight: '3rem', marginBottom: 0 }}
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            style={{
+                                position: 'absolute',
+                                right: '1rem',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--text-muted)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: 0
+                            }}
+                        >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
                     </div>
-                    <button className="btn btn-primary" style={{ width: '100%', padding: '1.25rem', borderRadius: '1rem', opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
-                        {loading ? 'Synchronizing...' : 'Initialize Session'} <ArrowRight size={20} />
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="btn btn-primary"
+                        style={{
+                            width: '100%',
+                            padding: '0.9rem',
+                            fontSize: '0.95rem',
+                            opacity: loading ? 0.7 : 1,
+                            borderRadius: 'var(--radius-md)'
+                        }}
+                    >
+                        {loading ? 'Decrypting Access...' : 'Connect to Node'} <ArrowRight size={17} />
                     </button>
                 </form>
 
-                <div style={{ marginTop: '2.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                        Access not forged? <Link to="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '800' }}>Forge credentials</Link>
+                <div style={{ marginTop: '2.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                        Need a sovereign analytical node?{' '}
+                        <Link to="/register" style={{ color: 'var(--primary-light)', fontWeight: '700', textDecoration: 'none' }}>
+                            Forge Access Here
+                        </Link>
                     </p>
                 </div>
             </div>

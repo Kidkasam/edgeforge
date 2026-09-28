@@ -1,10 +1,127 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
 from django.utils.html import format_html
+from django.db.models import Count, Sum, Max
 from .models import Trade, Strategy, EmailVerification
 
 admin.site.site_header = "⚔️ EdgeForge Sovereign Engine"
 admin.site.site_title = "EdgeForge Institutional Admin"
 admin.site.index_title = "Sovereign Trade Management & Intelligence"
+
+
+# ─── Custom filter: Has Journaled? ───
+class HasJournaledListFilter(admin.SimpleListFilter):
+    title = 'Journal Status'
+    parameter_name = 'has_journaled'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', '✅ Has Journaled'),
+            ('no', '❌ No Trades Yet'),
+        )
+
+    def queryset(self, request, queryset):
+        queryset = queryset.annotate(_trade_count=Count('trades'))
+        if self.value() == 'yes':
+            return queryset.filter(_trade_count__gt=0)
+        if self.value() == 'no':
+            return queryset.filter(_trade_count=0)
+        return queryset
+
+
+# ─── Custom User Admin ───
+admin.site.unregister(User)
+
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    list_display = (
+        'username',
+        'email',
+        'has_journaled_badge',
+        'trade_count_display',
+        'total_user_pnl',
+        'last_trade_date',
+        'is_staff',
+        'is_superuser',
+        'date_joined',
+    )
+    list_filter = (
+        HasJournaledListFilter,
+        'is_staff',
+        'is_superuser',
+        'is_active',
+        'date_joined',
+    )
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    ordering = ('-date_joined',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            _trade_count=Count('trades'),
+            _total_pnl=Sum('trades__profit_loss'),
+            _last_trade=Max('trades__trade_date'),
+        )
+
+    def has_journaled_badge(self, obj):
+        count = obj._trade_count
+        if count > 0:
+            return format_html(
+                '<span style="color: #10b981; background: rgba(16,185,129,0.15); '
+                'padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; '
+                'border: 1px solid rgba(16,185,129,0.3);">'
+                '✅ ACTIVE ({} trades)</span>',
+                count
+            )
+        return format_html(
+            '<span style="color: #ef4444; background: rgba(239,68,68,0.12); '
+            'padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; '
+            'border: 1px solid rgba(239,68,68,0.25);">'
+            '❌ NO TRADES (0)</span>'
+        )
+    has_journaled_badge.short_description = "Journal Status"
+    has_journaled_badge.admin_order_field = '_trade_count'
+
+    def trade_count_display(self, obj):
+        count = obj._trade_count
+        color = "#10b981" if count > 0 else "#64748b"
+        return format_html(
+            '<span style="color: {}; font-weight: 700; font-size: 13px;">{}</span>',
+            color, count
+        )
+    trade_count_display.short_description = "Trades"
+    trade_count_display.admin_order_field = '_trade_count'
+
+    def total_user_pnl(self, obj):
+        pnl = float(obj._total_pnl or 0)
+        if pnl > 0:
+            color = "#10b981"
+            prefix = "+"
+        elif pnl < 0:
+            color = "#ef4444"
+            prefix = ""
+        else:
+            color = "#64748b"
+            prefix = ""
+        return format_html(
+            '<span style="color: {}; font-weight: 700; font-size: 13px;">{}${:,.2f}</span>',
+            color, prefix, pnl
+        )
+    total_user_pnl.short_description = "Total P&L"
+    total_user_pnl.admin_order_field = '_total_pnl'
+
+    def last_trade_date(self, obj):
+        if obj._last_trade:
+            return format_html(
+                '<span style="font-size: 12px;">{}</span>',
+                obj._last_trade.strftime('%b %d, %Y')
+            )
+        return format_html(
+            '<span style="color: #94a3b8; font-size: 11px; font-style: italic;">Never</span>'
+        )
+    last_trade_date.short_description = "Last Trade"
+    last_trade_date.admin_order_field = '_last_trade'
 
 @admin.register(Trade)
 class TradeAdmin(admin.ModelAdmin):
@@ -112,4 +229,4 @@ class StrategyAdmin(admin.ModelAdmin):
 class EmailVerificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'verified', 'token', 'created_at')
     list_filter = ('verified',)
-    search_fields = ('user__username', 'user__email', 'token')
+    search_fields = ('user__username', 'user__email', 'token')
