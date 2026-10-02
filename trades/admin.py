@@ -22,7 +22,7 @@ class HasJournaledListFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        queryset = queryset.annotate(_trade_count=Count('trade_set'))
+        queryset = queryset.annotate(_trade_count=Count('trade'))
         if self.value() == 'yes':
             return queryset.filter(_trade_count__gt=0)
         if self.value() == 'no':
@@ -59,9 +59,9 @@ class CustomUserAdmin(UserAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.annotate(
-            _trade_count=Count('trade_set'),
-            _total_pnl=Sum('trade_set__profit_loss'),
-            _last_trade=Max('trade_set__trade_date'),
+            _trade_count=Count('trade'),
+            _total_pnl=Sum('trade__profit_loss'),
+            _last_trade=Max('trade__trade_date'),
         )
 
     def has_journaled_badge(self, obj):
