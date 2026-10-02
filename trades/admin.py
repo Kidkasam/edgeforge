@@ -22,16 +22,18 @@ class HasJournaledListFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        queryset = queryset.annotate(_trade_count=Count('trade'))
         if self.value() == 'yes':
-            return queryset.filter(_trade_count__gt=0)
+            return queryset.filter(trade__isnull=False).distinct()
         if self.value() == 'no':
-            return queryset.filter(_trade_count=0)
+            return queryset.filter(trade__isnull=True)
         return queryset
 
 
 # ─── Custom User Admin ───
-admin.site.unregister(User)
+try:
+    admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -58,14 +60,19 @@ class CustomUserAdmin(UserAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.annotate(
-            _trade_count=Count('trade'),
-            _total_pnl=Sum('trade__profit_loss'),
-            _last_trade=Max('trade__trade_date'),
-        )
+        try:
+            return qs.annotate(
+                _trade_count=Count('trade'),
+                _total_pnl=Sum('trade__profit_loss'),
+                _last_trade=Max('trade__trade_date'),
+            )
+        except Exception:
+            return qs
 
     def has_journaled_badge(self, obj):
-        count = obj._trade_count
+        count = getattr(obj, '_trade_count', None)
+        if count is None:
+            count = obj.trade_set.count() if hasattr(obj, 'trade_set') else 0
         if count > 0:
             return format_html(
                 '<span style="color: #10b981; background: rgba(16,185,129,0.15); '
@@ -84,7 +91,9 @@ class CustomUserAdmin(UserAdmin):
     has_journaled_badge.admin_order_field = '_trade_count'
 
     def trade_count_display(self, obj):
-        count = obj._trade_count
+        count = getattr(obj, '_trade_count', None)
+        if count is None:
+            count = obj.trade_set.count() if hasattr(obj, 'trade_set') else 0
         color = "#10b981" if count > 0 else "#64748b"
         return format_html(
             '<span style="color: {}; font-weight: 700; font-size: 13px;">{}</span>',
@@ -94,7 +103,8 @@ class CustomUserAdmin(UserAdmin):
     trade_count_display.admin_order_field = '_trade_count'
 
     def total_user_pnl(self, obj):
-        pnl = float(obj._total_pnl or 0)
+        val = getattr(obj, '_total_pnl', 0)
+        pnl = float(val or 0)
         if pnl > 0:
             color = "#10b981"
             prefix = "+"
@@ -112,10 +122,15 @@ class CustomUserAdmin(UserAdmin):
     total_user_pnl.admin_order_field = '_total_pnl'
 
     def last_trade_date(self, obj):
-        if obj._last_trade:
+        last = getattr(obj, '_last_trade', None)
+        if last:
+            try:
+                formatted = last.strftime('%b %d, %Y')
+            except Exception:
+                formatted = str(last)
             return format_html(
                 '<span style="font-size: 12px;">{}</span>',
-                obj._last_trade.strftime('%b %d, %Y')
+                formatted
             )
         return format_html(
             '<span style="color: #94a3b8; font-size: 11px; font-style: italic;">Never</span>'
@@ -178,10 +193,11 @@ class TradeAdmin(admin.ModelAdmin):
     colored_buy_sell.short_description = "Side"
 
     def colored_pnl(self, obj):
-        if obj.profit_loss > 0:
+        pnl = float(obj.profit_loss or 0)
+        if pnl > 0:
             color = "#10b981"
             prefix = "+"
-        elif obj.profit_loss < 0:
+        elif pnl < 0:
             color = "#ef4444"
             prefix = ""
         else:
@@ -189,7 +205,7 @@ class TradeAdmin(admin.ModelAdmin):
             prefix = ""
         return format_html(
             '<span style="color: {}; font-weight: bold; font-size: 13px;">{}${:,.2f}</span>',
-            color, prefix, obj.profit_loss
+            color, prefix, pnl
         )
     colored_pnl.short_description = "P&L"
 
@@ -208,10 +224,14 @@ class TradeAdmin(admin.ModelAdmin):
 
     def screenshot_preview(self, obj):
         if obj.screenshot:
-            return format_html(
-                '<a href="{}" target="_blank"><img src="{}" style="max-height: 38px; border-radius: 4px; border: 1px solid #334155;" /></a>',
-                obj.screenshot.url, obj.screenshot.url
-            )
+            try:
+                url = obj.screenshot.url
+                return format_html(
+                    '<a href="{}" target="_blank"><img src="{}" style="max-height: 38px; border-radius: 4px; border: 1px solid #334155;" /></a>',
+                    url, url
+                )
+            except Exception:
+                return format_html('<span style="color: #64748b; font-size: 11px;">Image unavailable</span>')
         return format_html('<span style="color: #64748b; font-size: 11px;">No image</span>')
     screenshot_preview.short_description = "Chart"
 
