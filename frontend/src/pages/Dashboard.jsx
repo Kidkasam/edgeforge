@@ -68,18 +68,11 @@ const fadeUp = {
     }
 };
 
-/* ─── Custom Rich Chart Tooltip ─── */
-const CustomChartTooltip = ({ active, payload, label, chartType = 'cumulative', metricUnit = 'USD' }) => {
+/* ─── Custom Clean Chart Tooltip ─── */
+const CustomChartTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         const data = payload[0]?.payload;
         if (!data) return null;
-
-        const formatVal = (val, prefix = '$', suffix = '') => {
-            if (val == null) return '—';
-            const num = Number(val);
-            const sign = num >= 0 ? '+' : '';
-            return `${sign}${prefix}${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${suffix}`;
-        };
 
         return (
             <div className="dash-tooltip-card">
@@ -96,171 +89,38 @@ const CustomChartTooltip = ({ active, payload, label, chartType = 'cumulative', 
                 </div>
 
                 <div className="dash-tooltip-body">
-                    {(chartType === 'cumulative' || chartType === 'trades') && (
-                        <>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Account Equity:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.equity) >= 0 ? '#10b981' : '#f43f5e' }}>
-                                    {metricUnit === 'USD' ? (Number(data.equity) >= 0 ? '+' : '') + '$' + Number(data.equity || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) :
-                                     metricUnit === 'R' ? `${Number(data.equityR || 0) >= 0 ? '+' : ''}${Number(data.equityR || 0).toFixed(2)}R` :
-                                     `${Number(data.equityPips || 0) >= 0 ? '+' : ''}${Number(data.equityPips || 0).toFixed(1)} pips`}
-                                </span>
-                            </div>
+                    <div className="dash-tooltip-stat-row">
+                        <span className="dash-tooltip-label">Account Equity:</span>
+                        <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.equity) >= 0 ? '#10b981' : '#f43f5e' }}>
+                            {Number(data.equity) >= 0 ? '+' : ''}${Number(data.equity || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                    </div>
 
-                            {data.pnl != null && (
-                                <div className="dash-tooltip-stat-row">
-                                    <span className="dash-tooltip-label">Trade P&L:</span>
-                                    <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.pnl) >= 0 ? '#34d399' : '#fb7185' }}>
-                                        {Number(data.pnl) >= 0 ? '+' : ''}${Number(data.pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                            )}
-
-                            {data.rr != null && (
-                                <div className="dash-tooltip-stat-row">
-                                    <span className="dash-tooltip-label">R:R Multiple:</span>
-                                    <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.rr) >= 0 ? '#38bdf8' : '#fb7185' }}>
-                                        {Number(data.rr) >= 0 ? '+' : ''}{Number(data.rr).toFixed(2)}R
-                                    </span>
-                                </div>
-                            )}
-
-                            {data.pips != null && (
-                                <div className="dash-tooltip-stat-row">
-                                    <span className="dash-tooltip-label">Pips Captured:</span>
-                                    <span className="dash-tooltip-value font-tabular" style={{ color: '#a78bfa' }}>
-                                        {Number(data.pips) >= 0 ? '+' : ''}{data.pips} pips
-                                    </span>
-                                </div>
-                            )}
-
-                            {data.pair && (
-                                <div className="dash-tooltip-stat-row">
-                                    <span className="dash-tooltip-label">Instrument / Side:</span>
-                                    <span className="dash-tooltip-value font-tabular" style={{ color: '#22d3ee' }}>
-                                        {data.pair} ({data.buy_sell || 'BUY'})
-                                    </span>
-                                </div>
-                            )}
-
-                            {data.session && (
-                                <div className="dash-tooltip-stat-row">
-                                    <span className="dash-tooltip-label">Session:</span>
-                                    <span className="dash-tooltip-value font-tabular" style={{ color: '#facc15' }}>
-                                        {data.session}
-                                    </span>
-                                </div>
-                            )}
-
-                            {data.peak != null && (
-                                <div className="dash-tooltip-stat-row">
-                                    <span className="dash-tooltip-label">High-Water Mark:</span>
-                                    <span className="dash-tooltip-value font-tabular" style={{ color: '#818cf8' }}>
-                                        ${Number(data.peak || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                            )}
-
-                            {data.notes && (
-                                <div className="dash-tooltip-notes-box">
-                                    <span className="dash-tooltip-notes-text">"{data.notes.slice(0, 60)}{data.notes.length > 60 ? '...' : ''}"</span>
-                                </div>
-                            )}
-                        </>
+                    {data.pnl != null && (
+                        <div className="dash-tooltip-stat-row">
+                            <span className="dash-tooltip-label">Trade P&L:</span>
+                            <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.pnl) >= 0 ? '#34d399' : '#fb7185' }}>
+                                {Number(data.pnl) >= 0 ? '+' : ''}${Number(data.pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                        </div>
                     )}
 
-                    {chartType === 'rolling_wr' && (
-                        <>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Rolling Win Rate:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.winRate) >= 50 ? '#10b981' : '#f43f5e' }}>
-                                    {Number(data.winRate || 0).toFixed(1)}%
-                                </span>
-                            </div>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Window Sample:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: '#94a3b8' }}>
-                                    {data.windowWins}W / {data.windowLosses}L (10 Trades)
-                                </span>
-                            </div>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Alpha Edge:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.winRate) >= 60 ? '#10b981' : Number(data.winRate) >= 50 ? '#38bdf8' : '#fb7185' }}>
-                                    {Number(data.winRate) >= 60 ? '⚡ Strong Alpha' : Number(data.winRate) >= 50 ? '✓ Baseline Edge' : '⚠️ Drawdown Bias'}
-                                </span>
-                            </div>
-                        </>
+                    {data.pair && (
+                        <div className="dash-tooltip-stat-row">
+                            <span className="dash-tooltip-label">Instrument / Side:</span>
+                            <span className="dash-tooltip-value font-tabular" style={{ color: '#22d3ee' }}>
+                                {data.pair} {data.buy_sell ? `(${data.buy_sell})` : ''}
+                            </span>
+                        </div>
                     )}
 
-                    {chartType === 'r_dist' && (
-                        <>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">R-Multiple Tier:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: '#38bdf8' }}>
-                                    {data.bracket}
-                                </span>
-                            </div>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Trade Count:</span>
-                                <span className="dash-tooltip-value font-tabular">
-                                    {data.count} Trades ({data.percentage}%)
-                                </span>
-                            </div>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Bucket Net P&L:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.totalPnl) >= 0 ? '#10b981' : '#f43f5e' }}>
-                                    {Number(data.totalPnl) >= 0 ? '+' : ''}${Number(data.totalPnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </span>
-                            </div>
-                        </>
-                    )}
-
-                    {chartType === 'monthly' && (
-                        <>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Monthly P&L:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.total_pnl) >= 0 ? '#10b981' : '#f43f5e' }}>
-                                    {Number(data.total_pnl) >= 0 ? '+' : ''}${Number(data.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </span>
-                            </div>
-                            {data.trades != null && (
-                                <div className="dash-tooltip-stat-row">
-                                    <span className="dash-tooltip-label">Volume:</span>
-                                    <span className="dash-tooltip-value font-tabular">{data.trades} Trades</span>
-                                </div>
-                            )}
-                            {data.win_rate != null && (
-                                <div className="dash-tooltip-stat-row">
-                                    <span className="dash-tooltip-label">Win Rate:</span>
-                                    <span className="dash-tooltip-value font-tabular" style={{ color: Number(data.win_rate) >= 50 ? '#34d399' : '#fb7185' }}>
-                                        {data.win_rate}%
-                                    </span>
-                                </div>
-                            )}
-                        </>
-                    )}
-
-                    {chartType === 'drawdown' && (
-                        <>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Current Drawdown:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: '#f43f5e' }}>
-                                    {Number(data.drawdown || 0).toFixed(2)}%
-                                </span>
-                            </div>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">Dip from Peak:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: '#fb7185' }}>
-                                    -${Number(data.drawdownAmount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </span>
-                            </div>
-                            <div className="dash-tooltip-stat-row">
-                                <span className="dash-tooltip-label">High-Water Mark:</span>
-                                <span className="dash-tooltip-value font-tabular" style={{ color: '#818cf8' }}>
-                                    ${Number(data.peak || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </span>
-                            </div>
-                        </>
+                    {data.session && (
+                        <div className="dash-tooltip-stat-row">
+                            <span className="dash-tooltip-label">Session:</span>
+                            <span className="dash-tooltip-value font-tabular" style={{ color: '#facc15' }}>
+                                {data.session}
+                            </span>
+                        </div>
                     )}
                 </div>
             </div>
@@ -341,13 +201,9 @@ const Dashboard = ({ onOpenAddTrade }) => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     
-    // Chart Engine state
-    const [activeChartTab, setActiveChartTab] = useState('cumulative'); // 'cumulative' | 'trades' | 'rolling_wr' | 'r_dist' | 'monthly' | 'drawdown'
-    const [chartTimeframe, setChartTimeframe] = useState('ALL'); // 'ALL' | 'YTD' | '90D' | '30D' | '25T'
-    const [metricUnit, setMetricUnit] = useState('USD'); // 'USD' | 'R' | 'PIPS'
-    const [showMA, setShowMA] = useState(false); // 5-period Moving Average
-    const [showHWM, setShowHWM] = useState(true); // High-Water Mark ceiling line
-    const [isFullscreen, setIsFullscreen] = useState(false);
+    // Chart state
+    const [activeChartTab, setActiveChartTab] = useState('cumulative'); // 'cumulative' | 'trades'
+    const [chartTimeframe, setChartTimeframe] = useState('ALL'); // 'ALL' | 'YTD' | '90D' | '30D'
 
     const fetchData = async (isManualRefresh = false) => {
         try {
@@ -381,7 +237,6 @@ const Dashboard = ({ onOpenAddTrade }) => {
         const sourceTrades = allTradesChronological.length > 0 ? allTradesChronological : [...recentTrades].reverse();
         if (!sourceTrades.length) return [];
         if (chartTimeframe === 'ALL') return sourceTrades;
-        if (chartTimeframe === '25T') return sourceTrades.slice(-25);
 
         const now = new Date();
         let cutoff = new Date();
@@ -404,33 +259,14 @@ const Dashboard = ({ onOpenAddTrade }) => {
     const equityCurve = useMemo(() => {
         if (!stats?.monthly_pnl?.length) return [];
         let cumulative = 0;
-        let cumulativeR = 0;
-        let cumulativePips = 0;
-        let peak = 0;
-        const pts = stats.monthly_pnl.map((m, idx) => {
+        return stats.monthly_pnl.map((m) => {
             const pnl = Number(m.total_pnl || 0);
             cumulative += pnl;
-            cumulativeR += pnl > 0 ? 1.5 : -1.0;
-            cumulativePips += pnl * 0.1;
-            if (cumulative > peak) peak = cumulative;
             return {
                 month: m.month,
                 label: m.month,
                 pnl: pnl,
-                equity: parseFloat(cumulative.toFixed(2)),
-                equityR: parseFloat(cumulativeR.toFixed(2)),
-                equityPips: parseFloat(cumulativePips.toFixed(1)),
-                peak: parseFloat(peak.toFixed(2))
-            };
-        });
-
-        // Compute 3-period moving average for monthly
-        return pts.map((pt, i, arr) => {
-            const window = arr.slice(Math.max(0, i - 2), i + 1);
-            const avg = window.reduce((acc, curr) => acc + curr.equity, 0) / window.length;
-            return {
-                ...pt,
-                ma: parseFloat(avg.toFixed(2))
+                equity: parseFloat(cumulative.toFixed(2))
             };
         });
     }, [stats]);
@@ -439,21 +275,10 @@ const Dashboard = ({ onOpenAddTrade }) => {
     const perTradeCurve = useMemo(() => {
         if (!filteredTrades.length) return [];
         let cumulative = 0;
-        let cumulativeR = 0;
-        let cumulativePips = 0;
-        let peak = 0;
 
-        const points = filteredTrades.map((t, idx) => {
+        return filteredTrades.map((t, idx) => {
             const pnl = Number(t.profit_loss || 0);
-            const pips = Number(t.pips || 0);
-            const rr = t.risk_reward_ratio ? Number(t.risk_reward_ratio) : (pnl > 0 ? 1.5 : pnl < 0 ? -1.0 : 0);
-
             cumulative += pnl;
-            cumulativeR += rr;
-            cumulativePips += pips;
-
-            if (cumulative > peak) peak = cumulative;
-            const ddPct = peak > 0 ? -(((peak - cumulative) / peak) * 100) : (cumulative < 0 ? -100 : 0);
             const dateStr = t.trade_date ? new Date(t.trade_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `T#${idx + 1}`;
 
             return {
@@ -466,130 +291,10 @@ const Dashboard = ({ onOpenAddTrade }) => {
                 notes: t.notes,
                 outcome: t.outcome || (pnl > 0 ? 'WIN' : pnl < 0 ? 'LOSS' : 'BE'),
                 pnl: pnl,
-                rr: rr,
-                pips: pips,
-                equity: parseFloat(cumulative.toFixed(2)),
-                equityR: parseFloat(cumulativeR.toFixed(2)),
-                equityPips: parseFloat(cumulativePips.toFixed(1)),
-                peak: parseFloat(peak.toFixed(2)),
-                drawdown: parseFloat(ddPct.toFixed(2))
-            };
-        });
-
-        // Compute 5-trade simple moving average (SMA)
-        return points.map((pt, i, arr) => {
-            const window = arr.slice(Math.max(0, i - 4), i + 1);
-            const sum = window.reduce((acc, curr) => acc + (metricUnit === 'USD' ? curr.equity : metricUnit === 'R' ? curr.equityR : curr.equityPips), 0);
-            const maVal = sum / window.length;
-            return {
-                ...pt,
-                displayEquity: metricUnit === 'USD' ? pt.equity : metricUnit === 'R' ? pt.equityR : pt.equityPips,
-                ma: parseFloat(maVal.toFixed(2))
-            };
-        });
-    }, [filteredTrades, metricUnit]);
-
-    // Rolling 10-Trade Win Rate Curve
-    const rollingWinRateCurve = useMemo(() => {
-        if (!filteredTrades.length) return [];
-        const windowSize = 10;
-        return filteredTrades.map((t, idx, arr) => {
-            const start = Math.max(0, idx - windowSize + 1);
-            const window = arr.slice(start, idx + 1);
-            const wins = window.filter(x => x.outcome === 'WIN' || Number(x.profit_loss) > 0).length;
-            const losses = window.filter(x => x.outcome === 'LOSS' || Number(x.profit_loss) < 0).length;
-            const wr = (wins / window.length) * 100;
-            const dateStr = t.trade_date ? new Date(t.trade_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `T#${idx + 1}`;
-
-            return {
-                index: idx + 1,
-                label: `Trade #${idx + 1} (${dateStr})`,
-                date: dateStr,
-                winRate: parseFloat(wr.toFixed(1)),
-                windowWins: wins,
-                windowLosses: losses,
-                benchmark: 50,
-                alphaTarget: 60
+                equity: parseFloat(cumulative.toFixed(2))
             };
         });
     }, [filteredTrades]);
-
-    // R-Multiple & Return Distribution
-    const rMultipleDistribution = useMemo(() => {
-        if (!filteredTrades.length) return [];
-        const brackets = [
-            { bracket: '< -2R', min: -Infinity, max: -2, count: 0, totalPnl: 0, color: '#e11d48' },
-            { bracket: '-2R to -1R', min: -2, max: -1, count: 0, totalPnl: 0, color: '#f43f5e' },
-            { bracket: '-1R to 0R', min: -1, max: -0.01, count: 0, totalPnl: 0, color: '#fb7185' },
-            { bracket: '0R (BE)', min: -0.01, max: 0.1, count: 0, totalPnl: 0, color: '#818cf8' },
-            { bracket: '+0.1R to +1R', min: 0.1, max: 1.0, count: 0, totalPnl: 0, color: '#34d399' },
-            { bracket: '+1R to +2R', min: 1.0, max: 2.0, count: 0, totalPnl: 0, color: '#10b981' },
-            { bracket: '+2R to +3R', min: 2.0, max: 3.0, count: 0, totalPnl: 0, color: '#059669' },
-            { bracket: '+3R+', min: 3.0, max: Infinity, count: 0, totalPnl: 0, color: '#22d3ee' }
-        ];
-
-        filteredTrades.forEach(t => {
-            const pnl = Number(t.profit_loss || 0);
-            const rr = t.risk_reward_ratio ? Number(t.risk_reward_ratio) : (pnl > 0 ? (pnl > 500 ? 3.2 : pnl > 250 ? 2.1 : 1.2) : pnl < 0 ? (pnl < -500 ? -2.2 : -1.0) : 0);
-            
-            for (const b of brackets) {
-                if (rr >= b.min && rr < b.max) {
-                    b.count++;
-                    b.totalPnl += pnl;
-                    break;
-                }
-            }
-        });
-
-        const total = filteredTrades.length || 1;
-        return brackets.map(b => ({
-            ...b,
-            percentage: Math.round((b.count / total) * 100),
-            totalPnl: parseFloat(b.totalPnl.toFixed(2))
-        }));
-    }, [filteredTrades]);
-
-    // Drawdown Under-water curve
-    const drawdownCurve = useMemo(() => {
-        const base = perTradeCurve.length > 1 ? perTradeCurve : equityCurve;
-        if (!base.length) return [];
-        let peak = 0;
-        return base.map((item) => {
-            const eq = Number(item.equity || 0);
-            if (eq > peak) peak = eq;
-            const ddAmount = peak - eq;
-            const ddPct = peak > 0 ? -((ddAmount / peak) * 100) : (eq < 0 ? -100 : 0);
-            return {
-                ...item,
-                peak: parseFloat(peak.toFixed(2)),
-                drawdown: parseFloat(ddPct.toFixed(2)),
-                drawdownAmount: parseFloat(ddAmount.toFixed(2))
-            };
-        });
-    }, [equityCurve, perTradeCurve]);
-
-    // High-Water Mark & Chart HUD Metrics
-    const chartHudMetrics = useMemo(() => {
-        const eqData = perTradeCurve.length > 0 ? perTradeCurve : equityCurve;
-        if (!eqData.length) {
-            return { peakEquity: 0, maxDrawdownPct: 0, payoffRatio: 0, avgTradePnl: 0, currentRun: 0 };
-        }
-        const peak = Math.max(...eqData.map(d => d.equity), 0);
-        const maxDd = Math.min(...drawdownCurve.map(d => d.drawdown), 0);
-        const avgWin = Number(overview?.avg_win || 0);
-        const avgLoss = Math.abs(Number(overview?.avg_loss || 0));
-        const payoff = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : '—';
-        const totalTrades = Number(overview?.total_trades || 0);
-        const totalPnl = Number(overview?.total_pnl || 0);
-        const avgTrade = totalTrades > 0 ? (totalPnl / totalTrades).toFixed(2) : 0;
-
-        return {
-            peakEquity: peak,
-            maxDrawdownPct: Math.abs(maxDd),
-            payoffRatio: payoff,
-            avgTradePnl: avgTrade
-        };
-    }, [perTradeCurve, equityCurve, drawdownCurve, overview]);
 
     // Win rate radial data
     const winRateRadial = useMemo(() => {
@@ -887,83 +592,42 @@ const Dashboard = ({ onOpenAddTrade }) => {
                 ))}
             </MotionDiv>
 
-            {/* ─── Charts Row 1: Upgraded Institutional Equity Engine & Edge Gauge ─── */}
+            {/* ─── Charts Row 1: Equity Trajectory & Edge Gauge ─── */}
             <div className="dash-charts-row">
                 {/* Main Interactive Chart Card */}
-                <MotionDiv className={`glass-card dash-chart-card dash-chart-main ${isFullscreen ? 'chart-fullscreen-mode' : ''}`} variants={fadeUp} initial="hidden" animate="visible">
+                <MotionDiv className="glass-card dash-chart-card dash-chart-main" variants={fadeUp} initial="hidden" animate="visible">
                     <div className="dash-chart-header">
                         <div className="dash-chart-title-group">
                             <div className="dash-chart-icon-box">
-                                <BarChart3 size={18} color="var(--primary)" />
+                                <TrendingUp size={18} color="var(--primary)" />
                             </div>
                             <div>
-                                <h3 className="dash-chart-title">Equity Engine & Trajectory</h3>
-                                <p className="dash-chart-desc">Interactive portfolio growth, execution progression & edge analysis</p>
+                                <h3 className="dash-chart-title">Equity Trajectory & Growth</h3>
+                                <p className="dash-chart-desc">Cumulative account profit & loss progression over time</p>
                             </div>
                         </div>
 
-                        {/* Interactive Tab Switcher & Action Toolbar */}
+                        {/* Interactive Tab Switcher & Timeframe Filter */}
                         <div className="dash-chart-controls">
                             <div className="dash-chart-pill-selector">
                                 <button
                                     className={`dash-pill-btn ${activeChartTab === 'cumulative' ? 'active' : ''}`}
                                     onClick={() => setActiveChartTab('cumulative')}
-                                    title="Macro Cumulative Equity Growth"
                                 >
-                                    <TrendingUp size={13} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
+                                    <TrendingUp size={13} style={{ marginRight: '5px' }} />
                                     Cumulative
                                 </button>
                                 <button
                                     className={`dash-pill-btn ${activeChartTab === 'trades' ? 'active' : ''}`}
                                     onClick={() => setActiveChartTab('trades')}
-                                    title="Trade-by-Trade Sequential Curve"
                                 >
-                                    <Activity size={13} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
+                                    <Activity size={13} style={{ marginRight: '5px' }} />
                                     Per-Trade
                                 </button>
-                                <button
-                                    className={`dash-pill-btn ${activeChartTab === 'rolling_wr' ? 'active' : ''}`}
-                                    onClick={() => setActiveChartTab('rolling_wr')}
-                                    title="Rolling 10-Trade Win Rate Oscillator"
-                                >
-                                    <Percent size={13} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
-                                    Rolling WR
-                                </button>
-                                <button
-                                    className={`dash-pill-btn ${activeChartTab === 'r_dist' ? 'active' : ''}`}
-                                    onClick={() => setActiveChartTab('r_dist')}
-                                    title="R-Multiple Return Distribution"
-                                >
-                                    <Crosshair size={13} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
-                                    R-Dist
-                                </button>
-                                <button
-                                    className={`dash-pill-btn ${activeChartTab === 'monthly' ? 'active' : ''}`}
-                                    onClick={() => setActiveChartTab('monthly')}
-                                    title="Monthly PnL Histogram"
-                                >
-                                    <Layers size={13} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
-                                    Monthly
-                                </button>
-                                <button
-                                    className={`dash-pill-btn ${activeChartTab === 'drawdown' ? 'active' : ''}`}
-                                    onClick={() => setActiveChartTab('drawdown')}
-                                    title="Underwater Drawdown Percentage"
-                                >
-                                    <AlertTriangle size={13} style={{ marginRight: '4px', verticalAlign: '-1px' }} />
-                                    Drawdown
-                                </button>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Chart Tooling Sub-Bar: Timeframes, Unit Selector, Overlays */}
-                    <div className="dash-chart-subbar">
-                        {/* Timeframe selector */}
-                        <div className="dash-chart-subbar-group">
-                            <span className="dash-subbar-label">Range:</span>
                             <div className="dash-timeframe-selector">
-                                {['ALL', 'YTD', '90D', '30D', '25T'].map(tf => (
+                                {['ALL', 'YTD', '90D', '30D'].map(tf => (
                                     <button
                                         key={tf}
                                         className={`dash-tf-btn ${chartTimeframe === tf ? 'active' : ''}`}
@@ -974,101 +638,20 @@ const Dashboard = ({ onOpenAddTrade }) => {
                                 ))}
                             </div>
                         </div>
-
-                        {/* Metric Unit Toggle (for Per-Trade & Cumulative) */}
-                        {(activeChartTab === 'cumulative' || activeChartTab === 'trades') && (
-                            <div className="dash-chart-subbar-group">
-                                <span className="dash-subbar-label">Unit:</span>
-                                <div className="dash-timeframe-selector">
-                                    {['USD', 'R', 'PIPS'].map(u => (
-                                        <button
-                                            key={u}
-                                            className={`dash-tf-btn ${metricUnit === u ? 'active' : ''}`}
-                                            onClick={() => setMetricUnit(u)}
-                                        >
-                                            {u === 'USD' ? '$ USD' : u === 'R' ? 'R Multi' : 'Pips'}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Overlays toggle */}
-                        {(activeChartTab === 'cumulative' || activeChartTab === 'trades') && (
-                            <div className="dash-chart-subbar-group dash-overlays-group">
-                                <button
-                                    className={`dash-overlay-chip ${showMA ? 'active' : ''}`}
-                                    onClick={() => setShowMA(prev => !prev)}
-                                    title="Toggle 5-period Moving Average Smoothing"
-                                >
-                                    <span className="dash-chip-dot" style={{ background: '#38bdf8' }} />
-                                    MA (5)
-                                </button>
-                                <button
-                                    className={`dash-overlay-chip ${showHWM ? 'active' : ''}`}
-                                    onClick={() => setShowHWM(prev => !prev)}
-                                    title="Toggle High-Water Mark Ceiling Line"
-                                >
-                                    <span className="dash-chip-dot" style={{ background: '#a78bfa' }} />
-                                    HWM Peak
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Fullscreen Expansion */}
-                        <div className="dash-chart-subbar-right">
-                            <button
-                                className="dash-fullscreen-btn"
-                                onClick={() => setIsFullscreen(prev => !prev)}
-                                title={isFullscreen ? "Exit Fullscreen" : "Expand Graph View"}
-                            >
-                                <Compass size={14} />
-                                <span>{isFullscreen ? 'Exit Fullscreen' : 'Expand View'}</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Chart Micro HUD Indicators */}
-                    <div className="dash-chart-hud-strip">
-                        <div className="dash-hud-chip">
-                            <span className="dash-hud-chip-label">High-Water Mark</span>
-                            <span className="dash-hud-chip-value font-tabular" style={{ color: '#818cf8' }}>
-                                ${chartHudMetrics.peakEquity.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            </span>
-                        </div>
-                        <div className="dash-hud-chip">
-                            <span className="dash-hud-chip-label">Max Drawdown</span>
-                            <span className="dash-hud-chip-value font-tabular" style={{ color: chartHudMetrics.maxDrawdownPct > 10 ? '#f43f5e' : '#fbbf24' }}>
-                                -{chartHudMetrics.maxDrawdownPct.toFixed(1)}%
-                            </span>
-                        </div>
-                        <div className="dash-hud-chip">
-                            <span className="dash-hud-chip-label">Avg P&L / Trade</span>
-                            <span className="dash-hud-chip-value font-tabular" style={{ color: Number(chartHudMetrics.avgTradePnl) >= 0 ? '#10b981' : '#f43f5e' }}>
-                                {Number(chartHudMetrics.avgTradePnl) >= 0 ? '+' : ''}${chartHudMetrics.avgTradePnl}
-                            </span>
-                        </div>
-                        <div className="dash-hud-chip">
-                            <span className="dash-hud-chip-label">Payoff Ratio</span>
-                            <span className="dash-hud-chip-value font-tabular" style={{ color: '#22d3ee' }}>
-                                {chartHudMetrics.payoffRatio}x
-                            </span>
-                        </div>
                     </div>
 
                     {/* Chart Body */}
-                    <div className="dash-chart-body" style={{ height: isFullscreen ? 'calc(100vh - 280px)' : '340px' }}>
-                        {/* VIEW 1: Cumulative Equity Curve */}
-                        {activeChartTab === 'cumulative' && (
+                    <div className="dash-chart-body" style={{ height: '340px' }}>
+                        {activeChartTab === 'cumulative' ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart
-                                    data={equityCurve.length > 0 ? equityCurve : [{ month: 'No Data', equity: 0, peak: 0, ma: 0 }]}
-                                    margin={{ top: 12, right: 12, bottom: 0, left: 0 }}
+                                    data={equityCurve.length > 0 ? equityCurve : [{ month: 'No Data', equity: 0 }]}
+                                    margin={{ top: 14, right: 14, bottom: 0, left: 0 }}
                                 >
                                     <defs>
                                         <linearGradient id="cyberIndigoGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#6366f1" stopOpacity={0.45} />
-                                            <stop offset="50%" stopColor="#3b82f6" stopOpacity={0.15} />
+                                            <stop offset="0%" stopColor="#6366f1" stopOpacity={0.4} />
+                                            <stop offset="60%" stopColor="#3b82f6" stopOpacity={0.12} />
                                             <stop offset="100%" stopColor="#6366f1" stopOpacity={0.0} />
                                         </linearGradient>
                                     </defs>
@@ -1086,37 +669,9 @@ const Dashboard = ({ onOpenAddTrade }) => {
                                         tick={{ fontSize: 11, fill: '#94a3b8' }}
                                         axisLine={false}
                                         tickLine={false}
-                                        tickFormatter={v => metricUnit === 'USD' ? `$${v}` : metricUnit === 'R' ? `${v}R` : `${v}p`}
+                                        tickFormatter={v => `$${v}`}
                                     />
-                                    <Tooltip content={<CustomChartTooltip chartType="cumulative" metricUnit={metricUnit} />} />
-                                    
-                                    {/* High-Water Mark peak line */}
-                                    {showHWM && (
-                                        <Area
-                                            type="stepAfter"
-                                            dataKey="peak"
-                                            name="High-Water Mark"
-                                            stroke="#818cf8"
-                                            strokeDasharray="4 4"
-                                            strokeWidth={1.5}
-                                            fill="transparent"
-                                            dot={false}
-                                        />
-                                    )}
-
-                                    {/* Moving Average Line */}
-                                    {showMA && (
-                                        <Area
-                                            type="monotone"
-                                            dataKey="ma"
-                                            name="Moving Average"
-                                            stroke="#38bdf8"
-                                            strokeWidth={2}
-                                            fill="transparent"
-                                            dot={false}
-                                        />
-                                    )}
-
+                                    <Tooltip content={<CustomChartTooltip />} />
                                     <Area
                                         type="monotone"
                                         dataKey="equity"
@@ -1129,18 +684,15 @@ const Dashboard = ({ onOpenAddTrade }) => {
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
-                        )}
-
-                        {/* VIEW 2: Per-Trade Sequential Progression */}
-                        {activeChartTab === 'trades' && (
+                        ) : (
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart
-                                    data={perTradeCurve.length > 0 ? perTradeCurve : [{ label: 'No Trades', displayEquity: 0, peak: 0 }]}
-                                    margin={{ top: 12, right: 12, bottom: 0, left: 0 }}
+                                    data={perTradeCurve.length > 0 ? perTradeCurve : [{ label: 'No Trades', equity: 0 }]}
+                                    margin={{ top: 14, right: 14, bottom: 0, left: 0 }}
                                 >
                                     <defs>
                                         <linearGradient id="cyberCyanGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.45} />
+                                            <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.4} />
                                             <stop offset="60%" stopColor="#0ea5e9" stopOpacity={0.12} />
                                             <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.0} />
                                         </linearGradient>
@@ -1160,199 +712,18 @@ const Dashboard = ({ onOpenAddTrade }) => {
                                         tick={{ fontSize: 11, fill: '#94a3b8' }}
                                         axisLine={false}
                                         tickLine={false}
-                                        tickFormatter={v => metricUnit === 'USD' ? `$${v}` : metricUnit === 'R' ? `${v}R` : `${v}p`}
+                                        tickFormatter={v => `$${v}`}
                                     />
-                                    <Tooltip content={<CustomChartTooltip chartType="trades" metricUnit={metricUnit} />} />
-                                    
-                                    {/* High Water Mark */}
-                                    {showHWM && (
-                                        <Area
-                                            type="stepAfter"
-                                            dataKey="peak"
-                                            name="High-Water Mark"
-                                            stroke="#818cf8"
-                                            strokeDasharray="4 4"
-                                            strokeWidth={1.5}
-                                            fill="transparent"
-                                            dot={false}
-                                        />
-                                    )}
-
-                                    {/* Moving Average */}
-                                    {showMA && (
-                                        <Area
-                                            type="monotone"
-                                            dataKey="ma"
-                                            name="5-Trade SMA"
-                                            stroke="#38bdf8"
-                                            strokeWidth={2}
-                                            fill="transparent"
-                                            dot={false}
-                                        />
-                                    )}
-
+                                    <Tooltip content={<CustomChartTooltip />} />
                                     <Area
                                         type="monotone"
-                                        dataKey="displayEquity"
+                                        dataKey="equity"
                                         name="Trade Equity"
                                         stroke="#06b6d4"
                                         strokeWidth={2.8}
                                         fill="url(#cyberCyanGrad)"
                                         dot={<CustomizedTradeDot />}
-                                        activeDot={{ r: 7.5, fill: '#22d3ee', stroke: '#ffffff', strokeWidth: 2 }}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        )}
-
-                        {/* VIEW 3: Rolling 10-Trade Win Rate Oscillator */}
-                        {activeChartTab === 'rolling_wr' && (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart
-                                    data={rollingWinRateCurve.length > 0 ? rollingWinRateCurve : [{ label: 'No Trades', winRate: 50 }]}
-                                    margin={{ top: 12, right: 12, bottom: 0, left: 0 }}
-                                >
-                                    <defs>
-                                        <linearGradient id="rollingWrGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#10b981" stopOpacity={0.45} />
-                                            <stop offset="60%" stopColor="#6366f1" stopOpacity={0.15} />
-                                            <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                    <ReferenceLine y={50} stroke="rgba(255,255,255,0.25)" strokeDasharray="4 4" label={{ value: '50% Edge Baseline', fill: '#94a3b8', fontSize: 10, position: 'insideTopLeft' }} />
-                                    <ReferenceLine y={60} stroke="rgba(16,185,129,0.4)" strokeDasharray="3 3" label={{ value: '60% Alpha Target', fill: '#10b981', fontSize: 10, position: 'insideTopRight' }} />
-                                    <XAxis
-                                        dataKey="index"
-                                        stroke="#475569"
-                                        tick={{ fontSize: 11, fill: '#94a3b8' }}
-                                        axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
-                                        tickLine={false}
-                                        tickFormatter={v => `T#${v}`}
-                                    />
-                                    <YAxis
-                                        domain={[0, 100]}
-                                        stroke="#475569"
-                                        tick={{ fontSize: 11, fill: '#94a3b8' }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tickFormatter={v => `${v}%`}
-                                    />
-                                    <Tooltip content={<CustomChartTooltip chartType="rolling_wr" />} />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="winRate"
-                                        name="Rolling Win Rate"
-                                        stroke="#10b981"
-                                        strokeWidth={3}
-                                        fill="url(#rollingWrGrad)"
-                                        dot={false}
-                                        activeDot={{ r: 6.5, fill: '#10b981', stroke: '#ffffff', strokeWidth: 2 }}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        )}
-
-                        {/* VIEW 4: R-Multiple Return Distribution */}
-                        {activeChartTab === 'r_dist' && (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                    data={rMultipleDistribution}
-                                    barCategoryGap="18%"
-                                    margin={{ top: 12, right: 12, bottom: 0, left: 0 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                    <XAxis dataKey="bracket" stroke="#475569" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false} />
-                                    <YAxis stroke="#475569" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}`} />
-                                    <Tooltip content={<CustomChartTooltip chartType="r_dist" />} />
-                                    <Bar dataKey="count" name="Trades" radius={[6, 6, 0, 0]}>
-                                        {rMultipleDistribution.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        )}
-
-                        {/* VIEW 5: Monthly Distribution Histogram */}
-                        {activeChartTab === 'monthly' && (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                    data={stats?.monthly_pnl || []}
-                                    barCategoryGap="24%"
-                                    margin={{ top: 12, right: 12, bottom: 0, left: 0 }}
-                                >
-                                    <defs>
-                                        <linearGradient id="barGreenGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#10b981" stopOpacity={0.95} />
-                                            <stop offset="100%" stopColor="#059669" stopOpacity={0.55} />
-                                        </linearGradient>
-                                        <linearGradient id="barRedGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.95} />
-                                            <stop offset="100%" stopColor="#e11d48" stopOpacity={0.55} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                    <ReferenceLine y={0} stroke="rgba(255,255,255,0.2)" />
-                                    <XAxis dataKey="month" stroke="#475569" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false} />
-                                    <YAxis stroke="#475569" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}`} />
-                                    <Tooltip content={<CustomChartTooltip chartType="monthly" />} />
-                                    <Bar
-                                        dataKey="total_pnl"
-                                        name="Monthly P&L"
-                                        radius={[6, 6, 0, 0]}
-                                        shape={(props) => {
-                                            const { x, y, width, height, value } = props;
-                                            const fill = value >= 0 ? 'url(#barGreenGrad)' : 'url(#barRedGrad)';
-                                            return <rect x={x} y={y} width={width} height={height} fill={fill} rx={6} ry={6} />;
-                                        }}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        )}
-
-                        {/* VIEW 6: Underwater Drawdown % */}
-                        {activeChartTab === 'drawdown' && (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart
-                                    data={drawdownCurve.length > 0 ? drawdownCurve : [{ label: 'No Data', drawdown: 0 }]}
-                                    margin={{ top: 12, right: 12, bottom: 0, left: 0 }}
-                                >
-                                    <defs>
-                                        <linearGradient id="drawdownGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.0} />
-                                            <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.5} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                    <ReferenceLine y={0} stroke="rgba(255,255,255,0.25)" />
-                                    <ReferenceLine y={-10} stroke="rgba(245, 158, 11, 0.4)" strokeDasharray="3 3" label={{ value: '-10% Alert', fill: '#f59e0b', fontSize: 10 }} />
-                                    <ReferenceLine y={-20} stroke="rgba(244, 63, 94, 0.4)" strokeDasharray="3 3" label={{ value: '-20% Danger', fill: '#f43f5e', fontSize: 10 }} />
-                                    <XAxis
-                                        dataKey={perTradeCurve.length > 1 ? 'index' : 'month'}
-                                        stroke="#475569"
-                                        tick={{ fontSize: 11, fill: '#94a3b8' }}
-                                        axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
-                                        tickLine={false}
-                                        tickFormatter={v => perTradeCurve.length > 1 ? `T#${v}` : v}
-                                    />
-                                    <YAxis
-                                        stroke="#475569"
-                                        tick={{ fontSize: 11, fill: '#94a3b8' }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tickFormatter={v => `${v}%`}
-                                    />
-                                    <Tooltip content={<CustomChartTooltip chartType="drawdown" />} />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="drawdown"
-                                        name="Drawdown"
-                                        stroke="#f43f5e"
-                                        strokeWidth={2.8}
-                                        fill="url(#drawdownGrad)"
-                                        dot={false}
-                                        activeDot={{ r: 6, fill: '#f43f5e', stroke: '#ffffff', strokeWidth: 2 }}
+                                        activeDot={{ r: 7, fill: '#22d3ee', stroke: '#ffffff', strokeWidth: 2 }}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
