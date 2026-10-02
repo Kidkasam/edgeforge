@@ -32,6 +32,39 @@ class HasJournaledListFilter(admin.SimpleListFilter):
         return queryset
 
 
+# ─── Trade Inline for User Detail Page ───
+class TradeInline(admin.TabularInline):
+    model = Trade
+    extra = 0
+    fields = (
+        'trade_date',
+        'market_pair',
+        'buy_sell',
+        'entry_price',
+        'exit_price',
+        'profit_loss',
+        'pips',
+        'risk_reward',
+        'outcome',
+        'trading_session',
+    )
+    readonly_fields = (
+        'trade_date',
+        'market_pair',
+        'buy_sell',
+        'entry_price',
+        'exit_price',
+        'profit_loss',
+        'pips',
+        'risk_reward',
+        'outcome',
+        'trading_session',
+    )
+    show_change_link = True
+    can_delete = False
+    ordering = ('-trade_date', '-created_at')
+
+
 # ─── Custom User Admin ───
 try:
     admin.site.unregister(User)
@@ -40,6 +73,7 @@ except admin.sites.NotRegistered:
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
+    inlines = (TradeInline,)
     list_display = (
         'username',
         'email',
@@ -78,12 +112,14 @@ class CustomUserAdmin(UserAdmin):
             if count is None:
                 count = Trade.objects.filter(user=obj).count()
             if count > 0:
+                url = f"/admin/trades/trade/?user__id__exact={obj.id}"
                 return format_html(
+                    '<a href="{}" style="text-decoration: none;">'
                     '<span style="color: #10b981; background: rgba(16,185,129,0.15); '
                     'padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; '
-                    'border: 1px solid rgba(16,185,129,0.3);">'
-                    '✅ ACTIVE ({} trades)</span>',
-                    count
+                    'border: 1px solid rgba(16,185,129,0.3); cursor: pointer;">'
+                    '✅ ACTIVE ({} trades) ↗</span></a>',
+                    url, count
                 )
         except Exception:
             pass
@@ -102,10 +138,13 @@ class CustomUserAdmin(UserAdmin):
             if count is None:
                 count = Trade.objects.filter(user=obj).count()
             color = "#10b981" if count > 0 else "#64748b"
-            return format_html(
-                '<span style="color: {}; font-weight: 700; font-size: 13px;">{}</span>',
-                color, count
-            )
+            if count > 0:
+                url = f"/admin/trades/trade/?user__id__exact={obj.id}"
+                return format_html(
+                    '<a href="{}" style="color: {}; font-weight: 700; font-size: 13px; text-decoration: underline;" title="View all trades of this user">{} trades ↗</a>',
+                    url, color, count
+                )
+            return mark_safe('<span style="color: #64748b; font-weight: 700; font-size: 13px;">0</span>')
         except Exception:
             return mark_safe('<span style="color: #64748b; font-weight: 700; font-size: 13px;">0</span>')
     trade_count_display.short_description = "Trades"
