@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.db.models import Count, Sum, Max
 from .models import Trade, Strategy, EmailVerification
 
@@ -23,9 +24,11 @@ class HasJournaledListFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'yes':
-            return queryset.filter(trade__isnull=False).distinct()
+            user_ids = Trade.objects.values_list('user_id', flat=True).distinct()
+            return queryset.filter(id__in=user_ids)
         if self.value() == 'no':
-            return queryset.filter(trade__isnull=True)
+            user_ids = Trade.objects.values_list('user_id', flat=True).distinct()
+            return queryset.exclude(id__in=user_ids)
         return queryset
 
 
@@ -70,18 +73,21 @@ class CustomUserAdmin(UserAdmin):
             return qs
 
     def has_journaled_badge(self, obj):
-        count = getattr(obj, '_trade_count', None)
-        if count is None:
-            count = obj.trade_set.count() if hasattr(obj, 'trade_set') else 0
-        if count > 0:
-            return format_html(
-                '<span style="color: #10b981; background: rgba(16,185,129,0.15); '
-                'padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; '
-                'border: 1px solid rgba(16,185,129,0.3);">'
-                '✅ ACTIVE ({} trades)</span>',
-                count
-            )
-        return format_html(
+        try:
+            count = getattr(obj, '_trade_count', None)
+            if count is None:
+                count = Trade.objects.filter(user=obj).count()
+            if count > 0:
+                return format_html(
+                    '<span style="color: #10b981; background: rgba(16,185,129,0.15); '
+                    'padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; '
+                    'border: 1px solid rgba(16,185,129,0.3);">'
+                    '✅ ACTIVE ({} trades)</span>',
+                    count
+                )
+        except Exception:
+            pass
+        return mark_safe(
             '<span style="color: #ef4444; background: rgba(239,68,68,0.12); '
             'padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; '
             'border: 1px solid rgba(239,68,68,0.25);">'
@@ -91,48 +97,61 @@ class CustomUserAdmin(UserAdmin):
     has_journaled_badge.admin_order_field = '_trade_count'
 
     def trade_count_display(self, obj):
-        count = getattr(obj, '_trade_count', None)
-        if count is None:
-            count = obj.trade_set.count() if hasattr(obj, 'trade_set') else 0
-        color = "#10b981" if count > 0 else "#64748b"
-        return format_html(
-            '<span style="color: {}; font-weight: 700; font-size: 13px;">{}</span>',
-            color, count
-        )
+        try:
+            count = getattr(obj, '_trade_count', None)
+            if count is None:
+                count = Trade.objects.filter(user=obj).count()
+            color = "#10b981" if count > 0 else "#64748b"
+            return format_html(
+                '<span style="color: {}; font-weight: 700; font-size: 13px;">{}</span>',
+                color, count
+            )
+        except Exception:
+            return mark_safe('<span style="color: #64748b; font-weight: 700; font-size: 13px;">0</span>')
     trade_count_display.short_description = "Trades"
     trade_count_display.admin_order_field = '_trade_count'
 
     def total_user_pnl(self, obj):
-        val = getattr(obj, '_total_pnl', 0)
-        pnl = float(val or 0)
-        if pnl > 0:
-            color = "#10b981"
-            prefix = "+"
-        elif pnl < 0:
-            color = "#ef4444"
-            prefix = ""
-        else:
-            color = "#64748b"
-            prefix = ""
-        return format_html(
-            '<span style="color: {}; font-weight: 700; font-size: 13px;">{}${:,.2f}</span>',
-            color, prefix, pnl
-        )
+        try:
+            val = getattr(obj, '_total_pnl', None)
+            if val is None:
+                val = Trade.objects.filter(user=obj).aggregate(s=Sum('profit_loss'))['s']
+            pnl = float(val or 0)
+            if pnl > 0:
+                color = "#10b981"
+                prefix = "+"
+            elif pnl < 0:
+                color = "#ef4444"
+                prefix = ""
+            else:
+                color = "#64748b"
+                prefix = ""
+            return format_html(
+                '<span style="color: {}; font-weight: 700; font-size: 13px;">{}${:,.2f}</span>',
+                color, prefix, pnl
+            )
+        except Exception:
+            return mark_safe('<span style="color: #64748b; font-weight: 700; font-size: 13px;">$0.00</span>')
     total_user_pnl.short_description = "Total P&L"
     total_user_pnl.admin_order_field = '_total_pnl'
 
     def last_trade_date(self, obj):
-        last = getattr(obj, '_last_trade', None)
-        if last:
-            try:
-                formatted = last.strftime('%b %d, %Y')
-            except Exception:
-                formatted = str(last)
-            return format_html(
-                '<span style="font-size: 12px;">{}</span>',
-                formatted
-            )
-        return format_html(
+        try:
+            last = getattr(obj, '_last_trade', None)
+            if last is None:
+                last = Trade.objects.filter(user=obj).aggregate(m=Max('trade_date'))['m']
+            if last:
+                try:
+                    formatted = last.strftime('%b %d, %Y')
+                except Exception:
+                    formatted = str(last)
+                return format_html(
+                    '<span style="font-size: 12px;">{}</span>',
+                    formatted
+                )
+        except Exception:
+            pass
+        return mark_safe(
             '<span style="color: #94a3b8; font-size: 11px; font-style: italic;">Never</span>'
         )
     last_trade_date.short_description = "Last Trade"
@@ -231,8 +250,9 @@ class TradeAdmin(admin.ModelAdmin):
                     url, url
                 )
             except Exception:
-                return format_html('<span style="color: #64748b; font-size: 11px;">Image unavailable</span>')
-        return format_html('<span style="color: #64748b; font-size: 11px;">No image</span>')
+                return mark_safe('<span style="color: #64748b; font-size: 11px;">Image unavailable</span>')
+        return mark_safe('<span style="color: #64748b; font-size: 11px;">No image</span>')
+    screenshot_preview.short_description = "Chart"
     screenshot_preview.short_description = "Chart"
 
 @admin.register(Strategy)
