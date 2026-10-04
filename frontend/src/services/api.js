@@ -82,6 +82,10 @@ export const tradeService = {
         const response = await api.delete(`trades/${id}/`);
         return response.data;
     },
+    bulkDeleteTrades: async (ids) => {
+        const response = await api.post('trades/bulk-delete/', { ids });
+        return response.data;
+    },
 };
 
 export const strategyService = {

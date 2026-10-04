@@ -42,6 +42,8 @@ const Trades = ({ onOpenAddTrade }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteModal, setDeleteModal] = useState({ open: false, id: null, name: '' });
+    const [selectedTradeIds, setSelectedTradeIds] = useState([]);
+    const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
 
     const initialFilters = {
         search: '',
@@ -82,11 +84,13 @@ const Trades = ({ onOpenAddTrade }) => {
         const { name, value } = e.target;
         setFilters(prev => ({ ...prev, [name]: value }));
         setCurrentPage(1);
+        setSelectedTradeIds([]);
     };
 
     const resetFilters = () => {
         setFilters(initialFilters);
         setCurrentPage(1);
+        setSelectedTradeIds([]);
     };
 
     const toggleOrdering = (field) => {
@@ -99,6 +103,36 @@ const Trades = ({ onOpenAddTrade }) => {
             return { ...prev, ordering: isDesc ? field : `-${field}` };
         });
         setCurrentPage(1);
+    };
+
+    // Selection helpers
+    const currentPageTradeIds = useMemo(() => trades.map(t => t.id), [trades]);
+
+    const isAllPageSelected = useMemo(() => {
+        if (currentPageTradeIds.length === 0) return false;
+        return currentPageTradeIds.every(id => selectedTradeIds.includes(id));
+    }, [currentPageTradeIds, selectedTradeIds]);
+
+    const isSomePageSelected = useMemo(() => {
+        return currentPageTradeIds.some(id => selectedTradeIds.includes(id)) && !isAllPageSelected;
+    }, [currentPageTradeIds, selectedTradeIds, isAllPageSelected]);
+
+    const handleSelectTrade = (id) => {
+        setSelectedTradeIds(prev =>
+            prev.includes(id) ? prev.filter(tradeId => tradeId !== id) : [...prev, id]
+        );
+    };
+
+    const handleSelectAllCurrentPage = () => {
+        if (isAllPageSelected) {
+            setSelectedTradeIds(prev => prev.filter(id => !currentPageTradeIds.includes(id)));
+        } else {
+            setSelectedTradeIds(prev => Array.from(new Set([...prev, ...currentPageTradeIds])));
+        }
+    };
+
+    const handleClearSelection = () => {
+        setSelectedTradeIds([]);
     };
 
     const totalPages = useMemo(() => {
@@ -193,11 +227,33 @@ const Trades = ({ onOpenAddTrade }) => {
         try {
             setIsDeleting(true);
             await tradeService.deleteTrade(deleteModal.id);
+            setSelectedTradeIds(prev => prev.filter(id => id !== deleteModal.id));
             setDeleteModal({ open: false, id: null, name: '' });
             fetchTrades();
         } catch (err) {
             console.error('Delete failed:', err);
             alert('Failed to delete trade.');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const confirmBulkDelete = async () => {
+        if (selectedTradeIds.length === 0) return;
+        try {
+            setIsDeleting(true);
+            try {
+                await tradeService.bulkDeleteTrades(selectedTradeIds);
+            } catch (bulkErr) {
+                console.warn('Bulk endpoint error, falling back to batch delete:', bulkErr);
+                await Promise.allSettled(selectedTradeIds.map(id => tradeService.deleteTrade(id)));
+            }
+            setSelectedTradeIds([]);
+            setBulkDeleteModalOpen(false);
+            fetchTrades();
+        } catch (err) {
+            console.error('Batch delete failed:', err);
+            alert('Failed to delete selected trades.');
         } finally {
             setIsDeleting(false);
         }
@@ -367,6 +423,16 @@ const Trades = ({ onOpenAddTrade }) => {
                     <table className="trades-table">
                         <thead>
                             <tr>
+                                <th style={{ width: '44px', textAlign: 'center', padding: '1rem 0.5rem' }}>
+                                    <input
+                                        type="checkbox"
+                                        className="trade-checkbox"
+                                        checked={isAllPageSelected}
+                                        ref={el => { if (el) el.indeterminate = isSomePageSelected; }}
+                                        onChange={handleSelectAllCurrentPage}
+                                        title={isAllPageSelected ? "Deselect all on page" : "Select all on page"}
+                                    />
+                                </th>
                                 <th onClick={() => toggleOrdering('trade_date')} className="sortable-th">
                                     <span>Date</span> <ArrowUpDown size={13} />
                                 </th>
@@ -389,9 +455,19 @@ const Trades = ({ onOpenAddTrade }) => {
                                 const isLoss = trade.outcome === 'LOSS';
                                 const isBuy = trade.buy_sell === 'BUY';
                                 const isPos = Number(trade.profit_loss) >= 0;
+                                const isSelected = selectedTradeIds.includes(trade.id);
 
                                 return (
-                                    <tr key={trade.id} className="trades-tr">
+                                    <tr key={trade.id} className={`trades-tr ${isSelected ? 'row-selected' : ''}`}>
+                                        <td className="trades-td" style={{ textAlign: 'center', width: '44px', padding: '1rem 0.5rem' }}>
+                                            <input
+                                                type="checkbox"
+                                                className="trade-checkbox"
+                                                checked={isSelected}
+                                                onChange={() => handleSelectTrade(trade.id)}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        </td>
                                         <td className="trades-td font-tabular">
                                             {trade.trade_date ? new Date(trade.trade_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}
                                         </td>
@@ -468,7 +544,7 @@ const Trades = ({ onOpenAddTrade }) => {
 
                             {trades.length === 0 && !loading && (
                                 <tr>
-                                    <td colSpan="10" style={{ padding: '4rem 1rem', textAlign: 'center' }}>
+                                    <td colSpan="11" style={{ padding: '4rem 1rem', textAlign: 'center' }}>
                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
                                             <CheckCircle2 size={36} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
                                             <p style={{ color: 'var(--text-secondary)', fontWeight: '600', fontSize: '0.95rem' }}>
@@ -490,7 +566,7 @@ const Trades = ({ onOpenAddTrade }) => {
 
                             {loading && (
                                 <tr>
-                                    <td colSpan="10">
+                                    <td colSpan="11">
                                         <Loader text="Fetching Ledger Nodes" />
                                     </td>
                                 </tr>
@@ -513,6 +589,7 @@ const Trades = ({ onOpenAddTrade }) => {
                                 onChange={(e) => {
                                     setPageSize(Number(e.target.value));
                                     setCurrentPage(1);
+                                    setSelectedTradeIds([]);
                                 }}
                                 className="trades-page-size-select"
                             >
@@ -566,6 +643,39 @@ const Trades = ({ onOpenAddTrade }) => {
                 </div>
             </div>
 
+            {/* ─── Floating Batch Action Toolbar ─── */}
+            {selectedTradeIds.length > 0 && (
+                <div className="trades-batch-bar-container">
+                    <div className="trades-batch-bar">
+                        <div className="trades-batch-info">
+                            <span className="trades-batch-count-badge">
+                                {selectedTradeIds.length}
+                            </span>
+                            <span className="trades-batch-text">
+                                {selectedTradeIds.length === 1 ? 'trade marked' : 'trades marked'}
+                            </span>
+                        </div>
+
+                        <div className="trades-batch-actions">
+                            <button
+                                onClick={handleClearSelection}
+                                className="btn btn-secondary trades-batch-btn-deselect"
+                                title="Clear selection"
+                            >
+                                <X size={14} /> Deselect All
+                            </button>
+                            <button
+                                onClick={() => setBulkDeleteModalOpen(true)}
+                                className="trades-batch-btn-delete"
+                                title="Delete selected trades"
+                            >
+                                <Trash2 size={15} /> Delete Selected ({selectedTradeIds.length})
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* ─── Modals ─── */}
             <AddTradeModal
                 isOpen={isModalOpen}
@@ -580,6 +690,15 @@ const Trades = ({ onOpenAddTrade }) => {
                 onClose={() => setDeleteModal({ open: false, id: null, name: '' })}
                 onConfirm={confirmDelete}
                 tradeName={deleteModal.name}
+                isDeleting={isDeleting}
+            />
+
+            <DeleteConfirmModal
+                isOpen={bulkDeleteModalOpen}
+                onClose={() => setBulkDeleteModalOpen(false)}
+                onConfirm={confirmBulkDelete}
+                title={`Erase ${selectedTradeIds.length} Ledger Records?`}
+                description={`You are about to permanently remove ${selectedTradeIds.length} marked trade record${selectedTradeIds.length > 1 ? 's' : ''} from your sovereign ledger. This action cannot be reversed.`}
                 isDeleting={isDeleting}
             />
 
@@ -1030,6 +1149,126 @@ const Trades = ({ onOpenAddTrade }) => {
                     border: 1px solid var(--border-bright);
                 }
 
+                /* ─── Checkbox & Selection Styles ─── */
+                .trade-checkbox {
+                    width: 17px;
+                    height: 17px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    accent-color: var(--primary);
+                    vertical-align: middle;
+                    transition: transform 0.15s ease;
+                }
+                .trade-checkbox:hover {
+                    transform: scale(1.1);
+                }
+                .trades-tr.row-selected {
+                    background: rgba(99, 102, 241, 0.08) !important;
+                }
+                .trades-tr.row-selected td:first-child {
+                    border-left: 3px solid var(--primary-light);
+                }
+
+                /* ─── Floating Batch Action Toolbar ─── */
+                .trades-batch-bar-container {
+                    position: fixed;
+                    bottom: 2rem;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 5000;
+                    animation: batchBarSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+                    width: 90%;
+                    max-width: 540px;
+                    pointer-events: none;
+                }
+                @keyframes batchBarSlideUp {
+                    from {
+                        opacity: 0;
+                        transform: translate(-50%, 25px) scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translate(-50%, 0) scale(1);
+                    }
+                }
+                .trades-batch-bar {
+                    pointer-events: auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0.75rem 1.25rem;
+                    background: rgba(15, 23, 42, 0.92);
+                    border: 1px solid rgba(99, 102, 241, 0.4);
+                    border-radius: 9999px;
+                    backdrop-filter: blur(20px);
+                    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.75), 0 0 30px rgba(99, 102, 241, 0.25);
+                    gap: 1rem;
+                }
+                [data-theme='light'] .trades-batch-bar {
+                    background: rgba(255, 255, 255, 0.95);
+                    border-color: rgba(99, 102, 241, 0.35);
+                    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.18), 0 0 25px rgba(99, 102, 241, 0.18);
+                }
+                .trades-batch-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.65rem;
+                }
+                .trades-batch-count-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 26px;
+                    height: 26px;
+                    padding: 0 0.5rem;
+                    border-radius: 9999px;
+                    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                    color: #fff;
+                    font-weight: 900;
+                    font-size: 0.82rem;
+                    box-shadow: 0 2px 10px var(--primary-glow);
+                }
+                .trades-batch-text {
+                    font-size: 0.88rem;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                    letter-spacing: -0.01em;
+                }
+                .trades-batch-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.65rem;
+                }
+                .trades-batch-btn-deselect {
+                    padding: 0.45rem 0.95rem;
+                    font-size: 0.8rem;
+                    border-radius: 9999px;
+                    height: auto;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                }
+                .trades-batch-btn-delete {
+                    background: linear-gradient(135deg, var(--danger) 0%, #be123c 100%);
+                    color: #fff;
+                    font-weight: 800;
+                    font-size: 0.82rem;
+                    padding: 0.5rem 1.15rem;
+                    border-radius: 9999px;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 4px 15px var(--danger-glow);
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.45rem;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+                .trades-batch-btn-delete:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 22px var(--danger-glow);
+                    filter: brightness(1.1);
+                }
+
                 @media (max-width: 1024px) {
                     .trades-summary-strip {
                         grid-template-columns: repeat(2, 1fr);
@@ -1049,6 +1288,17 @@ const Trades = ({ onOpenAddTrade }) => {
                     .trades-pagination-bar {
                         flex-direction: column;
                         align-items: center;
+                    }
+                    .trades-batch-bar-container {
+                        bottom: 1rem;
+                        width: 94%;
+                    }
+                    .trades-batch-bar {
+                        padding: 0.65rem 0.95rem;
+                        gap: 0.5rem;
+                    }
+                    .trades-batch-text {
+                        display: none;
                     }
                 }
             `}</style>

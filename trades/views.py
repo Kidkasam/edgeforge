@@ -1,6 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, permissions, status, filters
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -54,6 +55,14 @@ class TradeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['post'], url_path='bulk-delete')
+    def bulk_delete(self, request):
+        trade_ids = request.data.get('ids', [])
+        if not isinstance(trade_ids, list) or not trade_ids:
+            return Response({"error": "ids must be a non-empty list of trade IDs."}, status=status.HTTP_400_BAD_REQUEST)
+        deleted_count, _ = self.get_queryset().filter(id__in=trade_ids).delete()
+        return Response({"deleted_count": deleted_count, "message": f"Successfully deleted {deleted_count} trade records."}, status=status.HTTP_200_OK)
 
 class StrategyViewSet(viewsets.ModelViewSet):
     queryset = Strategy.objects.all()

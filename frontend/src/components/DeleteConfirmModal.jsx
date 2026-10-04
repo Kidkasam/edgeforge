@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Trash2, AlertTriangle } from 'lucide-react';
 
-const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, tradeName, isDeleting }) => {
+const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, tradeName, isDeleting, title, description }) => {
     if (!isOpen) return null;
 
     return (
@@ -35,10 +35,14 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, tradeName, isDeleting 
                         <AlertTriangle size={28} />
                     </div>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '0.5rem', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-                        Erase Ledger Record?
+                        {title || 'Erase Ledger Record?'}
                     </h2>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.55' }}>
-                        You are about to permanently remove <strong style={{ color: 'var(--text-primary)' }}>{tradeName}</strong> from your sovereign ledger. This action cannot be reversed.
+                        {description || (
+                            <>
+                                You are about to permanently remove <strong style={{ color: 'var(--text-primary)' }}>{tradeName}</strong> from your sovereign ledger. This action cannot be reversed.
+                            </>
+                        )}
                     </p>
                 </div>
 
