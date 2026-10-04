@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Loader from '../components/Loader';
-import PropTradingCalendar from '../components/PropTradingCalendar';
 
 const MotionDiv = motion.div;
 
@@ -529,12 +528,20 @@ export default function Dashboard({ onOpenAddTrade }) {
                 </MotionDiv>
             </div>
 
-            {/* ─── Prop Firm Trading Calendar Matrix ─── */}
-            <MotionDiv variants={fadeUp} initial="hidden" animate="visible">
-                <PropTradingCalendar
-                    trades={allTradesChronological.length > 0 ? allTradesChronological : recentTrades}
-                    onOpenAddTrade={onOpenAddTrade}
-                />
+            {/* ─── Prop Firm Performance & Calendar Banner ─── */}
+            <MotionDiv className="glass-card dash-calendar-banner" variants={fadeUp} initial="hidden" animate="visible">
+                <div className="dash-cal-banner-left">
+                    <div className="dash-cal-banner-icon">
+                        <CalendarIcon size={20} />
+                    </div>
+                    <div>
+                        <h4 className="dash-cal-banner-title">Prop Firm Daily Performance Calendar</h4>
+                        <p className="dash-cal-banner-desc">Inspect day-by-day P&L breakdown, weekly totals, session alpha, and execution charts</p>
+                    </div>
+                </div>
+                <Link to="/calendar" className="btn btn-primary dash-cal-banner-btn">
+                    Launch Prop Calendar <ChevronRight size={15} />
+                </Link>
             </MotionDiv>
 
             {/* ─── Unified Session Intelligence & Top Instruments ─── */}
@@ -945,6 +952,51 @@ export default function Dashboard({ onOpenAddTrade }) {
                 .dot-green { background: var(--success); }
                 .dot-red { background: var(--danger); }
                 .dot-amber { background: var(--warning); }
+
+                /* Prop Calendar Launch Banner */
+                .dash-calendar-banner {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 1.25rem 1.75rem;
+                    border-radius: var(--radius-xl);
+                    border: 1px solid var(--border-bright);
+                    background: linear-gradient(135deg, var(--surface-50) 0%, rgba(99, 102, 241, 0.05) 100%);
+                    gap: 1.5rem;
+                    flex-wrap: wrap;
+                }
+                .dash-cal-banner-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+                .dash-cal-banner-icon {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 12px;
+                    background: rgba(99, 102, 241, 0.15);
+                    border: 1px solid rgba(99, 102, 241, 0.3);
+                    color: var(--primary-light);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+                .dash-cal-banner-title {
+                    font-size: 1.05rem;
+                    font-weight: 800;
+                    color: var(--text-primary);
+                }
+                .dash-cal-banner-desc {
+                    font-size: 0.78rem;
+                    color: var(--text-muted);
+                    margin-top: 0.15rem;
+                }
+                .dash-cal-banner-btn {
+                    padding: 0.55rem 1.25rem !important;
+                    font-size: 0.85rem !important;
+                    gap: 0.4rem !important;
+                }
 
                 /* Dual Grid (Session & Pairs) */
                 .dash-dual-grid {
