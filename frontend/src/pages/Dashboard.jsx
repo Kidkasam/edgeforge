@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Loader from '../components/Loader';
+import PropTradingCalendar from '../components/PropTradingCalendar';
 
 const MotionDiv = motion.div;
 
@@ -815,6 +816,14 @@ const Dashboard = ({ onOpenAddTrade }) => {
                     </div>
                 </MotionDiv>
             </div>
+
+            {/* ─── Prop Firm Trading Calendar Matrix ─── */}
+            <MotionDiv variants={fadeUp} initial="hidden" animate="visible">
+                <PropTradingCalendar
+                    trades={allTradesChronological.length > 0 ? allTradesChronological : recentTrades}
+                    onOpenAddTrade={onOpenAddTrade}
+                />
+            </MotionDiv>
 
             {/* ─── Deep Insights Row: Session Analytics & Day Heatmap ─── */}
             <div className="dash-insights-row">

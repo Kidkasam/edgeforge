@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Trades from './pages/Trades';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
+import CalendarPage from './pages/CalendarPage';
 import Footer from './components/Footer';
 import Logo from './components/Logo';
 import AddTradeModal from './components/AddTradeModal';
@@ -15,7 +16,7 @@ import { tradeService } from './services/api';
 import {
   LayoutDashboard, History, LogOut, User,
   Menu, X, Sun, Moon, Zap, ChevronRight, Shield, Plus,
-  TrendingUp, Sparkles, SlidersHorizontal
+  TrendingUp, Sparkles, SlidersHorizontal, Calendar
 } from 'lucide-react';
 
 const PrivateRoute = ({ children }) => {
@@ -53,6 +54,9 @@ const Navigation = ({ onOpenAddTrade }) => {
                 <>
                   <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
                     <LayoutDashboard size={16} /> Dashboard
+                  </Link>
+                  <Link to="/calendar" className={`nav-link ${location.pathname === '/calendar' ? 'active' : ''}`}>
+                    <Calendar size={16} /> Prop Calendar
                   </Link>
                   <Link to="/trades" className={`nav-link ${location.pathname === '/trades' ? 'active' : ''}`}>
                     <History size={16} /> Trade Journal
@@ -155,6 +159,10 @@ const Navigation = ({ onOpenAddTrade }) => {
                   </button>
                   <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} style={{ padding: '0.85rem 1rem' }} onClick={closeSidebar}>
                     <LayoutDashboard size={18} /><span>Dashboard</span>
+                    <ChevronRight size={15} style={{ marginLeft: 'auto', opacity: 0.4 }} />
+                  </Link>
+                  <Link to="/calendar" className={`nav-link ${location.pathname === '/calendar' ? 'active' : ''}`} style={{ padding: '0.85rem 1rem' }} onClick={closeSidebar}>
+                    <Calendar size={18} /><span>Prop Calendar</span>
                     <ChevronRight size={15} style={{ marginLeft: 'auto', opacity: 0.4 }} />
                   </Link>
                   <Link to="/trades" className={`nav-link ${location.pathname === '/trades' ? 'active' : ''}`} style={{ padding: '0.85rem 1rem' }} onClick={closeSidebar}>
@@ -281,6 +289,7 @@ const AppContent = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<HomeLoader onOpenAddTrade={() => setIsGlobalModalOpen(true)} />} />
+        <Route path="/calendar" element={<PrivateRoute><CalendarPage onOpenAddTrade={() => setIsGlobalModalOpen(true)} /></PrivateRoute>} />
         <Route path="/trades" element={<PrivateRoute><Trades onOpenAddTrade={() => setIsGlobalModalOpen(true)} /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       </Routes>
