@@ -37,14 +37,32 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
     // Get sub-accounts for currently selected type
     const currentSubAccounts = React.useMemo(() => {
         if (selectedAccountType === 'ALL') {
-            const allNames = new Set();
+            const allSubs = [];
+            const seen = new Set();
             accountsSummary.forEach(item => {
-                item.account_names?.forEach(n => allNames.add(n));
+                if (item.sub_accounts && item.sub_accounts.length > 0) {
+                    item.sub_accounts.forEach(s => {
+                        if (!seen.has(s.name)) {
+                            seen.add(s.name);
+                            allSubs.push(s);
+                        }
+                    });
+                } else if (item.account_names) {
+                    item.account_names.forEach(n => {
+                        if (!seen.has(n)) {
+                            seen.add(n);
+                            allSubs.push({ name: n, trades_count: 0, total_pnl: 0 });
+                        }
+                    });
+                }
             });
-            return Array.from(allNames);
+            return allSubs;
         }
         const item = summaryMap[selectedAccountType];
-        return item?.account_names || [];
+        if (item?.sub_accounts && item.sub_accounts.length > 0) {
+            return item.sub_accounts;
+        }
+        return (item?.account_names || []).map(n => ({ name: n, trades_count: 0, total_pnl: 0 }));
     }, [selectedAccountType, summaryMap, accountsSummary]);
 
     const activeConfig = ACCOUNT_TYPES.find(a => a.key === selectedAccountType) || ACCOUNT_TYPES[0];
@@ -84,25 +102,42 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
                         );
                     })}
                 </div>
-
-                {currentSubAccounts.length > 0 && (
-                    <div className="sub-account-picker">
-                        <label className="sub-account-label">Portfolio Node:</label>
-                        <select
-                            value={selectedAccountName}
-                            onChange={(e) => setSelectedAccountName(e.target.value)}
-                            className="sub-account-select"
-                        >
-                            <option value="ALL">All ({activeConfig.label})</option>
-                            {currentSubAccounts.map((name) => (
-                                <option key={name} value={name}>
-                                    {name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
             </div>
+
+            {/* Level 2: Sub-Account / Prop Firm Specific Selector (e.g. GFT vs Maven vs Together) */}
+            {currentSubAccounts.length > 0 && (
+                <div className="account-sub-pills-row">
+                    <span className="sub-pills-label">
+                        {selectedAccountType === 'PROP_FIRM' ? 'Prop Firms:' : 'Firms / Nodes:'}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedAccountName('ALL')}
+                        className={`sub-pill-btn ${selectedAccountName === 'ALL' ? 'active' : ''}`}
+                    >
+                        <span>Together (All {activeConfig.label})</span>
+                    </button>
+                    {currentSubAccounts.map((sub) => {
+                        const isSelected = selectedAccountName === sub.name;
+                        const isPos = Number(sub.total_pnl) >= 0;
+                        return (
+                            <button
+                                key={sub.name}
+                                type="button"
+                                onClick={() => setSelectedAccountName(sub.name)}
+                                className={`sub-pill-btn ${isSelected ? 'active' : ''}`}
+                            >
+                                <span className="sub-pill-name">{sub.name}</span>
+                                {sub.trades_count > 0 && (
+                                    <span className={`sub-pill-stat font-tabular ${isPos ? 'text-pos' : 'text-neg'}`}>
+                                        {isPos ? '+' : ''}${Math.round(sub.total_pnl)} ({sub.win_rate}%)
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
 
             {/* Micro context banner explaining the separation */}
             {!compact && selectedAccountType !== 'ALL' && (

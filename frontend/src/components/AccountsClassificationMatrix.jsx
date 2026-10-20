@@ -45,6 +45,33 @@ export default function AccountsClassificationMatrix() {
 
     const isCombinedPos = Number(combined.total_pnl) >= 0;
 
+    // Build flattened column list for table view: Combined, then each category (Together) and its sub-firms (Individual)
+    const tableColumns = React.useMemo(() => {
+        const cols = [];
+        accountsSummary.forEach(acc => {
+            const cfg = getAccountConfig(acc.account_type);
+            // Category aggregate column
+            cols.push({
+                key: `${acc.account_type}_ALL`,
+                label: `${acc.label} (Together)`,
+                color: cfg.color,
+                data: acc,
+                isSub: false
+            });
+            // Sub-firm individual columns (e.g. GFT, Maven)
+            acc.sub_accounts?.forEach(sub => {
+                cols.push({
+                    key: `${acc.account_type}_${sub.name}`,
+                    label: `↳ ${sub.name}`,
+                    color: cfg.color,
+                    data: sub,
+                    isSub: true
+                });
+            });
+        });
+        return cols;
+    }, [accountsSummary]);
+
     return (
         <div className="glass-card accounts-matrix-card">
             {/* Header & Controls */}
@@ -220,6 +247,45 @@ export default function AccountsClassificationMatrix() {
                                     </div>
                                 )}
 
+                                {/* Sub-accounts individual breakdown (e.g., GFT vs Maven) */}
+                                {item.sub_accounts?.length > 0 && (
+                                    <div className="card-sub-accounts-breakdown">
+                                        <div className="sub-breakdown-header">
+                                            <span className="sub-breakdown-title">
+                                                {item.account_type === 'PROP_FIRM' ? 'Prop Firms (Individual):' : 'Individual Accounts:'}
+                                            </span>
+                                            <span className="sub-breakdown-tip">Click to isolate</span>
+                                        </div>
+                                        <div className="sub-accounts-list">
+                                            {item.sub_accounts.map(sub => {
+                                                const subPos = Number(sub.total_pnl) >= 0;
+                                                const isSubActive = selectedAccountType === item.account_type && selectedAccountName === sub.name;
+                                                return (
+                                                    <div
+                                                        key={sub.name}
+                                                        className={`sub-account-item ${isSubActive ? 'sub-active' : ''}`}
+                                                        onClick={() => {
+                                                            setSelectedAccountType(item.account_type);
+                                                            setSelectedAccountName(sub.name);
+                                                        }}
+                                                    >
+                                                        <div className="sub-left">
+                                                            <span className="sub-name font-bold">{sub.name}</span>
+                                                            <span className="sub-sub font-tabular">{sub.trades_count} trades · {sub.win_rate}% WR</span>
+                                                        </div>
+                                                        <div className="sub-right font-tabular">
+                                                            <span className={subPos ? 'text-pos font-bold' : 'text-neg font-bold'}>
+                                                                {subPos ? '+' : ''}${Number(sub.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                                            </span>
+                                                            <span className="sub-pf text-amber">{sub.profit_factor}x</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Focus Action */}
                                 <button
                                     type="button"
@@ -227,9 +293,9 @@ export default function AccountsClassificationMatrix() {
                                         setSelectedAccountType(item.account_type);
                                         setSelectedAccountName('ALL');
                                     }}
-                                    className={`card-focus-btn ${isFocused ? 'btn-focused' : ''}`}
+                                    className={`card-focus-btn ${isFocused && selectedAccountName === 'ALL' ? 'btn-focused' : ''}`}
                                 >
-                                    <span>{isFocused ? 'Currently Isolated' : `Isolate ${item.label}`}</span>
+                                    <span>{isFocused && selectedAccountName === 'ALL' ? 'Currently Isolated (Together)' : `Isolate All ${item.label}`}</span>
                                     <ArrowRight size={13} />
                                 </button>
                             </div>
@@ -244,22 +310,26 @@ export default function AccountsClassificationMatrix() {
                             <tr>
                                 <th style={{ textAlign: 'left' }}>Performance Metric</th>
                                 <th style={{ color: '#818cf8' }}>🌐 Together (Combined)</th>
-                                {accountsSummary.map(acc => {
-                                    const cfg = getAccountConfig(acc.account_type);
-                                    return (
-                                        <th key={acc.account_type} style={{ color: cfg.color }}>
-                                            {acc.label}
-                                        </th>
-                                    );
-                                })}
+                                {tableColumns.map(col => (
+                                    <th
+                                        key={col.key}
+                                        style={{
+                                            color: col.color,
+                                            fontStyle: col.isSub ? 'italic' : 'normal',
+                                            opacity: col.isSub ? 0.9 : 1
+                                        }}
+                                    >
+                                        {col.label}
+                                    </th>
+                                ))}
                             </tr>
                         </thead>
                         <tbody className="font-tabular">
                             <tr>
                                 <td className="font-bold">Total Trades</td>
                                 <td>{combined.trades_count}</td>
-                                {accountsSummary.map(acc => (
-                                    <td key={acc.account_type}>{acc.trades_count}</td>
+                                {tableColumns.map(col => (
+                                    <td key={col.key}>{col.data.trades_count || 0}</td>
                                 ))}
                             </tr>
                             <tr>
@@ -267,11 +337,11 @@ export default function AccountsClassificationMatrix() {
                                 <td className={isCombinedPos ? 'text-pos font-bold' : 'text-neg font-bold'}>
                                     {isCombinedPos ? '+' : ''}${Number(combined.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                 </td>
-                                {accountsSummary.map(acc => {
-                                    const p = Number(acc.total_pnl) >= 0;
+                                {tableColumns.map(col => {
+                                    const p = Number(col.data.total_pnl) >= 0;
                                     return (
-                                        <td key={acc.account_type} className={p ? 'text-pos font-bold' : 'text-neg font-bold'}>
-                                            {p ? '+' : ''}${Number(acc.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                        <td key={col.key} className={p ? 'text-pos font-bold' : 'text-neg font-bold'}>
+                                            {p ? '+' : ''}${Number(col.data.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                         </td>
                                     );
                                 })}
@@ -279,50 +349,50 @@ export default function AccountsClassificationMatrix() {
                             <tr>
                                 <td className="font-bold">Win Rate (%)</td>
                                 <td className="text-indigo font-bold">{combined.win_rate}%</td>
-                                {accountsSummary.map(acc => (
-                                    <td key={acc.account_type} className="text-indigo font-bold">{acc.win_rate}%</td>
+                                {tableColumns.map(col => (
+                                    <td key={col.key} className="text-indigo font-bold">{col.data.win_rate || 0}%</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Record (W / L / BE)</td>
                                 <td>{combined.wins}W / {combined.losses}L / {combined.be}BE</td>
-                                {accountsSummary.map(acc => (
-                                    <td key={acc.account_type}>{acc.wins}W / {acc.losses}L / {acc.be}BE</td>
+                                {tableColumns.map(col => (
+                                    <td key={col.key}>{col.data.wins || 0}W / {col.data.losses || 0}L / {col.data.be || 0}BE</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Profit Factor</td>
                                 <td className="text-amber">{Number(combined.profit_factor || 0).toFixed(2)}x</td>
-                                {accountsSummary.map(acc => (
-                                    <td key={acc.account_type} className="text-amber">{Number(acc.profit_factor || 0).toFixed(2)}x</td>
+                                {tableColumns.map(col => (
+                                    <td key={col.key} className="text-amber">{Number(col.data.profit_factor || 0).toFixed(2)}x</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Average R:R</td>
                                 <td className="text-cyan">{Number(combined.avg_rr || 0).toFixed(2)}R</td>
-                                {accountsSummary.map(acc => (
-                                    <td key={acc.account_type} className="text-cyan">{Number(acc.avg_rr || 0).toFixed(2)}R</td>
+                                {tableColumns.map(col => (
+                                    <td key={col.key} className="text-cyan">{Number(col.data.avg_rr || 0).toFixed(2)}R</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Avg Win / Avg Loss</td>
                                 <td>+${Number(combined.avg_win || 0).toFixed(0)} / ${Number(combined.avg_loss || 0).toFixed(0)}</td>
-                                {accountsSummary.map(acc => (
-                                    <td key={acc.account_type}>+${Number(acc.avg_win || 0).toFixed(0)} / ${Number(acc.avg_loss || 0).toFixed(0)}</td>
+                                {tableColumns.map(col => (
+                                    <td key={col.key}>+${Number(col.data.avg_win || 0).toFixed(0)} / ${Number(col.data.avg_loss || 0).toFixed(0)}</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Best Trade</td>
                                 <td className="text-pos">+${Number(combined.best_trade || 0).toLocaleString()}</td>
-                                {accountsSummary.map(acc => (
-                                    <td key={acc.account_type} className="text-pos">+${Number(acc.best_trade || 0).toLocaleString()}</td>
+                                {tableColumns.map(col => (
+                                    <td key={col.key} className="text-pos">+${Number(col.data.best_trade || 0).toLocaleString()}</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Worst Trade</td>
                                 <td className="text-neg">${Number(combined.worst_trade || 0).toLocaleString()}</td>
-                                {accountsSummary.map(acc => (
-                                    <td key={acc.account_type} className="text-neg">${Number(acc.worst_trade || 0).toLocaleString()}</td>
+                                {tableColumns.map(col => (
+                                    <td key={col.key} className="text-neg">${Number(col.data.worst_trade || 0).toLocaleString()}</td>
                                 ))}
                             </tr>
                         </tbody>

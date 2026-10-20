@@ -54,7 +54,7 @@ const SessionBadge = ({ session }) => {
 };
 
 const Trades = ({ onOpenAddTrade }) => {
-    const { selectedAccountType, selectedAccountName, accountsSummary, setSelectedAccountType } = useAccount();
+    const { selectedAccountType, selectedAccountName, accountsSummary, setSelectedAccountType, setSelectedAccountName } = useAccount();
     const [trades, setTrades] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -387,7 +387,7 @@ const Trades = ({ onOpenAddTrade }) => {
                 </div>
             </div>
 
-            {/* ─── Classified Environments Mini-Strip (Individual vs Together) ─── */}
+            {/* ─── Classified Environments & Sub-Firms Mini-Strip (Individual vs Together) ─── */}
             {accountsSummary.some(a => a.trades_count > 0) && (
                 <div style={{
                     display: 'flex',
@@ -401,18 +401,91 @@ const Trades = ({ onOpenAddTrade }) => {
                     borderRadius: 'var(--radius-sm)'
                 }}>
                     <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Environment Stats:
+                        {selectedAccountType !== 'ALL' && accountsSummary.find(a => a.account_type === selectedAccountType)?.sub_accounts?.length > 0
+                            ? `${accountsSummary.find(a => a.account_type === selectedAccountType)?.label} Firms:`
+                            : 'Environment Stats:'}
                     </span>
-                    {accountsSummary.map(acc => {
+
+                    {/* If an environment is active and has sub-firms (e.g. GFT and Maven under Prop Firm), show the Together button first */}
+                    {selectedAccountType !== 'ALL' && accountsSummary.find(a => a.account_type === selectedAccountType)?.sub_accounts?.length > 0 && (() => {
+                        const activeItem = accountsSummary.find(a => a.account_type === selectedAccountType);
+                        const cfg = getAccountConfig(activeItem.account_type);
+                        const isTogetherSelected = selectedAccountName === 'ALL';
+                        const isPos = Number(activeItem.total_pnl) >= 0;
+                        return (
+                            <button
+                                type="button"
+                                onClick={() => setSelectedAccountName('ALL')}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.45rem',
+                                    padding: '0.25rem 0.65rem',
+                                    borderRadius: '6px',
+                                    fontSize: '0.74rem',
+                                    fontWeight: '700',
+                                    background: isTogetherSelected ? `${cfg.color}22` : 'var(--surface-100)',
+                                    border: `1px solid ${isTogetherSelected ? cfg.color : 'var(--border-color)'}`,
+                                    color: 'var(--text-primary)',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <span style={{ color: cfg.color }}>All {activeItem.label} (Together):</span>
+                                <span className={`font-tabular ${isPos ? 'text-pos' : 'text-neg'}`}>
+                                    {isPos ? '+' : ''}${Number(activeItem.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                </span>
+                                <span style={{ opacity: 0.6, fontSize: '0.68rem' }}>({activeItem.win_rate}%)</span>
+                            </button>
+                        );
+                    })()}
+
+                    {/* Sub-firm buttons (GFT, Maven, etc.) when category has sub-accounts */}
+                    {selectedAccountType !== 'ALL' && accountsSummary.find(a => a.account_type === selectedAccountType)?.sub_accounts?.map(sub => {
+                        const isSubSelected = selectedAccountName === sub.name;
+                        const isPos = Number(sub.total_pnl) >= 0;
+                        const cfg = getAccountConfig(selectedAccountType);
+                        return (
+                            <button
+                                key={sub.name}
+                                type="button"
+                                onClick={() => setSelectedAccountName(isSubSelected ? 'ALL' : sub.name)}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.45rem',
+                                    padding: '0.25rem 0.65rem',
+                                    borderRadius: '6px',
+                                    fontSize: '0.74rem',
+                                    fontWeight: '700',
+                                    background: isSubSelected ? `${cfg.color}33` : 'var(--surface-200)',
+                                    border: `1px solid ${isSubSelected ? cfg.color : 'var(--border-color)'}`,
+                                    color: 'var(--text-primary)',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <span>{sub.name}:</span>
+                                <span className={`font-tabular ${isPos ? 'text-pos' : 'text-neg'}`}>
+                                    {isPos ? '+' : ''}${Number(sub.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                </span>
+                                <span style={{ opacity: 0.6, fontSize: '0.68rem' }}>({sub.win_rate}%)</span>
+                            </button>
+                        );
+                    })}
+
+                    {/* Top-level category buttons when ALL is active */}
+                    {(selectedAccountType === 'ALL' || !accountsSummary.find(a => a.account_type === selectedAccountType)?.sub_accounts?.length) && accountsSummary.map(acc => {
                         const isPos = Number(acc.total_pnl) >= 0;
                         const cfg = getAccountConfig(acc.account_type);
-                        const isSelected = selectedAccountType === acc.account_type;
+                        const isSelected = selectedAccountType === acc.account_type && selectedAccountName === 'ALL';
                         if (acc.trades_count === 0) return null;
                         return (
                             <button
                                 key={acc.account_type}
                                 type="button"
-                                onClick={() => setSelectedAccountType(isSelected ? 'ALL' : acc.account_type)}
+                                onClick={() => {
+                                    setSelectedAccountType(isSelected ? 'ALL' : acc.account_type);
+                                    setSelectedAccountName('ALL');
+                                }}
                                 style={{
                                     display: 'inline-flex',
                                     alignItems: 'center',

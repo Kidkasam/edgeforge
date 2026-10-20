@@ -237,6 +237,45 @@ class AccountsSummaryView(APIView):
                 be = 0
                 names = []
 
+            # Calculate sub-accounts (e.g., GFT vs Maven under Prop Firm)
+            sub_accounts = []
+            distinct_names = list(acct_trades.exclude(account_name='').values_list('account_name', flat=True).distinct())
+            for firm_name in distinct_names:
+                firm_trades = acct_trades.filter(account_name=firm_name)
+                f_count = firm_trades.count()
+                if f_count > 0:
+                    f_stats = firm_trades.aggregate(
+                        total_pnl=Sum('profit_loss'),
+                        total_pips=Sum('pips'),
+                        wins=Count(Case(When(profit_loss__gt=0, then=1))),
+                        losses=Count(Case(When(profit_loss__lt=0, then=1))),
+                        be=Count(Case(When(profit_loss=0, then=1))),
+                        total_win_amount=Sum(Case(When(profit_loss__gt=0, then='profit_loss'), default=0, output_field=FloatField())),
+                        total_loss_amount=Sum(Case(When(profit_loss__lt=0, then='profit_loss'), default=0, output_field=FloatField())),
+                        avg_win=Avg(Case(When(profit_loss__gt=0, then='profit_loss'))),
+                        avg_loss=Avg(Case(When(profit_loss__lt=0, then='profit_loss'))),
+                        avg_rr=Avg('risk_reward'),
+                        best_trade=Max('profit_loss'),
+                        worst_trade=Min('profit_loss'),
+                    )
+                    sub_accounts.append({
+                        'name': firm_name,
+                        'account_type': code,
+                        'trades_count': f_count,
+                        'wins': f_stats['wins'],
+                        'losses': f_stats['losses'],
+                        'be': f_stats['be'],
+                        'total_pnl': round(f_stats['total_pnl'] or 0, 2),
+                        'total_pips': round(f_stats['total_pips'] or 0, 1),
+                        'win_rate': round((f_stats['wins'] / f_count) * 100, 1),
+                        'profit_factor': round(abs(f_stats['total_win_amount'] / f_stats['total_loss_amount']), 2) if f_stats['total_loss_amount'] != 0 else round(f_stats['total_win_amount'] or 0, 2),
+                        'avg_win': round(f_stats['avg_win'] or 0, 2),
+                        'avg_loss': round(f_stats['avg_loss'] or 0, 2),
+                        'avg_rr': round(f_stats['avg_rr'] or 0, 2),
+                        'best_trade': round(f_stats['best_trade'] or 0, 2),
+                        'worst_trade': round(f_stats['worst_trade'] or 0, 2),
+                    })
+
             individual.append({
                 'account_type': code,
                 'label': label,
@@ -253,7 +292,8 @@ class AccountsSummaryView(APIView):
                 'avg_rr': avg_rr,
                 'best_trade': best_trade,
                 'worst_trade': worst_trade,
-                'account_names': names
+                'account_names': names,
+                'sub_accounts': sub_accounts
             })
 
         # 2. Combined total stats (Together)

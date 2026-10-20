@@ -210,41 +210,46 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
 
                         {/* Account Name / Label */}
                         <div style={{ marginTop: '0.85rem' }}>
-                            <label className="trade-label">Account Label / Sub-Account (Optional)</label>
+                            <label className="trade-label">
+                                {formData.account_type === 'PROP_FIRM' ? 'Prop Firm / Account Name * (e.g. GFT, Maven)' : 'Account Label / Sub-Account (Optional)'}
+                            </label>
                             <input
                                 className="input-field"
                                 name="account_name"
                                 placeholder={
-                                    formData.account_type === 'PROP_FIRM' ? "e.g. FTMO 100K Phase 1, MFF 50K..." :
+                                    formData.account_type === 'PROP_FIRM' ? "e.g. GFT 100K, Maven 50K, FTMO..." :
                                     formData.account_type === 'CHALLENGE' ? "e.g. Discord Challenge, October Contest..." :
-                                    formData.account_type === 'DEMO' ? "e.g. London Breakout Test..." : "e.g. IC Markets Live..."
+                                    formData.account_type === 'DEMO' ? "e.g. Forward Test A+..." : "e.g. IC Markets Live..."
                                 }
                                 value={formData.account_name}
                                 onChange={handleChange}
                             />
-                            {existingAccountNames.length > 0 && (
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.4rem', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Quick Pick:</span>
-                                    {existingAccountNames.slice(0, 5).map(name => (
-                                        <button
-                                            key={name}
-                                            type="button"
-                                            onClick={() => setFormData(p => ({ ...p, account_name: name }))}
-                                            style={{
-                                                fontSize: '0.68rem',
-                                                padding: '0.2rem 0.55rem',
-                                                borderRadius: '4px',
-                                                background: 'var(--surface-200)',
-                                                border: '1px solid var(--border-color)',
-                                                color: 'var(--text-secondary)',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            {name}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                            {/* Preset / Quick-Pick chips */}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.5rem', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Quick Firm / Node Pick:</span>
+                                {Array.from(new Set([
+                                    ...(formData.account_type === 'PROP_FIRM' ? ['GFT', 'Maven', 'FTMO', 'FundingPips', 'Apex'] : []),
+                                    ...existingAccountNames
+                                ])).slice(0, 8).map(name => (
+                                    <button
+                                        key={name}
+                                        type="button"
+                                        onClick={() => setFormData(p => ({ ...p, account_name: name }))}
+                                        style={{
+                                            fontSize: '0.68rem',
+                                            padding: '0.2rem 0.55rem',
+                                            borderRadius: '4px',
+                                            background: formData.account_name === name ? 'var(--primary-glow-subtle)' : 'var(--surface-200)',
+                                            border: `1px solid ${formData.account_name === name ? 'var(--border-glow)' : 'var(--border-color)'}`,
+                                            color: formData.account_name === name ? 'var(--primary-light)' : 'var(--text-secondary)',
+                                            cursor: 'pointer',
+                                            fontWeight: formData.account_name === name ? '700' : 'normal'
+                                        }}
+                                    >
+                                        {name}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

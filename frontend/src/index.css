@@ -1129,3 +1129,144 @@ select.input-field option {
 .matrix-table tr:hover td {
   background: var(--surface-100);
 }
+
+/* ─── Level 2 Sub-Account / Firm Specific Pills & Breakdown ─── */
+.account-sub-pills-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface-100);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  animation: fadeInOverlay 0.25s ease;
+}
+
+.sub-pills-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 0.25rem;
+}
+
+.sub-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  background: var(--surface-200);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sub-pill-btn:hover {
+  background: var(--surface-300);
+  color: var(--text-primary);
+  border-color: var(--border-bright);
+}
+
+.sub-pill-btn.active {
+  background: var(--primary-glow-subtle);
+  border-color: var(--border-glow);
+  color: var(--primary-light);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
+.sub-pill-stat {
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+/* Card Sub-Accounts Breakdown inside Matrix Card */
+.card-sub-accounts-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--surface-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.sub-breakdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sub-breakdown-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.sub-breakdown-tip {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+}
+
+.sub-accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sub-account-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0.55rem;
+  border-radius: 4px;
+  background: var(--surface-100);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sub-account-item:hover {
+  background: var(--surface-200);
+  border-color: var(--border-bright);
+}
+
+.sub-account-item.sub-active {
+  background: var(--primary-glow-subtle);
+  border-color: var(--border-glow);
+}
+
+.sub-left {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.sub-name {
+  font-size: 0.76rem;
+  color: var(--text-primary);
+}
+
+.sub-sub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.sub-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.76rem;
+}
+
+.sub-pf {
+  font-size: 0.68rem;
+  font-weight: 700;
+}
