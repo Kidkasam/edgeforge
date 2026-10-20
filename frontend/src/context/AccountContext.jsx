@@ -32,6 +32,7 @@ export const AccountProvider = ({ children }) => {
     });
 
     const [accountsSummary, setAccountsSummary] = useState([]);
+    const [combinedSummary, setCombinedSummary] = useState(null);
     const [isLoadingSummary, setIsLoadingSummary] = useState(false);
 
     const setSelectedAccountType = (type) => {
@@ -50,7 +51,10 @@ export const AccountProvider = ({ children }) => {
         try {
             setIsLoadingSummary(true);
             const data = await tradeService.getAccountsSummary();
-            setAccountsSummary(data || []);
+            const list = Array.isArray(data) ? data : (data.individual || []);
+            const combined = data?.combined || null;
+            setAccountsSummary(list);
+            setCombinedSummary(combined);
         } catch (err) {
             console.error('Failed to load accounts summary:', err);
         } finally {
@@ -70,6 +74,7 @@ export const AccountProvider = ({ children }) => {
                 selectedAccountName,
                 setSelectedAccountName,
                 accountsSummary,
+                combinedSummary,
                 refreshAccountsSummary,
                 isLoadingSummary,
                 getAccountConfig,

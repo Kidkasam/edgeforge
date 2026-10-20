@@ -11,7 +11,7 @@ import AddTradeModal from '../components/AddTradeModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import Loader from '../components/Loader';
 import AccountSwitcher from '../components/AccountSwitcher';
-import { useAccount } from '../context/AccountContext';
+import { useAccount, getAccountConfig } from '../context/AccountContext';
 
 const AccountBadge = ({ type, name }) => {
     const configs = {
@@ -54,7 +54,7 @@ const SessionBadge = ({ session }) => {
 };
 
 const Trades = ({ onOpenAddTrade }) => {
-    const { selectedAccountType, selectedAccountName } = useAccount();
+    const { selectedAccountType, selectedAccountName, accountsSummary, setSelectedAccountType } = useAccount();
     const [trades, setTrades] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -386,6 +386,57 @@ const Trades = ({ onOpenAddTrade }) => {
                     <span className="trades-summary-value font-tabular">{summary.totalPips > 0 ? `+${summary.totalPips}` : summary.totalPips}</span>
                 </div>
             </div>
+
+            {/* ─── Classified Environments Mini-Strip (Individual vs Together) ─── */}
+            {accountsSummary.some(a => a.trades_count > 0) && (
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '0.65rem',
+                    marginBottom: '1rem',
+                    padding: '0.65rem 1rem',
+                    background: 'var(--surface-50)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-sm)'
+                }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Environment Stats:
+                    </span>
+                    {accountsSummary.map(acc => {
+                        const isPos = Number(acc.total_pnl) >= 0;
+                        const cfg = getAccountConfig(acc.account_type);
+                        const isSelected = selectedAccountType === acc.account_type;
+                        if (acc.trades_count === 0) return null;
+                        return (
+                            <button
+                                key={acc.account_type}
+                                type="button"
+                                onClick={() => setSelectedAccountType(isSelected ? 'ALL' : acc.account_type)}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.45rem',
+                                    padding: '0.25rem 0.65rem',
+                                    borderRadius: '6px',
+                                    fontSize: '0.74rem',
+                                    fontWeight: '700',
+                                    background: isSelected ? `${cfg.color}22` : 'var(--surface-100)',
+                                    border: `1px solid ${isSelected ? cfg.color : 'var(--border-color)'}`,
+                                    color: 'var(--text-primary)',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <span style={{ color: cfg.color }}>{acc.label}:</span>
+                                <span className={`font-tabular ${isPos ? 'text-pos' : 'text-neg'}`}>
+                                    {isPos ? '+' : ''}${Number(acc.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                </span>
+                                <span style={{ opacity: 0.6, fontSize: '0.68rem' }}>({acc.win_rate}%)</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
 
             {/* ─── Filter Toolbar ─── */}
             <div className="glass-card trades-filter-card">

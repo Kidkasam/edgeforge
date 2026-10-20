@@ -737,3 +737,395 @@ select.input-field option {
   font-size: 0.68rem;
   color: var(--text-muted);
 }
+
+/* ─── Accounts Classification Matrix (Individual & Together) ─── */
+.accounts-matrix-card {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.matrix-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.matrix-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-glow-subtle);
+  color: var(--primary-light);
+  border: 1px solid var(--border-glow);
+  margin-bottom: 0.35rem;
+}
+
+.matrix-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.matrix-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.matrix-view-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--surface-100);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem;
+  gap: 0.2rem;
+}
+
+.matrix-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.matrix-toggle-btn.active {
+  background: var(--surface-200);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Combined Together Banner */
+.matrix-combined-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.1rem 1.35rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(6, 182, 212, 0.05) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: var(--radius-md);
+}
+
+.combined-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.combined-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.combined-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary-light);
+}
+
+.combined-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.combined-sub {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.combined-metrics-grid {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.combined-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.combined-metric-item .metric-lbl {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.combined-metric-item .metric-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+/* Individual Cards Grid */
+.matrix-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.matrix-account-card {
+  padding: 1.15rem;
+  background: var(--surface-100);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.matrix-account-card:hover {
+  background: var(--surface-200);
+  border-color: var(--border-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
+}
+
+.matrix-account-card.card-focused {
+  border-color: var(--env-color, var(--primary));
+  box-shadow: 0 0 20px -6px var(--env-color, var(--primary-glow));
+}
+
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.card-icon-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+}
+
+.card-env-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.card-env-badge {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.card-active-indicator {
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: var(--primary-glow-subtle);
+  color: var(--primary-light);
+  border: 1px solid var(--border-glow);
+}
+
+.card-pnl-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.card-pnl-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.card-pnl-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.card-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.progress-bar-bg {
+  height: 6px;
+  width: 100%;
+  background: var(--surface-200);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.card-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  padding: 0.65rem;
+  background: var(--surface-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.stat-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.cell-lbl {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cell-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.card-sub-names {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+}
+
+.sub-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.sub-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.sub-chip {
+  padding: 0.15rem 0.45rem;
+  background: var(--surface-200);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+}
+
+.card-focus-btn {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  background: var(--surface-200);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-focus-btn:hover {
+  background: var(--surface-300);
+  border-color: var(--border-bright);
+}
+
+.card-focus-btn.btn-focused {
+  background: var(--primary-glow-subtle);
+  border-color: var(--border-glow);
+  color: var(--primary-light);
+}
+
+/* Matrix Table View */
+.matrix-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-50);
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.82rem;
+}
+
+.matrix-table th {
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--surface-100);
+}
+
+.matrix-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.matrix-table tr:last-child td {
+  border-bottom: none;
+}
+
+.matrix-table tr:hover td {
+  background: var(--surface-100);
+}

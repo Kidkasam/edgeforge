@@ -15,6 +15,7 @@ import {
 import { motion } from 'framer-motion';
 import Loader from '../components/Loader';
 import AccountSwitcher from '../components/AccountSwitcher';
+import AccountsClassificationMatrix from '../components/AccountsClassificationMatrix';
 import { useAccount } from '../context/AccountContext';
 
 const MotionDiv = motion.div;
@@ -558,6 +559,9 @@ export default function Dashboard({ onOpenAddTrade }) {
                     Launch Prop Calendar <ChevronRight size={15} />
                 </Link>
             </MotionDiv>
+
+            {/* ─── Classification Matrix: Individual Environments vs. Combined Together ─── */}
+            <AccountsClassificationMatrix />
 
             {/* ─── Unified Session Intelligence & Top Instruments ─── */}
             <div className="dash-dual-grid">

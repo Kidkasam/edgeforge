@@ -189,33 +189,131 @@ class AccountsSummaryView(APIView):
         user = request.user
         trades = Trade.objects.filter(user=user)
 
-        summary = []
+        # 1. Individual accounts stats
+        individual = []
         for code, label in Trade.ACCOUNT_TYPE_CHOICES:
             acct_trades = trades.filter(account_type=code)
             count = acct_trades.count()
             if count > 0:
                 stats = acct_trades.aggregate(
                     total_pnl=Sum('profit_loss'),
-                    wins=Count(Case(When(profit_loss__gt=0, then=1)))
+                    total_pips=Sum('pips'),
+                    wins=Count(Case(When(profit_loss__gt=0, then=1))),
+                    losses=Count(Case(When(profit_loss__lt=0, then=1))),
+                    be=Count(Case(When(profit_loss=0, then=1))),
+                    total_win_amount=Sum(Case(When(profit_loss__gt=0, then='profit_loss'), default=0, output_field=FloatField())),
+                    total_loss_amount=Sum(Case(When(profit_loss__lt=0, then='profit_loss'), default=0, output_field=FloatField())),
+                    avg_win=Avg(Case(When(profit_loss__gt=0, then='profit_loss'))),
+                    avg_loss=Avg(Case(When(profit_loss__lt=0, then='profit_loss'))),
+                    avg_rr=Avg('risk_reward'),
+                    best_trade=Max('profit_loss'),
+                    worst_trade=Min('profit_loss'),
                 )
                 pnl = round(stats['total_pnl'] or 0, 2)
+                pips = round(stats['total_pips'] or 0, 1)
                 win_rate = round((stats['wins'] / count) * 100, 1) if count else 0.0
+                profit_factor = round(abs(stats['total_win_amount'] / stats['total_loss_amount']), 2) if stats['total_loss_amount'] != 0 else round(stats['total_win_amount'] or 0, 2)
                 names = list(acct_trades.exclude(account_name='').values_list('account_name', flat=True).distinct())
+                avg_win = round(stats['avg_win'] or 0, 2)
+                avg_loss = round(stats['avg_loss'] or 0, 2)
+                avg_rr = round(stats['avg_rr'] or 0, 2)
+                best_trade = round(stats['best_trade'] or 0, 2)
+                worst_trade = round(stats['worst_trade'] or 0, 2)
+                wins = stats['wins']
+                losses = stats['losses']
+                be = stats['be']
             else:
                 pnl = 0.0
+                pips = 0.0
                 win_rate = 0.0
+                profit_factor = 0.0
+                avg_win = 0.0
+                avg_loss = 0.0
+                avg_rr = 0.0
+                best_trade = 0.0
+                worst_trade = 0.0
+                wins = 0
+                losses = 0
+                be = 0
                 names = []
 
-            summary.append({
+            individual.append({
                 'account_type': code,
                 'label': label,
                 'trades_count': count,
+                'wins': wins,
+                'losses': losses,
+                'be': be,
                 'total_pnl': pnl,
+                'total_pips': pips,
                 'win_rate': win_rate,
+                'profit_factor': profit_factor,
+                'avg_win': avg_win,
+                'avg_loss': avg_loss,
+                'avg_rr': avg_rr,
+                'best_trade': best_trade,
+                'worst_trade': worst_trade,
                 'account_names': names
             })
 
-        return Response(summary)
+        # 2. Combined total stats (Together)
+        total_count = trades.count()
+        if total_count > 0:
+            tot_stats = trades.aggregate(
+                total_pnl=Sum('profit_loss'),
+                total_pips=Sum('pips'),
+                wins=Count(Case(When(profit_loss__gt=0, then=1))),
+                losses=Count(Case(When(profit_loss__lt=0, then=1))),
+                be=Count(Case(When(profit_loss=0, then=1))),
+                total_win_amount=Sum(Case(When(profit_loss__gt=0, then='profit_loss'), default=0, output_field=FloatField())),
+                total_loss_amount=Sum(Case(When(profit_loss__lt=0, then='profit_loss'), default=0, output_field=FloatField())),
+                avg_win=Avg(Case(When(profit_loss__gt=0, then='profit_loss'))),
+                avg_loss=Avg(Case(When(profit_loss__lt=0, then='profit_loss'))),
+                avg_rr=Avg('risk_reward'),
+                best_trade=Max('profit_loss'),
+                worst_trade=Min('profit_loss'),
+            )
+            combined = {
+                'account_type': 'ALL',
+                'label': 'All Accounts (Combined)',
+                'trades_count': total_count,
+                'wins': tot_stats['wins'],
+                'losses': tot_stats['losses'],
+                'be': tot_stats['be'],
+                'total_pnl': round(tot_stats['total_pnl'] or 0, 2),
+                'total_pips': round(tot_stats['total_pips'] or 0, 1),
+                'win_rate': round((tot_stats['wins'] / total_count) * 100, 1),
+                'profit_factor': round(abs(tot_stats['total_win_amount'] / tot_stats['total_loss_amount']), 2) if tot_stats['total_loss_amount'] != 0 else round(tot_stats['total_win_amount'] or 0, 2),
+                'avg_win': round(tot_stats['avg_win'] or 0, 2),
+                'avg_loss': round(tot_stats['avg_loss'] or 0, 2),
+                'avg_rr': round(tot_stats['avg_rr'] or 0, 2),
+                'best_trade': round(tot_stats['best_trade'] or 0, 2),
+                'worst_trade': round(tot_stats['worst_trade'] or 0, 2),
+            }
+        else:
+            combined = {
+                'account_type': 'ALL',
+                'label': 'All Accounts (Combined)',
+                'trades_count': 0,
+                'wins': 0,
+                'losses': 0,
+                'be': 0,
+                'total_pnl': 0.0,
+                'total_pips': 0.0,
+                'win_rate': 0.0,
+                'profit_factor': 0.0,
+                'avg_win': 0.0,
+                'avg_loss': 0.0,
+                'avg_rr': 0.0,
+                'best_trade': 0.0,
+                'worst_trade': 0.0,
+            }
+
+        return Response({
+            'individual': individual,
+            'combined': combined,
+            'summary': individual
+        })
 
 import threading
 
