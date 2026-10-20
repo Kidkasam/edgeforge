@@ -33,7 +33,7 @@ class TradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trade
         fields = [
-            'id', 'user', 'market_pair', 'buy_sell', 'entry_price', 'exit_price', 
+            'id', 'user', 'account_type', 'account_name', 'market_pair', 'buy_sell', 'entry_price', 'exit_price', 
             'stop_loss', 'take_profit', 'lot_size', 'trading_session', 
             'trade_date', 'reflection', 'strategies', 'commission', 'swap_fees',
             'pips', 'profit_loss', 'risk_reward', 'risk_amount', 'is_winner', 'outcome',

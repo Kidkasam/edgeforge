@@ -86,6 +86,13 @@ class OverviewView(APIView):
     def get(self, request):
         user = request.user
         trades = Trade.objects.filter(user=user)
+        account_type = request.query_params.get('account_type')
+        if account_type and account_type != 'ALL':
+            trades = trades.filter(account_type=account_type)
+        account_name = request.query_params.get('account_name')
+        if account_name and account_name != 'ALL':
+            trades = trades.filter(account_name__iexact=account_name)
+
         total_trades = trades.count()
 
         if total_trades == 0:
@@ -135,6 +142,13 @@ class StatisticsView(APIView):
         user = request.user
         trades = Trade.objects.filter(user=user)
 
+        account_type = request.query_params.get('account_type')
+        if account_type and account_type != 'ALL':
+            trades = trades.filter(account_type=account_type)
+        account_name = request.query_params.get('account_name')
+        if account_name and account_name != 'ALL':
+            trades = trades.filter(account_name__iexact=account_name)
+
 
         sessions = trades.values('trading_session').annotate(
             trades=Count('id'),
@@ -166,6 +180,42 @@ class StatisticsView(APIView):
             "session_breakdown": session_breakdown,
             "monthly_pnl": monthly_pnl,
         })
+
+class AccountsSummaryView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CsrfExemptSessionAuthentication, TokenAuthentication]
+
+    def get(self, request):
+        user = request.user
+        trades = Trade.objects.filter(user=user)
+
+        summary = []
+        for code, label in Trade.ACCOUNT_TYPE_CHOICES:
+            acct_trades = trades.filter(account_type=code)
+            count = acct_trades.count()
+            if count > 0:
+                stats = acct_trades.aggregate(
+                    total_pnl=Sum('profit_loss'),
+                    wins=Count(Case(When(profit_loss__gt=0, then=1)))
+                )
+                pnl = round(stats['total_pnl'] or 0, 2)
+                win_rate = round((stats['wins'] / count) * 100, 1) if count else 0.0
+                names = list(acct_trades.exclude(account_name='').values_list('account_name', flat=True).distinct())
+            else:
+                pnl = 0.0
+                win_rate = 0.0
+                names = []
+
+            summary.append({
+                'account_type': code,
+                'label': label,
+                'trades_count': count,
+                'total_pnl': pnl,
+                'win_rate': win_rate,
+                'account_names': names
+            })
+
+        return Response(summary)
 
 import threading
 

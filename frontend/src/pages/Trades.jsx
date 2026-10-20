@@ -10,6 +10,29 @@ import {
 import AddTradeModal from '../components/AddTradeModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import Loader from '../components/Loader';
+import AccountSwitcher from '../components/AccountSwitcher';
+import { useAccount } from '../context/AccountContext';
+
+const AccountBadge = ({ type, name }) => {
+    const configs = {
+        'PROP_FIRM': { bg: 'rgba(168, 85, 247, 0.12)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.25)', label: 'Prop Firm', icon: '🏆' },
+        'DEMO': { bg: 'rgba(6, 182, 212, 0.12)', text: '#22d3ee', border: 'rgba(6, 182, 212, 0.25)', label: 'Demo Test', icon: '🧪' },
+        'CHALLENGE': { bg: 'rgba(245, 158, 11, 0.12)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.25)', label: 'Challenge', icon: '⚔️' },
+        'LIVE': { bg: 'rgba(16, 185, 129, 0.12)', text: '#34d399', border: 'rgba(16, 185, 129, 0.25)', label: 'Live', icon: '💎' },
+    };
+    const c = configs[type] || configs['PROP_FIRM'];
+    return (
+        <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+            padding: '0.2rem 0.55rem', borderRadius: '6px', fontSize: '0.7rem',
+            fontWeight: '700', background: c.bg, color: c.text, border: `1px solid ${c.border}`,
+            maxWidth: '130px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+        }} title={name ? `${c.label}: ${name}` : c.label}>
+            <span>{c.icon}</span>
+            <span>{name || c.label}</span>
+        </span>
+    );
+};
 
 const SessionBadge = ({ session }) => {
     const configs = {
@@ -31,6 +54,7 @@ const SessionBadge = ({ session }) => {
 };
 
 const Trades = ({ onOpenAddTrade }) => {
+    const { selectedAccountType, selectedAccountName } = useAccount();
     const [trades, setTrades] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -58,8 +82,17 @@ const Trades = ({ onOpenAddTrade }) => {
     const fetchTrades = async () => {
         try {
             setLoading(true);
+            const accountParams = {};
+            if (selectedAccountType && selectedAccountType !== 'ALL') {
+                accountParams.account_type = selectedAccountType;
+            }
+            if (selectedAccountName && selectedAccountName !== 'ALL') {
+                accountParams.account_name = selectedAccountName;
+            }
+
             const queryParams = {
                 ...filters,
+                ...accountParams,
                 page: currentPage,
                 page_size: pageSize
             };
@@ -78,7 +111,7 @@ const Trades = ({ onOpenAddTrade }) => {
 
     useEffect(() => {
         fetchTrades();
-    }, [filters, currentPage, pageSize]);
+    }, [filters, currentPage, pageSize, selectedAccountType, selectedAccountName]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -329,6 +362,9 @@ const Trades = ({ onOpenAddTrade }) => {
                 </button>
             </div>
 
+            {/* ─── Multi-Account Environment Switcher ─── */}
+            <AccountSwitcher style={{ marginBottom: '1.25rem' }} />
+
             {/* ─── Summary Snapshot Strip ─── */}
             <div className="trades-summary-strip">
                 <div className="trades-summary-card">
@@ -436,6 +472,7 @@ const Trades = ({ onOpenAddTrade }) => {
                                 <th onClick={() => toggleOrdering('trade_date')} className="sortable-th">
                                     <span>Date</span> <ArrowUpDown size={13} />
                                 </th>
+                                <th>Account</th>
                                 <th>Pair</th>
                                 <th>Side</th>
                                 <th>Session</th>
@@ -470,6 +507,9 @@ const Trades = ({ onOpenAddTrade }) => {
                                         </td>
                                         <td className="trades-td font-tabular">
                                             {trade.trade_date ? new Date(trade.trade_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}
+                                        </td>
+                                        <td className="trades-td">
+                                            <AccountBadge type={trade.account_type} name={trade.account_name} />
                                         </td>
                                         <td className="trades-td">
                                             <span className="trades-pair-text">{trade.market_pair}</span>

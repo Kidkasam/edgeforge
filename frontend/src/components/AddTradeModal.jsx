@@ -2,12 +2,24 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     X, ChevronDown, ChevronUp, Plus, Sparkles,
     TrendingUp, TrendingDown, Image as ImageIcon, Calculator,
-    Shield, Check, Tag
+    Shield, Check, Tag, FlaskConical, Swords, Layers
 } from 'lucide-react';
 import { strategyService } from '../services/api';
+import { useAccount } from '../context/AccountContext';
 
 const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
+    const { selectedAccountType, accountsSummary, refreshAccountsSummary } = useAccount();
+
+    const getInitialAccountType = () => {
+        if (selectedAccountType && selectedAccountType !== 'ALL') {
+            return selectedAccountType;
+        }
+        return 'PROP_FIRM';
+    };
+
     const initialForm = {
+        account_type: getInitialAccountType(),
+        account_name: '',
         market_pair: '',
         buy_sell: 'BUY',
         entry_price: '',
@@ -37,17 +49,32 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
             if (editData) {
                 setFormData({
                     ...editData,
+                    account_type: editData.account_type || 'PROP_FIRM',
+                    account_name: editData.account_name || '',
                     strategies: editData.strategies?.map(s => s.id || s) || []
                 });
                 setScreenshotFile(null);
                 setPreviewUrl(editData.screenshot || null);
             } else {
-                setFormData(initialForm);
+                setFormData({
+                    ...initialForm,
+                    account_type: getInitialAccountType(),
+                });
                 setScreenshotFile(null);
                 setPreviewUrl(null);
             }
         }
-    }, [isOpen, editData]);
+    }, [isOpen, editData, selectedAccountType]);
+
+    const existingAccountNames = useMemo(() => {
+        const names = new Set();
+        accountsSummary.forEach(acc => {
+            acc.account_names?.forEach(n => {
+                if (n && n.trim()) names.add(n.trim());
+            });
+        });
+        return Array.from(names);
+    }, [accountsSummary]);
 
     const fetchStrategies = async () => {
         try {
@@ -145,9 +172,85 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="trade-modal-form">
-                    {/* ─── Section 1: Instrument & Execution ─── */}
+                    {/* ─── Section 1: Trading Environment & Account ─── */}
                     <div className="trade-form-section">
-                        <span className="trade-section-heading">1. Market & Timing</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                            <span className="trade-section-heading" style={{ marginBottom: 0 }}>1. Trading Environment & Account</span>
+                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                                Keeps demo & challenges strictly isolated
+                            </span>
+                        </div>
+
+                        {/* Account Type Selector Cards */}
+                        <div className="trade-account-type-grid">
+                            {[
+                                { key: 'PROP_FIRM', label: 'Prop Firm', desc: 'Funded / Evaluation', color: '#a855f7' },
+                                { key: 'DEMO', label: 'Demo / Paper', desc: 'Forward-Testing', color: '#06b6d4' },
+                                { key: 'CHALLENGE', label: 'Friend Challenge', desc: 'Contest / Gamified', color: '#f59e0b' },
+                                { key: 'LIVE', label: 'Live Personal', desc: 'Personal Capital', color: '#10b981' },
+                            ].map((acc) => {
+                                const isSelected = formData.account_type === acc.key;
+                                return (
+                                    <button
+                                        key={acc.key}
+                                        type="button"
+                                        onClick={() => setFormData(p => ({ ...p, account_type: acc.key }))}
+                                        className={`trade-account-type-card ${isSelected ? 'active' : ''}`}
+                                        style={{ '--card-accent': acc.color }}
+                                    >
+                                        <div className="card-top">
+                                            <span className="card-title">{acc.label}</span>
+                                            {isSelected && <Check size={14} style={{ color: acc.color }} />}
+                                        </div>
+                                        <span className="card-desc">{acc.desc}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Account Name / Label */}
+                        <div style={{ marginTop: '0.85rem' }}>
+                            <label className="trade-label">Account Label / Sub-Account (Optional)</label>
+                            <input
+                                className="input-field"
+                                name="account_name"
+                                placeholder={
+                                    formData.account_type === 'PROP_FIRM' ? "e.g. FTMO 100K Phase 1, MFF 50K..." :
+                                    formData.account_type === 'CHALLENGE' ? "e.g. Discord Challenge, October Contest..." :
+                                    formData.account_type === 'DEMO' ? "e.g. London Breakout Test..." : "e.g. IC Markets Live..."
+                                }
+                                value={formData.account_name}
+                                onChange={handleChange}
+                            />
+                            {existingAccountNames.length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.4rem', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Quick Pick:</span>
+                                    {existingAccountNames.slice(0, 5).map(name => (
+                                        <button
+                                            key={name}
+                                            type="button"
+                                            onClick={() => setFormData(p => ({ ...p, account_name: name }))}
+                                            style={{
+                                                fontSize: '0.68rem',
+                                                padding: '0.2rem 0.55rem',
+                                                borderRadius: '4px',
+                                                background: 'var(--surface-200)',
+                                                border: '1px solid var(--border-color)',
+                                                color: 'var(--text-secondary)',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {name}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ─── Section 2: Instrument & Execution ─── */}
+                    <div className="trade-form-section">
+                        <span className="trade-section-heading">2. Market & Timing</span>
                         <div className="trade-grid-2">
                             <div>
                                 <label className="trade-label">Market Pair *</label>
@@ -205,10 +308,10 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
                         </div>
                     </div>
 
-                    {/* ─── Section 2: Pricing & Risk Parameters ─── */}
+                    {/* ─── Section 3: Pricing & Risk Parameters ─── */}
                     <div className="trade-form-section">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span className="trade-section-heading">2. Execution Prices & Sizing</span>
+                            <span className="trade-section-heading">3. Execution Prices & Sizing</span>
                             {calculatedMetrics.estimatedRR && (
                                 <span className="trade-rr-chip">
                                     <Calculator size={13} /> Planned R:R: <strong>1:{calculatedMetrics.estimatedRR}</strong>
@@ -251,9 +354,9 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
                         </div>
                     </div>
 
-                    {/* ─── Section 3: Strategy Playbook Tagging ─── */}
+                    {/* ─── Section 4: Strategy Playbook Tagging ─── */}
                     <div className="trade-form-section">
-                        <span className="trade-section-heading">3. Strategy & Playbook Classification</span>
+                        <span className="trade-section-heading">4. Strategy & Playbook Classification</span>
                         
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.85rem' }}>
                             {availableStrategies.map(strat => {
@@ -340,9 +443,9 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
                         </div>
                     </div>
 
-                    {/* ─── Section 4: Reflection & Screenshot ─── */}
+                    {/* ─── Section 5: Reflection & Screenshot ─── */}
                     <div className="trade-form-section">
-                        <span className="trade-section-heading">4. Journal Reflection & Screenshot</span>
+                        <span className="trade-section-heading">5. Journal Reflection & Screenshot</span>
                         <div>
                             <label className="trade-label">Execution Notes & Psychology Reflection</label>
                             <textarea

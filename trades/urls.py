@@ -4,7 +4,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from .views import (
     RegisterAPIView, LoginAPIView, LogoutAPIView,
     TradeViewSet, StrategyViewSet,
-    OverviewView, StatisticsView, UserView,
+    OverviewView, StatisticsView, AccountsSummaryView, UserView,
     VerifyEmailAPIView
 )
 
@@ -21,5 +21,6 @@ urlpatterns = [
     path('auth/token/', obtain_auth_token, name='api-token'),
     path('overview/', OverviewView.as_view(), name='overview'),
     path('statistics/', StatisticsView.as_view(), name='statistics'),
+    path('accounts-summary/', AccountsSummaryView.as_view(), name='accounts-summary'),
     path('user/', UserView.as_view(), name='user-profile'),
 ]

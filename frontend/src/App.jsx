@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { AccountProvider } from './context/AccountContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -316,9 +317,11 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Router>
-          <AppContent />
-        </Router>
+        <AccountProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </AccountProvider>
       </ThemeProvider>
     </AuthProvider>
   );

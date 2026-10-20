@@ -58,12 +58,16 @@ export const authService = {
 };
 
 export const tradeService = {
-    getOverview: async () => {
-        const response = await api.get('overview/');
+    getOverview: async (params) => {
+        const response = await api.get('overview/', { params });
         return response.data;
     },
-    getStatistics: async () => {
-        const response = await api.get('statistics/');
+    getStatistics: async (params) => {
+        const response = await api.get('statistics/', { params });
+        return response.data;
+    },
+    getAccountsSummary: async () => {
+        const response = await api.get('accounts-summary/');
         return response.data;
     },
     getTrades: async (params) => {

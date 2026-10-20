@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Loader from '../components/Loader';
+import AccountSwitcher from '../components/AccountSwitcher';
+import { useAccount } from '../context/AccountContext';
 
 const MotionDiv = motion.div;
 
@@ -140,16 +142,26 @@ export default function Dashboard({ onOpenAddTrade }) {
     const [activeChartTab, setActiveChartTab] = useState('cumulative'); // 'cumulative' | 'trades'
     const [chartTimeframe, setChartTimeframe] = useState('ALL'); // 'ALL' | 'YTD' | '90D' | '30D'
 
+    const { selectedAccountType, selectedAccountName } = useAccount();
+
     const fetchData = async (isManualRefresh = false) => {
         try {
             if (isManualRefresh) setRefreshing(true);
             else setLoading(true);
 
+            const accountParams = {};
+            if (selectedAccountType && selectedAccountType !== 'ALL') {
+                accountParams.account_type = selectedAccountType;
+            }
+            if (selectedAccountName && selectedAccountName !== 'ALL') {
+                accountParams.account_name = selectedAccountName;
+            }
+
             const [overviewData, statsData, tradesData, chronoTradesData] = await Promise.all([
-                tradeService.getOverview(),
-                tradeService.getStatistics(),
-                tradeService.getTrades({ ordering: '-trade_date,-created_at', page_size: 20 }),
-                tradeService.getTrades({ ordering: 'trade_date,created_at', page_size: 500 })
+                tradeService.getOverview(accountParams),
+                tradeService.getStatistics(accountParams),
+                tradeService.getTrades({ ordering: '-trade_date,-created_at', page_size: 20, ...accountParams }),
+                tradeService.getTrades({ ordering: 'trade_date,created_at', page_size: 500, ...accountParams })
             ]);
             setOverview(overviewData);
             setStats(statsData);
@@ -165,7 +177,7 @@ export default function Dashboard({ onOpenAddTrade }) {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [selectedAccountType, selectedAccountName]);
 
     // Filter trades based on chartTimeframe
     const filteredTrades = useMemo(() => {
@@ -319,6 +331,9 @@ export default function Dashboard({ onOpenAddTrade }) {
                     </button>
                 </div>
             </div>
+
+            {/* ─── Multi-Account Environment Switcher ─── */}
+            <AccountSwitcher />
 
             {/* ─── 4 Core High-Impact KPI Cards ─── */}
             <MotionDiv className="dash-kpi-grid" variants={stagger} initial="hidden" animate="visible">

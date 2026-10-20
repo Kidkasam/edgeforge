@@ -44,7 +44,16 @@ class Trade(models.Model):
     ]
 
 
+    ACCOUNT_TYPE_CHOICES = [
+        ('PROP_FIRM', 'Prop Firm'),
+        ('DEMO', 'Demo Account'),
+        ('CHALLENGE', 'Friend Challenge'),
+        ('LIVE', 'Live Personal'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPE_CHOICES, default='PROP_FIRM', db_index=True)
+    account_name = models.CharField(max_length=100, blank=True, default='Primary Account')
     market_pair = models.CharField(max_length=15, db_index=True)
     buy_sell = models.CharField(max_length=4, choices=BUY_SELL_CHOICES)
     entry_price = models.FloatField()

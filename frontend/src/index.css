@@ -552,3 +552,188 @@ select.input-field option {
     padding-right: 1rem;
   }
 }
+
+/* ─── Multi-Account Environment Switcher ─── */
+.account-switcher-container {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.account-switcher-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.4rem;
+  background: var(--surface-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(16px);
+}
+
+.account-tabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.account-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.account-tab-btn:hover {
+  background: var(--surface-100);
+  color: var(--text-primary);
+}
+
+.account-tab-btn.active {
+  background: var(--surface-200);
+  color: var(--text-primary);
+  border-color: var(--border-bright);
+  box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.35);
+}
+
+.account-tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--surface-200);
+  color: var(--text-muted);
+}
+
+.account-tab-badge.badge-active {
+  background: var(--primary-glow-subtle);
+  color: var(--primary-light);
+  border: 1px solid var(--border-glow);
+}
+
+.sub-account-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  padding-right: 0.5rem;
+}
+
+.sub-account-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sub-account-select {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--surface-100);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  outline: none;
+  cursor: pointer;
+}
+
+.sub-account-select:focus {
+  border-color: var(--primary-light);
+}
+
+.account-context-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.65rem 0.95rem;
+  background: var(--surface-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  animation: fadeInOverlay 0.3s ease;
+}
+
+.account-banner-icon {
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+
+.account-banner-text strong {
+  color: var(--text-primary);
+  margin-right: 0.35rem;
+}
+
+/* ─── AddTradeModal: Account Selection Grid ─── */
+.trade-account-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.trade-account-type-card {
+  padding: 0.65rem 0.8rem;
+  background: var(--surface-100);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.trade-account-type-card:hover {
+  background: var(--surface-200);
+  border-color: var(--border-bright);
+}
+
+.trade-account-type-card.active {
+  background: var(--surface-200);
+  border-color: var(--card-accent, var(--primary));
+  box-shadow: 0 0 16px -4px var(--card-accent, var(--primary-glow));
+}
+
+.trade-account-type-card .card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trade-account-type-card .card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.trade-account-type-card .card-desc {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}

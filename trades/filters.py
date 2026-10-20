@@ -8,10 +8,12 @@ class TradeFilter(django_filters.FilterSet):
     strategy_id = django_filters.CharFilter(method='filter_strategy_id')
     session = django_filters.ChoiceFilter(field_name='trading_session', choices=Trade.SESSION_CHOICES)
     outcome = django_filters.ChoiceFilter(field_name='outcome', choices=Trade.OUTCOME_CHOICES)
+    account_type = django_filters.ChoiceFilter(field_name='account_type', choices=Trade.ACCOUNT_TYPE_CHOICES)
+    account_name = django_filters.CharFilter(field_name='account_name', lookup_expr='icontains')
 
     class Meta:
         model = Trade
-        fields = ['buy_sell', 'trading_session', 'market_pair', 'session', 'outcome', 'strategies']
+        fields = ['buy_sell', 'trading_session', 'market_pair', 'session', 'outcome', 'strategies', 'account_type', 'account_name']
 
     def filter_market_pair(self, queryset, name, value):
         if value:
