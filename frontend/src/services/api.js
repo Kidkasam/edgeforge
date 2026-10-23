@@ -12,24 +12,38 @@ const getBaseURL = () => {
 
 const api = axios.create({
     baseURL: getBaseURL(),
+    timeout: 45000, // Prevent hanging forever during cold starts
 });
 
-// Add a response interceptor for debugging
+// Response interceptor with graceful auth expiration recovery
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        const status = error.response?.status;
         console.error('API Error:', {
             url: error.config?.url,
             method: error.config?.method,
-            status: error.response?.status,
+            status,
             data: error.response?.data,
             message: error.message
         });
+
+        // Clear invalid/expired token so user is not stuck in a broken loop
+        if (status === 401 || status === 403) {
+            const hadToken = !!localStorage.getItem('token');
+            const isLoginAttempt = error.config?.url?.includes('auth/token/');
+            if (hadToken && !isLoginAttempt) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                window.dispatchEvent(new CustomEvent('auth:expired'));
+            }
+        }
+
         return Promise.reject(error);
     }
 );
 
-// Add a request interceptor to add the auth token to every request
+// Request interceptor to attach auth token
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -41,6 +55,14 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Non-blocking background ping to spin up Render free tier if it is asleep
+export const warmupBackend = () => {
+    try {
+        const rootUrl = getBaseURL().replace('/api/', '/');
+        fetch(rootUrl, { mode: 'no-cors' }).catch(() => {});
+    } catch (_) {}
+};
+
 export const authService = {
     login: async (username, password) => {
         const response = await api.post('auth/token/', { username, password });
@@ -51,6 +73,7 @@ export const authService = {
     },
     logout: () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('username');
     },
     register: async (userData) => {
         return api.post('auth/register/', userData);

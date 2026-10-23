@@ -42,7 +42,7 @@ const Profile = () => {
         }
     };
 
-    if (loading) return <Loader text="Loading Sovereign Profile" />;
+    if (loading) return <Loader text="Loading Sovereign Profile" fullScreen />;
 
     return (
         <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

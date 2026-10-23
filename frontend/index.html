@@ -6,10 +6,118 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EdgeForge</title>
+  <style>
+    /* Instant Critical Pre-Hydration Styles */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #090a0f;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .edgeforge-init-loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100%;
+      background: radial-gradient(circle at 50% 40%, #151828 0%, #090a0f 70%);
+      user-select: none;
+    }
+    .init-logo-wrap {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1.5rem;
+      animation: initFloat 2.4s ease-in-out infinite;
+    }
+    .init-pulse-ring {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 2px solid rgba(99, 102, 241, 0.4);
+      animation: initRipple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+    .init-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 30%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .init-bar-track {
+      width: 180px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-top: 1rem;
+      position: relative;
+    }
+    .init-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 40%;
+      background: linear-gradient(90deg, #6366f1, #06b6d4);
+      border-radius: 9999px;
+      animation: initShimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .init-caption {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-top: 0.85rem;
+    }
+    @keyframes initFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes initRipple {
+      0% { transform: scale(0.85); opacity: 0.8; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+    @keyframes initShimmer {
+      0% { left: -40%; width: 30%; }
+      50% { width: 50%; }
+      100% { left: 100%; width: 30%; }
+    }
+  </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Instant initial splash visible until React hydrates -->
+    <div class="edgeforge-init-loader">
+      <div class="init-logo-wrap">
+        <div class="init-pulse-ring"></div>
+        <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.5));">
+          <defs>
+            <linearGradient id="init-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6366f1" />
+              <stop offset="100%" stop-color="#06b6d4" />
+            </linearGradient>
+          </defs>
+          <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="#0f111a" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" />
+          <path d="M30 35 H70 V43 H30 Z M30 48 H60 V56 H30 Z M30 61 H70 V69 H30 Z" fill="url(#init-brand-grad)" />
+          <circle cx="50" cy="50" r="16" fill="#6366f1" opacity="0.1" />
+        </svg>
+      </div>
+      <div class="init-title">EdgeForge</div>
+      <div class="init-bar-track">
+        <div class="init-bar-fill"></div>
+      </div>
+      <div class="init-caption">Establishing Secure Link</div>
+    </div>
+  </div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 

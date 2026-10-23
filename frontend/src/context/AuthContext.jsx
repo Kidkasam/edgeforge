@@ -8,6 +8,16 @@ export const AuthProvider = ({ children }) => {
     const [username, setUsername] = useState(localStorage.getItem('username'));
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
 
+    useEffect(() => {
+        const handleExpired = () => {
+            setToken(null);
+            setUsername(null);
+            setIsAuthenticated(false);
+        };
+        window.addEventListener('auth:expired', handleExpired);
+        return () => window.removeEventListener('auth:expired', handleExpired);
+    }, []);
+
     const login = async (username, password) => {
         const data = await authService.login(username, password);
         setToken(data.token);

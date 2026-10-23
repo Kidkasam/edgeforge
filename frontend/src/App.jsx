@@ -1,24 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AccountProvider } from './context/AccountContext';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Trades from './pages/Trades';
-import Landing from './pages/Landing';
-import Profile from './pages/Profile';
-import CalendarPage from './pages/CalendarPage';
 import Footer from './components/Footer';
 import Logo from './components/Logo';
+import Loader from './components/Loader';
 import AddTradeModal from './components/AddTradeModal';
-import { tradeService } from './services/api';
+import { tradeService, warmupBackend } from './services/api';
 import {
   LayoutDashboard, History, LogOut, User,
   Menu, X, Sun, Moon, Zap, ChevronRight, Shield, Plus,
   TrendingUp, Sparkles, SlidersHorizontal, Calendar
 } from 'lucide-react';
+
+// Code-split heavy page views so initial load is lightweight and instant
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Trades = lazy(() => import('./pages/Trades'));
+const Landing = lazy(() => import('./pages/Landing'));
+const Profile = lazy(() => import('./pages/Profile'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -225,6 +228,11 @@ const AppContent = () => {
   const [isGlobalModalOpen, setIsGlobalModalOpen] = useState(false);
   const [isSavingTrade, setIsSavingTrade] = useState(false);
 
+  useEffect(() => {
+    // Wake up backend immediately on visitor hit
+    warmupBackend();
+  }, []);
+
   const handleGlobalSaveTrade = async (tradeData) => {
     try {
       setIsSavingTrade(true);
@@ -274,7 +282,7 @@ const AppContent = () => {
 
       await tradeService.createTrade(dataToSend);
       setIsGlobalModalOpen(false);
-      window.location.reload(); // Refresh state cleanly
+      window.location.reload();
     } catch (err) {
       console.error('Failed to save trade:', err);
       alert('Failed to save trade.');
@@ -286,14 +294,16 @@ const AppContent = () => {
   return (
     <div className="main-content">
       <Navigation onOpenAddTrade={() => setIsGlobalModalOpen(true)} />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<HomeLoader onOpenAddTrade={() => setIsGlobalModalOpen(true)} />} />
-        <Route path="/calendar" element={<PrivateRoute><CalendarPage onOpenAddTrade={() => setIsGlobalModalOpen(true)} /></PrivateRoute>} />
-        <Route path="/trades" element={<PrivateRoute><Trades onOpenAddTrade={() => setIsGlobalModalOpen(true)} /></PrivateRoute>} />
-        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-      </Routes>
+      <Suspense fallback={<Loader text="Synchronizing Node Interface" fullScreen />}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<HomeLoader onOpenAddTrade={() => setIsGlobalModalOpen(true)} />} />
+          <Route path="/calendar" element={<PrivateRoute><CalendarPage onOpenAddTrade={() => setIsGlobalModalOpen(true)} /></PrivateRoute>} />
+          <Route path="/trades" element={<PrivateRoute><Trades onOpenAddTrade={() => setIsGlobalModalOpen(true)} /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        </Routes>
+      </Suspense>
       <Footer />
 
       {isAuthenticated && (

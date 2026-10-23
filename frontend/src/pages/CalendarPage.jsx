@@ -45,7 +45,7 @@ export default function CalendarPage({ onOpenAddTrade }) {
         >
             <AccountSwitcher className="calendar-account-switcher" />
             {loading ? (
-                <Loader text="Forging Prop Performance Calendar" />
+                <Loader text="Forging Prop Performance Calendar" fullScreen />
             ) : (
                 <PropTradingCalendar trades={trades} onOpenAddTrade={onOpenAddTrade} />
             )}

@@ -138,6 +138,7 @@ export default function Dashboard({ onOpenAddTrade }) {
     const [allTradesChronological, setAllTradesChronological] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState(null);
 
     // Chart controls
     const [activeChartTab, setActiveChartTab] = useState('cumulative'); // 'cumulative' | 'trades'
@@ -149,6 +150,7 @@ export default function Dashboard({ onOpenAddTrade }) {
         try {
             if (isManualRefresh) setRefreshing(true);
             else setLoading(true);
+            setError(null);
 
             const accountParams = {};
             if (selectedAccountType && selectedAccountType !== 'ALL') {
@@ -170,6 +172,7 @@ export default function Dashboard({ onOpenAddTrade }) {
             setAllTradesChronological(chronoTradesData.results || []);
         } catch (err) {
             console.error('Error fetching dashboard data:', err);
+            setError('Could not connect to analytics node. Server may be warming up.');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -292,7 +295,35 @@ export default function Dashboard({ onOpenAddTrade }) {
         return Object.values(map).sort((a, b) => b.pnl - a.pnl).slice(0, 5);
     }, [allTradesChronological, recentTrades]);
 
-    if (loading) return <Loader text="Forging Executive Analytics" />;
+    if (loading) return <Loader text="Forging Executive Analytics" fullScreen />;
+
+    if (error && !overview && !stats) {
+        return (
+            <div className="dash-container" style={{ padding: '5rem 1.5rem', textAlign: 'center' }}>
+                <div className="glass-card" style={{ maxWidth: '480px', margin: '0 auto', padding: '2.5rem', borderRadius: 'var(--radius-xl)' }}>
+                    <div style={{
+                        width: '54px', height: '54px', borderRadius: '16px',
+                        background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 1.5rem', color: 'var(--warning)'
+                    }}>
+                        <AlertTriangle size={26} />
+                    </div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.65rem' }}>Cloud Server Waking Up</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '2rem' }}>
+                        The Render backend service was inactive and is currently booting up. Click below to reconnect.
+                    </p>
+                    <button
+                        onClick={() => fetchData()}
+                        className="btn btn-primary"
+                        style={{ width: '100%', justifyContent: 'center', padding: '0.8rem' }}
+                    >
+                        <RefreshCw size={15} /> Reconnect Ledger Node
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     const totalPnl = Number(overview?.total_pnl || 0);
     const isProfitable = totalPnl >= 0;
@@ -449,8 +480,8 @@ export default function Dashboard({ onOpenAddTrade }) {
                         </div>
                     </div>
 
-                    <div style={{ height: '310px', width: '100%', marginTop: '0.75rem' }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                    <div style={{ height: '310px', width: '100%', minWidth: 0, marginTop: '0.75rem' }}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                             <AreaChart
                                 data={activeChartTab === 'cumulative'
                                     ? (equityCurve.length > 0 ? equityCurve : [{ month: 'No Data', equity: 0 }])
@@ -506,7 +537,7 @@ export default function Dashboard({ onOpenAddTrade }) {
                     </div>
 
                     <div className="dash-radial-wrap">
-                        <ResponsiveContainer width="100%" height={170}>
+                        <ResponsiveContainer width="100%" height={170} minWidth={0}>
                             <RadialBarChart innerRadius="76%" outerRadius="100%" data={winRateRadial} startAngle={90} endAngle={-270}>
                                 <RadialBar background={{ fill: 'rgba(255,255,255,0.04)' }} dataKey="value" cornerRadius={12} />
                             </RadialBarChart>
