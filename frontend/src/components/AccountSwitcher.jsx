@@ -46,18 +46,20 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
             const seen = new Set();
             accountsSummary.forEach(item => {
                 if (!item) return;
-                if (item.sub_accounts && item.sub_accounts.length > 0) {
+                if (Array.isArray(item.sub_accounts) && item.sub_accounts.length > 0) {
                     item.sub_accounts.forEach(s => {
-                        if (s && !seen.has(s.name)) {
-                            seen.add(s.name);
-                            allSubs.push(s);
+                        const sName = typeof s === 'string' ? s : s?.name;
+                        if (sName && !seen.has(sName)) {
+                            seen.add(sName);
+                            allSubs.push(typeof s === 'string' ? { name: s, trades_count: 0, total_pnl: 0 } : s);
                         }
                     });
-                } else if (item.account_names) {
+                } else if (Array.isArray(item.account_names)) {
                     item.account_names.forEach(n => {
-                        if (n && !seen.has(n)) {
-                            seen.add(n);
-                            allSubs.push({ name: n, trades_count: 0, total_pnl: 0 });
+                        const nName = typeof n === 'string' ? n : n?.name;
+                        if (nName && !seen.has(nName)) {
+                            seen.add(nName);
+                            allSubs.push({ name: nName, trades_count: 0, total_pnl: 0 });
                         }
                     });
                 }
@@ -65,10 +67,14 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
             return allSubs;
         }
         const item = summaryMap[selectedAccountType];
-        if (item?.sub_accounts && item.sub_accounts.length > 0) {
-            return item.sub_accounts;
+        if (Array.isArray(item?.sub_accounts) && item.sub_accounts.length > 0) {
+            return item.sub_accounts.map(s => typeof s === 'string' ? { name: s, trades_count: 0, total_pnl: 0 } : s);
         }
-        return (item?.account_names || []).map(n => ({ name: n, trades_count: 0, total_pnl: 0 }));
+        return (Array.isArray(item?.account_names) ? item.account_names : []).map(n => ({
+            name: typeof n === 'string' ? n : n?.name || 'Account',
+            trades_count: 0,
+            total_pnl: 0
+        }));
     }, [selectedAccountType, summaryMap, accountsSummary]);
 
     const activeConfig = ACCOUNT_TYPES.find(a => a.key === selectedAccountType) || ACCOUNT_TYPES[0];
@@ -123,20 +129,25 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
                     >
                         <span>Together (All {activeConfig.label})</span>
                     </button>
-                    {currentSubAccounts.map((sub) => {
-                        const isSelected = selectedAccountName === sub.name;
-                        const isPos = Number(sub.total_pnl) >= 0;
+                    {currentSubAccounts.map((sub, idx) => {
+                        if (!sub) return null;
+                        const subName = typeof sub === 'string' ? sub : (sub.name || `Node #${idx + 1}`);
+                        const isSelected = selectedAccountName === subName;
+                        const pnl = Number(sub?.total_pnl || 0);
+                        const isPos = pnl >= 0;
+                        const count = Number(sub?.trades_count || 0);
+                        const wr = sub?.win_rate != null ? Number(sub.win_rate) : null;
                         return (
                             <button
-                                key={sub.name}
+                                key={subName || idx}
                                 type="button"
-                                onClick={() => setSelectedAccountName(sub.name)}
+                                onClick={() => setSelectedAccountName(subName)}
                                 className={`sub-pill-btn ${isSelected ? 'active' : ''}`}
                             >
-                                <span className="sub-pill-name">{sub.name}</span>
-                                {sub.trades_count > 0 && (
+                                <span className="sub-pill-name">{subName}</span>
+                                {count > 0 && (
                                     <span className={`sub-pill-stat font-tabular ${isPos ? 'text-pos' : 'text-neg'}`}>
-                                        {isPos ? '+' : ''}${Math.round(sub.total_pnl)} ({sub.win_rate}%)
+                                        {isPos ? '+' : ''}${Math.round(pnl)}{wr != null ? ` (${wr}%)` : ''}
                                     </span>
                                 )}
                             </button>

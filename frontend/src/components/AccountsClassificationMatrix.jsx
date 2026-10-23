@@ -263,27 +263,33 @@ export default function AccountsClassificationMatrix() {
                                             <span className="sub-breakdown-tip">Click to isolate</span>
                                         </div>
                                         <div className="sub-accounts-list">
-                                            {item.sub_accounts.map(sub => {
-                                                const subPos = Number(sub.total_pnl) >= 0;
-                                                const isSubActive = selectedAccountType === item.account_type && selectedAccountName === sub.name;
+                                            {item.sub_accounts.map((sub, sIdx) => {
+                                                if (!sub) return null;
+                                                const sName = typeof sub === 'string' ? sub : (sub.name || `Firm #${sIdx + 1}`);
+                                                const subPnl = Number(sub?.total_pnl || 0);
+                                                const subPos = subPnl >= 0;
+                                                const isSubActive = selectedAccountType === item.account_type && selectedAccountName === sName;
+                                                const count = Number(sub?.trades_count || 0);
+                                                const wr = Number(sub?.win_rate || 0);
+                                                const pf = Number(sub?.profit_factor || 0);
                                                 return (
                                                     <div
-                                                        key={sub.name}
+                                                        key={sName || sIdx}
                                                         className={`sub-account-item ${isSubActive ? 'sub-active' : ''}`}
                                                         onClick={() => {
                                                             setSelectedAccountType(item.account_type);
-                                                            setSelectedAccountName(sub.name);
+                                                            setSelectedAccountName(sName);
                                                         }}
                                                     >
                                                         <div className="sub-left">
-                                                            <span className="sub-name font-bold">{sub.name}</span>
-                                                            <span className="sub-sub font-tabular">{sub.trades_count} trades · {sub.win_rate}% WR</span>
+                                                            <span className="sub-name font-bold">{sName}</span>
+                                                            <span className="sub-sub font-tabular">{count} trades · {wr}% WR</span>
                                                         </div>
                                                         <div className="sub-right font-tabular">
                                                             <span className={subPos ? 'text-pos font-bold' : 'text-neg font-bold'}>
-                                                                {subPos ? '+' : ''}${Number(sub.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                                                {subPos ? '+' : ''}${subPnl.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                                             </span>
-                                                            <span className="sub-pf text-amber">{sub.profit_factor}x</span>
+                                                            <span className="sub-pf text-amber">{pf.toFixed(2)}x</span>
                                                         </div>
                                                     </div>
                                                 );

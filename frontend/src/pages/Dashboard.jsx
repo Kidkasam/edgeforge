@@ -185,7 +185,8 @@ export default function Dashboard({ onOpenAddTrade }) {
 
     // Filter trades based on chartTimeframe
     const filteredTrades = useMemo(() => {
-        const sourceTrades = allTradesChronological.length > 0 ? allTradesChronological : [...recentTrades].reverse();
+        const rawSource = allTradesChronological.length > 0 ? allTradesChronological : [...recentTrades].reverse();
+        const sourceTrades = (Array.isArray(rawSource) ? rawSource : []).filter(Boolean);
         if (!sourceTrades.length) return [];
         if (chartTimeframe === 'ALL') return sourceTrades;
 
@@ -195,20 +196,20 @@ export default function Dashboard({ onOpenAddTrade }) {
         else if (chartTimeframe === '90D') cutoff.setDate(now.getDate() - 90);
         else if (chartTimeframe === 'YTD') cutoff = new Date(now.getFullYear(), 0, 1);
 
-        const filtered = sourceTrades.filter(t => !t.trade_date || new Date(t.trade_date) >= cutoff);
+        const filtered = sourceTrades.filter(t => t && (!t.trade_date || new Date(t.trade_date) >= cutoff));
         return filtered.length > 0 ? filtered : sourceTrades;
     }, [allTradesChronological, recentTrades, chartTimeframe]);
 
     // Cumulative equity curve (monthly)
     const equityCurve = useMemo(() => {
-        if (!stats?.monthly_pnl?.length) return [];
+        if (!Array.isArray(stats?.monthly_pnl)) return [];
         let cumulative = 0;
-        return stats.monthly_pnl.map((m) => {
-            const pnl = Number(m.total_pnl || 0);
+        return stats.monthly_pnl.filter(Boolean).map((m) => {
+            const pnl = Number(m?.total_pnl || 0);
             cumulative += pnl;
             return {
-                month: m.month,
-                label: m.month,
+                month: m?.month || '—',
+                label: m?.month || '—',
                 pnl: pnl,
                 equity: parseFloat(cumulative.toFixed(2))
             };
@@ -220,19 +221,19 @@ export default function Dashboard({ onOpenAddTrade }) {
         if (!filteredTrades.length) return [];
         let cumulative = 0;
 
-        return filteredTrades.map((t, idx) => {
-            const pnl = Number(t.profit_loss || 0);
+        return filteredTrades.filter(Boolean).map((t, idx) => {
+            const pnl = Number(t?.profit_loss || 0);
             cumulative += pnl;
-            const dateStr = t.trade_date ? new Date(t.trade_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `T#${idx + 1}`;
+            const dateStr = t?.trade_date ? new Date(t.trade_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `T#${idx + 1}`;
 
             return {
                 index: idx + 1,
                 label: `Trade #${idx + 1} (${dateStr})`,
                 date: dateStr,
-                pair: t.market_pair,
-                buy_sell: t.buy_sell,
-                session: t.trading_session,
-                outcome: t.outcome || (pnl > 0 ? 'WIN' : pnl < 0 ? 'LOSS' : 'BE'),
+                pair: t?.market_pair || '—',
+                buy_sell: t?.buy_sell || 'BUY',
+                session: t?.trading_session,
+                outcome: t?.outcome || (pnl > 0 ? 'WIN' : pnl < 0 ? 'LOSS' : 'BE'),
                 pnl: pnl,
                 equity: parseFloat(cumulative.toFixed(2))
             };
@@ -248,8 +249,9 @@ export default function Dashboard({ onOpenAddTrade }) {
     // Outcome counts
     const winLossCounts = useMemo(() => {
         let wins = 0, losses = 0, be = 0;
-        const list = allTradesChronological.length > 0 ? allTradesChronological : recentTrades;
-        list.forEach(t => {
+        const list = (allTradesChronological.length > 0 ? allTradesChronological : recentTrades) || [];
+        (Array.isArray(list) ? list : []).forEach(t => {
+            if (!t) return;
             if (t.outcome === 'WIN' || Number(t.profit_loss) > 0) wins++;
             else if (t.outcome === 'LOSS' || Number(t.profit_loss) < 0) losses++;
             else be++;
@@ -268,13 +270,14 @@ export default function Dashboard({ onOpenAddTrade }) {
 
     // Win / Loss Streak
     const streakInfo = useMemo(() => {
-        if (!recentTrades?.length) return { type: 'none', count: 0 };
-        const sorted = [...recentTrades].sort((a, b) => new Date(b.trade_date) - new Date(a.trade_date));
+        const validTrades = (Array.isArray(recentTrades) ? recentTrades : []).filter(Boolean);
+        if (!validTrades.length) return { type: 'none', count: 0 };
+        const sorted = [...validTrades].sort((a, b) => new Date(b?.trade_date || 0) - new Date(a?.trade_date || 0));
         const firstOutcome = sorted[0]?.outcome;
         if (!firstOutcome || firstOutcome === 'BE') return { type: 'neutral', count: 0 };
         let count = 0;
         for (const t of sorted) {
-            if (t.outcome === firstOutcome) count++;
+            if (t && t.outcome === firstOutcome) count++;
             else break;
         }
         return { type: firstOutcome === 'WIN' ? 'win' : 'loss', count };
@@ -283,9 +286,9 @@ export default function Dashboard({ onOpenAddTrade }) {
     // Top 5 Pair Leaderboard
     const pairPerformance = useMemo(() => {
         const map = {};
-        const list = allTradesChronological.length > 0 ? allTradesChronological : recentTrades;
-        list.forEach(t => {
-            if (!t.market_pair) return;
+        const list = (allTradesChronological.length > 0 ? allTradesChronological : recentTrades) || [];
+        (Array.isArray(list) ? list : []).forEach(t => {
+            if (!t || !t.market_pair) return;
             if (!map[t.market_pair]) map[t.market_pair] = { pair: t.market_pair, pnl: 0, wins: 0, losses: 0, trades: 0 };
             map[t.market_pair].pnl += Number(t.profit_loss || 0);
             map[t.market_pair].trades++;
@@ -677,14 +680,14 @@ export default function Dashboard({ onOpenAddTrade }) {
                 </div>
 
                 <div className="dash-journal-table">
-                    {recentTrades.slice(0, 5).map((trade) => {
+                    {(Array.isArray(recentTrades) ? recentTrades : []).filter(Boolean).slice(0, 5).map((trade, tIdx) => {
                         const isWin = trade.outcome === 'WIN' || Number(trade.profit_loss) > 0;
                         const isLoss = trade.outcome === 'LOSS' || Number(trade.profit_loss) < 0;
                         const isBuy = trade.buy_sell === 'BUY';
-                        const pnlPos = Number(trade.profit_loss) >= 0;
+                        const pnlPos = Number(trade.profit_loss || 0) >= 0;
 
                         return (
-                            <div key={trade.id} className="dash-journal-row">
+                            <div key={trade.id || tIdx} className="dash-journal-row">
                                 <div className="dash-j-col-pair">
                                     <span className={`dash-j-side-pill ${isBuy ? 'side-buy' : 'side-sell'}`}>
                                         {trade.buy_sell}

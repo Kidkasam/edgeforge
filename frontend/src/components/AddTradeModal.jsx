@@ -68,11 +68,22 @@ const AddTradeModal = ({ isOpen, onClose, onSave, editData, isSaving }) => {
 
     const existingAccountNames = useMemo(() => {
         const names = new Set();
-        accountsSummary.forEach(acc => {
-            acc.account_names?.forEach(n => {
-                if (n && n.trim()) names.add(n.trim());
+        if (Array.isArray(accountsSummary)) {
+            accountsSummary.forEach(acc => {
+                if (!acc) return;
+                if (Array.isArray(acc.account_names)) {
+                    acc.account_names.forEach(n => {
+                        if (typeof n === 'string' && n.trim()) names.add(n.trim());
+                    });
+                }
+                if (Array.isArray(acc.sub_accounts)) {
+                    acc.sub_accounts.forEach(s => {
+                        const sName = typeof s === 'string' ? s : s?.name;
+                        if (typeof sName === 'string' && sName.trim()) names.add(sName.trim());
+                    });
+                }
             });
-        });
+        }
         return Array.from(names);
     }, [accountsSummary]);
 
