@@ -166,10 +166,10 @@ export default function Dashboard({ onOpenAddTrade }) {
                 tradeService.getTrades({ ordering: '-trade_date,-created_at', page_size: 20, ...accountParams }),
                 tradeService.getTrades({ ordering: 'trade_date,created_at', page_size: 500, ...accountParams })
             ]);
-            setOverview(overviewData);
-            setStats(statsData);
-            setRecentTrades(tradesData.results || []);
-            setAllTradesChronological(chronoTradesData.results || []);
+            setOverview(overviewData || null);
+            setStats(statsData || null);
+            setRecentTrades(Array.isArray(tradesData) ? tradesData : (tradesData?.results || []));
+            setAllTradesChronological(Array.isArray(chronoTradesData) ? chronoTradesData : (chronoTradesData?.results || []));
         } catch (err) {
             console.error('Error fetching dashboard data:', err);
             setError('Could not connect to analytics node. Server may be warming up.');

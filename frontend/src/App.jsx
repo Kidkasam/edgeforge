@@ -323,17 +323,21 @@ const HomeLoader = ({ onOpenAddTrade }) => {
   return isAuthenticated ? <Dashboard onOpenAddTrade={onOpenAddTrade} /> : <Landing />;
 };
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <AccountProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </AccountProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ThemeProvider>
+          <AccountProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </AccountProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

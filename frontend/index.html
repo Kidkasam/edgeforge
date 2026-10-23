@@ -91,6 +91,14 @@
       100% { left: 100%; width: 30%; }
     }
   </style>
+  <script>
+    // Unregister any rogue service workers from previous deployments
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        for (var i = 0; i < regs.length; i++) { regs[i].unregister(); }
+      });
+    }
+  </script>
 </head>
 
 <body>

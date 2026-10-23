@@ -26,30 +26,36 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
     const summaryMap = React.useMemo(() => {
         const map = {};
         let totalCount = 0;
-        accountsSummary.forEach(item => {
-            map[item.account_type] = item;
-            totalCount += item.trades_count || 0;
-        });
+        if (Array.isArray(accountsSummary)) {
+            accountsSummary.forEach(item => {
+                if (item && item.account_type) {
+                    map[item.account_type] = item;
+                    totalCount += item.trades_count || 0;
+                }
+            });
+        }
         map['ALL'] = { trades_count: totalCount };
         return map;
     }, [accountsSummary]);
 
     // Get sub-accounts for currently selected type
     const currentSubAccounts = React.useMemo(() => {
+        if (!Array.isArray(accountsSummary)) return [];
         if (selectedAccountType === 'ALL') {
             const allSubs = [];
             const seen = new Set();
             accountsSummary.forEach(item => {
+                if (!item) return;
                 if (item.sub_accounts && item.sub_accounts.length > 0) {
                     item.sub_accounts.forEach(s => {
-                        if (!seen.has(s.name)) {
+                        if (s && !seen.has(s.name)) {
                             seen.add(s.name);
                             allSubs.push(s);
                         }
                     });
                 } else if (item.account_names) {
                     item.account_names.forEach(n => {
-                        if (!seen.has(n)) {
+                        if (n && !seen.has(n)) {
                             seen.add(n);
                             allSubs.push({ name: n, trades_count: 0, total_pnl: 0 });
                         }

@@ -48,27 +48,33 @@ export default function AccountsClassificationMatrix() {
     // Build flattened column list for table view: Combined, then each category (Together) and its sub-firms (Individual)
     const tableColumns = React.useMemo(() => {
         const cols = [];
-        accountsSummary.forEach(acc => {
-            const cfg = getAccountConfig(acc.account_type);
-            // Category aggregate column
-            cols.push({
-                key: `${acc.account_type}_ALL`,
-                label: `${acc.label} (Together)`,
-                color: cfg.color,
-                data: acc,
-                isSub: false
-            });
-            // Sub-firm individual columns (e.g. GFT, Maven)
-            acc.sub_accounts?.forEach(sub => {
+        if (Array.isArray(accountsSummary)) {
+            accountsSummary.forEach(acc => {
+                if (!acc) return;
+                const cfg = getAccountConfig(acc.account_type);
+                // Category aggregate column
                 cols.push({
-                    key: `${acc.account_type}_${sub.name}`,
-                    label: `↳ ${sub.name}`,
+                    key: `${acc.account_type}_ALL`,
+                    label: `${acc.label || 'Account'} (Together)`,
                     color: cfg.color,
-                    data: sub,
-                    isSub: true
+                    data: acc,
+                    isSub: false
                 });
+                // Sub-firm individual columns (e.g. GFT, Maven)
+                if (Array.isArray(acc.sub_accounts)) {
+                    acc.sub_accounts.forEach(sub => {
+                        if (!sub) return;
+                        cols.push({
+                            key: `${acc.account_type}_${sub.name}`,
+                            label: `↳ ${sub.name}`,
+                            color: cfg.color,
+                            data: sub,
+                            isSub: true
+                        });
+                    });
+                }
             });
-        });
+        }
         return cols;
     }, [accountsSummary]);
 
@@ -201,15 +207,15 @@ export default function AccountsClassificationMatrix() {
                                 {/* Win Rate Progress Bar */}
                                 <div className="card-progress-wrap">
                                     <div className="progress-labels font-tabular">
-                                        <span>Win Rate: <strong>{item.win_rate}%</strong></span>
-                                        <span>{item.wins}W / {item.losses}L</span>
+                                        <span>Win Rate: <strong>{Number(item?.win_rate || 0)}%</strong></span>
+                                        <span>{item?.wins || 0}W / {item?.losses || 0}L</span>
                                     </div>
                                     <div className="progress-bar-bg">
                                         <div
                                             className="progress-bar-fill"
                                             style={{
-                                                width: `${Math.min(item.win_rate, 100)}%`,
-                                                background: item.win_rate >= 50 ? 'var(--success)' : 'var(--danger)'
+                                                width: `${Math.min(Math.max(Number(item?.win_rate || 0), 0), 100)}%`,
+                                                background: Number(item?.win_rate || 0) >= 50 ? 'var(--success)' : 'var(--danger)'
                                             }}
                                         />
                                     </div>
@@ -338,54 +344,54 @@ export default function AccountsClassificationMatrix() {
                                     {isCombinedPos ? '+' : ''}${Number(combined.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                 </td>
                                 {tableColumns.map(col => {
-                                    const p = Number(col.data.total_pnl) >= 0;
+                                    const p = Number(col?.data?.total_pnl || 0) >= 0;
                                     return (
                                         <td key={col.key} className={p ? 'text-pos font-bold' : 'text-neg font-bold'}>
-                                            {p ? '+' : ''}${Number(col.data.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                            {p ? '+' : ''}${Number(col?.data?.total_pnl || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                         </td>
                                     );
                                 })}
                             </tr>
                             <tr>
                                 <td className="font-bold">Win Rate (%)</td>
-                                <td className="text-indigo font-bold">{combined.win_rate}%</td>
+                                <td className="text-indigo font-bold">{combined.win_rate || 0}%</td>
                                 {tableColumns.map(col => (
-                                    <td key={col.key} className="text-indigo font-bold">{col.data.win_rate || 0}%</td>
+                                    <td key={col.key} className="text-indigo font-bold">{col?.data?.win_rate || 0}%</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Record (W / L / BE)</td>
-                                <td>{combined.wins}W / {combined.losses}L / {combined.be}BE</td>
+                                <td>{combined.wins || 0}W / {combined.losses || 0}L / {combined.be || 0}BE</td>
                                 {tableColumns.map(col => (
-                                    <td key={col.key}>{col.data.wins || 0}W / {col.data.losses || 0}L / {col.data.be || 0}BE</td>
+                                    <td key={col.key}>{col?.data?.wins || 0}W / {col?.data?.losses || 0}L / {col?.data?.be || 0}BE</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Profit Factor</td>
                                 <td className="text-amber">{Number(combined.profit_factor || 0).toFixed(2)}x</td>
                                 {tableColumns.map(col => (
-                                    <td key={col.key} className="text-amber">{Number(col.data.profit_factor || 0).toFixed(2)}x</td>
+                                    <td key={col.key} className="text-amber">{Number(col?.data?.profit_factor || 0).toFixed(2)}x</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Average R:R</td>
                                 <td className="text-cyan">{Number(combined.avg_rr || 0).toFixed(2)}R</td>
                                 {tableColumns.map(col => (
-                                    <td key={col.key} className="text-cyan">{Number(col.data.avg_rr || 0).toFixed(2)}R</td>
+                                    <td key={col.key} className="text-cyan">{Number(col?.data?.avg_rr || 0).toFixed(2)}R</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Avg Win / Avg Loss</td>
                                 <td>+${Number(combined.avg_win || 0).toFixed(0)} / ${Number(combined.avg_loss || 0).toFixed(0)}</td>
                                 {tableColumns.map(col => (
-                                    <td key={col.key}>+${Number(col.data.avg_win || 0).toFixed(0)} / ${Number(col.data.avg_loss || 0).toFixed(0)}</td>
+                                    <td key={col.key}>+${Number(col?.data?.avg_win || 0).toFixed(0)} / ${Number(col?.data?.avg_loss || 0).toFixed(0)}</td>
                                 ))}
                             </tr>
                             <tr>
                                 <td className="font-bold">Best Trade</td>
                                 <td className="text-pos">+${Number(combined.best_trade || 0).toLocaleString()}</td>
                                 {tableColumns.map(col => (
-                                    <td key={col.key} className="text-pos">+${Number(col.data.best_trade || 0).toLocaleString()}</td>
+                                    <td key={col.key} className="text-pos">+${Number(col?.data?.best_trade || 0).toLocaleString()}</td>
                                 ))}
                             </tr>
                             <tr>
