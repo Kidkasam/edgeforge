@@ -22,6 +22,7 @@ export default function AccountsClassificationMatrix() {
         combinedSummary,
         selectedAccountType,
         setSelectedAccountType,
+        selectedAccountName,
         setSelectedAccountName,
         getAccountConfig
     } = useAccount();
@@ -168,7 +169,7 @@ export default function AccountsClassificationMatrix() {
             {/* ─── INDIVIDUAL: Cards View ─── */}
             {viewMode === 'cards' ? (
                 <div className="matrix-cards-grid">
-                    {accountsSummary.map((item) => {
+                    {(Array.isArray(accountsSummary) ? accountsSummary : []).map((item) => {
                         const cfg = getAccountConfig(item.account_type);
                         const Icon = ICONS[item.account_type] || Shield;
                         const isPos = Number(item.total_pnl) >= 0;
