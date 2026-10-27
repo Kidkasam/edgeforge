@@ -39,20 +39,8 @@ const Login = () => {
     };
 
     return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '80vh',
-            padding: '1.5rem'
-        }}>
-            <div className="glass-card" style={{
-                width: '100%',
-                maxWidth: '440px',
-                padding: '3rem 2.5rem',
-                border: '1px solid var(--border-bright)',
-                boxShadow: '0 30px 80px -20px rgba(0,0,0,0.7)'
-            }}>
+        <div className="auth-page-container">
+            <div className="glass-card auth-card">
                 <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
                     <div style={{ display: 'inline-flex', marginBottom: '1.25rem' }}>
                         <Logo size={42} />

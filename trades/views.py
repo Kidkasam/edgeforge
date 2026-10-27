@@ -367,35 +367,32 @@ class RegisterAPIView(APIView):
             serializer = UserRegisterSerializer(data=request.data)
             if serializer.is_valid():
                 user = serializer.save()
-                user.is_active = False
+                user.is_active = True
                 user.save()
 
-                if not getattr(settings, 'EMAIL_HOST_USER', None):
-                    user.delete()
-                    return Response(
-                        {"error": "Email is not configured on this server. Registration cannot be completed."},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                    )
+                token, _ = Token.objects.get_or_create(user=user)
 
-                verification, _ = EmailVerification.objects.get_or_create(user=user)
-                verify_url = f"{request.scheme}://{request.get_host()}/auth/verify-email/{verification.token}/"
-                try:
-                    send_mail(
-                        'Verify your Edgeforge email',
-                        f'Click the link to verify your account: {verify_url}',
-                        settings.DEFAULT_FROM_EMAIL,
-                        [user.email],
-                        fail_silently=False,
-                    )
-                except Exception as e:
-                    user.delete()
-                    return Response(
-                        {"error": "Verification email could not be sent.", "detail": str(e)},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                    )
+                # Best-effort welcome / verification email (does not block registration)
+                if getattr(settings, 'EMAIL_HOST_USER', None):
+                    try:
+                        verification, _ = EmailVerification.objects.get_or_create(user=user)
+                        verify_url = f"{request.scheme}://{request.get_host()}/api/auth/verify-email/{verification.token}/"
+                        send_mail(
+                            'Welcome to Edgeforge',
+                            f'Welcome to Edgeforge! Your account is active. Link: {verify_url}',
+                            settings.DEFAULT_FROM_EMAIL,
+                            [user.email],
+                            fail_silently=True,
+                        )
+                    except Exception as e:
+                        print(f"Non-blocking registration email note: {e}")
 
                 return Response(
-                    {"message": "User registered successfully. Check your email to verify your account."},
+                    {
+                        "message": "User registered successfully.",
+                        "token": token.key,
+                        "username": user.username
+                    },
                     status=status.HTTP_201_CREATED
                 )
 
@@ -416,6 +413,13 @@ class LoginAPIView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+
+        # Check if user exists and activate if previously unverified
+        user_check = User.objects.filter(username=username).first()
+        if user_check and not user_check.is_active and user_check.check_password(password):
+            user_check.is_active = True
+            user_check.save()
+
         user = authenticate(username=username, password=password)
         if user:
             login(request, user)
@@ -425,10 +429,6 @@ class LoginAPIView(APIView):
                 "token": token.key,
                 "username": user.username
             })
-
-        user_check = User.objects.filter(username=request.data.get('username')).first()
-        if user_check and not user_check.is_active:
-            return Response({"error": "Account not verified. Check your email."}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 @method_decorator(csrf_exempt, name='dispatch')

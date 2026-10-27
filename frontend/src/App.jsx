@@ -97,6 +97,15 @@ const Navigation = ({ onOpenAddTrade }) => {
                   <Plus size={15} strokeWidth={2.5} /> Log Trade
                 </button>
 
+                <button
+                  onClick={() => onOpenAddTrade?.()}
+                  className="btn btn-primary mobile-only"
+                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', gap: '0.25rem' }}
+                  title="Log Trade"
+                >
+                  <Plus size={14} strokeWidth={2.5} /> <span>Trade</span>
+                </button>
+
                 <Link to="/profile" className="user-pill desktop-only" title="Profile & Settings">
                   <div className="user-avatar">
                     <User size={13} color="white" />
@@ -105,14 +114,19 @@ const Navigation = ({ onOpenAddTrade }) => {
                 </Link>
               </>
             ) : (
-              <div className="desktop-only" style={{ display: 'flex', gap: '0.65rem' }}>
-                <Link to="/login" className="btn btn-glass" style={{ padding: '0.45rem 1.15rem', fontSize: '0.85rem' }}>
+              <>
+                <div className="desktop-only" style={{ display: 'flex', gap: '0.65rem' }}>
+                  <Link to="/login" className="btn btn-glass" style={{ padding: '0.45rem 1.15rem', fontSize: '0.85rem' }}>
+                    Login
+                  </Link>
+                  <Link to="/register" className="btn btn-primary" style={{ padding: '0.45rem 1.35rem', fontSize: '0.85rem' }}>
+                    Forge Access
+                  </Link>
+                </div>
+                <Link to="/login" className="btn btn-glass mobile-only" style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}>
                   Login
                 </Link>
-                <Link to="/register" className="btn btn-primary" style={{ padding: '0.45rem 1.35rem', fontSize: '0.85rem' }}>
-                  Forge Access
-                </Link>
-              </div>
+              </>
             )}
 
             <button onClick={() => setIsSidebarOpen(true)} className="theme-toggle mobile-only" aria-label="Open Menu">

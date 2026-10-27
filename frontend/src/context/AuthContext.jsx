@@ -27,6 +27,14 @@ export const AuthProvider = ({ children }) => {
         return data;
     };
 
+    const setAuthSession = (newToken, newUsername) => {
+        if (newToken) localStorage.setItem('token', newToken);
+        if (newUsername) localStorage.setItem('username', newUsername);
+        setToken(newToken);
+        setUsername(newUsername);
+        setIsAuthenticated(!!newToken);
+    };
+
     const logout = () => {
         authService.logout();
         setToken(null);
@@ -40,6 +48,7 @@ export const AuthProvider = ({ children }) => {
         username,
         isAuthenticated,
         login,
+        setAuthSession,
         logout,
     };
 

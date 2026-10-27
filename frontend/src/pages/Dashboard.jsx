@@ -1258,17 +1258,78 @@ export default function Dashboard({ onOpenAddTrade }) {
                         grid-template-columns: 1fr;
                     }
                 }
+                @media (max-width: 768px) {
+                    .dash-box-header {
+                        flex-direction: column;
+                        align-items: stretch;
+                        gap: 0.75rem;
+                    }
+                    .dash-chart-controls {
+                        width: 100%;
+                        justify-content: space-between;
+                        flex-wrap: wrap;
+                        gap: 0.4rem;
+                    }
+                }
                 @media (max-width: 640px) {
-                    .dash-kpi-grid {
-                        grid-template-columns: 1fr;
+                    .dash-page-title {
+                        font-size: clamp(1.2rem, 5vw, 1.55rem);
                     }
                     .dash-top-bar {
                         flex-direction: column;
                         align-items: flex-start;
+                        gap: 1rem;
                     }
                     .dash-top-actions {
                         width: 100%;
-                        justify-content: space-between;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    }
+                    .dash-top-actions .btn-sm-action {
+                        flex: 1;
+                        justify-content: center;
+                    }
+                    .dash-kpi-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 0.65rem;
+                    }
+                    .dash-kpi-card {
+                        padding: 0.85rem 0.95rem;
+                        gap: 0.35rem;
+                        border-radius: var(--radius-md);
+                    }
+                    .dash-kpi-title {
+                        font-size: 0.64rem;
+                    }
+                    .dash-kpi-pill {
+                        font-size: 0.58rem;
+                        padding: 0.1rem 0.35rem;
+                    }
+                    .dash-kpi-number {
+                        font-size: 1.3rem;
+                    }
+                    .dash-kpi-footer {
+                        font-size: 0.64rem;
+                    }
+                    .dash-chart-box, .dash-side-box, .dash-grid-card, .dash-journal-card {
+                        padding: 1.15rem 1rem;
+                    }
+                    .dash-j-col-session {
+                        display: none;
+                    }
+                    .dash-j-col-pair {
+                        min-width: 0;
+                        flex: 1;
+                    }
+                    .dash-journal-row {
+                        padding: 0.65rem 0.85rem;
+                        gap: 0.5rem;
+                    }
+                }
+                @media (max-width: 420px) {
+                    .dash-kpi-grid {
+                        grid-template-columns: 1fr;
                     }
                 }
             `}</style>

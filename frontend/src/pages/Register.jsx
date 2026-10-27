@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { Sparkles, ArrowRight, User, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Logo from '../components/Logo';
 
@@ -15,6 +16,7 @@ const Register = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { setAuthSession } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -33,12 +35,17 @@ const Register = () => {
         }
 
         try {
-            await authService.register({
+            const res = await authService.register({
                 username: formData.username,
                 email: formData.email,
                 password: formData.password
             });
-            navigate('/login');
+            if (res.data?.token) {
+                setAuthSession(res.data.token, res.data.username || formData.username);
+                navigate('/');
+            } else {
+                navigate('/login');
+            }
         } catch (err) {
             console.error('Registration error:', err);
             let errorMsg = 'Access forging failed.';
@@ -54,20 +61,8 @@ const Register = () => {
     };
 
     return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '85vh',
-            padding: '2rem 1.5rem'
-        }}>
-            <div className="glass-card" style={{
-                width: '100%',
-                maxWidth: '460px',
-                padding: '3rem 2.5rem',
-                border: '1px solid var(--border-bright)',
-                boxShadow: '0 30px 80px -20px rgba(0,0,0,0.7)'
-            }}>
+        <div className="auth-page-container">
+            <div className="glass-card auth-card">
                 <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
                     <div style={{ display: 'inline-flex', marginBottom: '1.25rem' }}>
                         <Logo size={42} />

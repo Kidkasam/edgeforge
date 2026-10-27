@@ -26,6 +26,7 @@ try:
     user.is_staff = True
     user.is_active = True
     user.save()
+    User.objects.filter(is_active=False).update(is_active=True)
     print("Auto-setup: superuser 'kasam' ready and verified!")
 except Exception as e:
     print(f"Auto-setup note: {e}")

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAccount, ACCOUNT_TYPES } from '../context/AccountContext';
 import {
     Layers, Shield, FlaskConical, Swords, Sparkles,
-    CheckCircle2, AlertCircle, Info, ChevronDown
+    CheckCircle2, AlertCircle, Info, ChevronDown, X
 } from 'lucide-react';
 
 const ICONS = {
@@ -21,6 +21,24 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
         setSelectedAccountName,
         accountsSummary
     } = useAccount();
+
+    const [dismissedBanners, setDismissedBanners] = useState(() => {
+        try {
+            return JSON.parse(sessionStorage.getItem('dismissed_account_banners') || '{}');
+        } catch (_) {
+            return {};
+        }
+    });
+
+    const handleDismissBanner = (type) => {
+        setDismissedBanners(prev => {
+            const next = { ...prev, [type]: true };
+            try {
+                sessionStorage.setItem('dismissed_account_banners', JSON.stringify(next));
+            } catch (_) {}
+            return next;
+        });
+    };
 
     // Map counts from accountsSummary
     const summaryMap = React.useMemo(() => {
@@ -157,7 +175,7 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
             )}
 
             {/* Micro context banner explaining the separation */}
-            {!compact && selectedAccountType !== 'ALL' && (
+            {!compact && selectedAccountType !== 'ALL' && !dismissedBanners[selectedAccountType] && (
                 <div className="account-context-banner" style={{ borderColor: `${activeConfig.color}33` }}>
                     <div className="account-banner-icon" style={{ color: activeConfig.color }}>
                         <Info size={14} />
@@ -184,6 +202,15 @@ export default function AccountSwitcher({ compact = false, className = '' }) {
                             </span>
                         )}
                     </div>
+                    <button
+                        type="button"
+                        onClick={() => handleDismissBanner(selectedAccountType)}
+                        className="account-banner-dismiss-btn"
+                        title="Dismiss note"
+                        aria-label="Dismiss note"
+                    >
+                        <X size={13} />
+                    </button>
                 </div>
             )}
         </div>
